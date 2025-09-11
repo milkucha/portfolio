@@ -11,6 +11,7 @@
     --tertiary-color: #f7ece1;
     --quaternary-color: #6d597a;
     --quinary-color: #b56576;
+    --border-radius: 0%;
 }
 
 html {
@@ -75,7 +76,8 @@ nav a:hover {
 .project-tile {
     display: flex;
     flex-direction: column;
-    border: 1px solid black;
+    border: 1px solid var(--tertiary-color);
+    border-radius: var(--border-radius);
     margin: 0 0.5rem;
     width: 400px;
     height: 350px;
@@ -84,12 +86,14 @@ nav a:hover {
 .project-tile img {
     display: block;
     width: 100%;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
 .project-tile h2 {
     display: flex;
     align-items: center;
     height: 100%;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 
 .project-tile h2:hover {
