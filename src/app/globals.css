@@ -1,26 +1,55 @@
 @import "tailwindcss";
 
+/* Palette carried over from the original static site (main:styles.css). */
+@theme {
+  --color-primary: #020202;    /* near-black: background */
+  --color-secondary: #4c91bf;  /* blue: nav, accents */
+  --color-tertiary: #f7ece1;   /* cream: main text, borders */
+  --color-quaternary: #6d597a; /* muted purple */
+  --color-quinary: #b56576;    /* dusty rose: project nodes */
+
+  /* Tech-node categories: shades of the secondary blue, blending toward the purple. */
+  --color-cat-language: #4c91bf;
+  --color-cat-framework: #7fb2d6;
+  --color-cat-tool: #3d6f99;
+  --color-cat-data-format: #5f7aa3;
+  --color-cat-technique: #6d597a;
+
+  --font-sans: var(--font-inter), Helvetica, Arial, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+  --muted: color-mix(in srgb, var(--color-tertiary) 60%, transparent);
+  --graph-bg: var(--color-primary);
+  --graph-link: color-mix(in srgb, var(--color-tertiary) 16%, transparent);
+  --graph-link-active: color-mix(in srgb, var(--color-tertiary) 85%, transparent);
+  --graph-label: var(--color-tertiary);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  background: var(--color-primary);
+  color: var(--color-tertiary);
+  font-family: var(--font-sans);
+}
+
+/* A slow nod to the old welcome section's secondary <-> quinary background animation. */
+@keyframes intro-glow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.intro-glow {
+  background-image: radial-gradient(60% 60% at 20% 30%, color-mix(in srgb, var(--color-secondary) 22%, transparent), transparent 70%),
+    radial-gradient(55% 55% at 80% 70%, color-mix(in srgb, var(--color-quinary) 20%, transparent), transparent 70%);
+  background-size: 200% 200%;
+  animation: intro-glow 10s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .intro-glow { animation: none; }
 }
