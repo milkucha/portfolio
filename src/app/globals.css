@@ -22,9 +22,13 @@
   color-scheme: dark;
   --muted: color-mix(in srgb, var(--color-tertiary) 60%, transparent);
   --graph-bg: var(--color-primary);
-  --graph-link: color-mix(in srgb, var(--color-tertiary) 16%, transparent);
-  --graph-link-active: color-mix(in srgb, var(--color-tertiary) 85%, transparent);
+  --graph-link: color-mix(in srgb, var(--color-tertiary) 11%, transparent);
+  --graph-link-active: color-mix(in srgb, var(--color-tertiary) 55%, transparent);
   --graph-label: var(--color-tertiary);
+
+  /* Motion tokens. ease-out: Emil Kowalski's strong UI curve; sine: easeInOutSine for ambient loops. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-sine: cubic-bezier(0.37, 0, 0.63, 1);
 }
 
 html {
@@ -52,7 +56,156 @@ body {
   animation: intro-glow 10s ease-in-out infinite;
 }
 
+/* ---- Projects constellation (ProjectGraph.tsx) --------------------------------------------
+   Budget: the only continuous motion is .cst-star's opacity/transform keyframe, which runs on the
+   compositor. Glows are static radial-gradients (painted once), never filters. */
+
+/* Static starfield: one painted background, a 420px SVG tile of 44 irregularly placed dots
+   (seeded, so it never changes). Nothing here animates. */
+.cst {
+  contain: layout paint;
+  background-color: var(--color-primary);
+  background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'><circle cx='136' cy='63' r='1.1' fill='%237fb2d6' fill-opacity='0.16'/><circle cx='40' cy='245' r='0.9' fill='%23f7ece1' fill-opacity='0.22'/><circle cx='176' cy='101' r='0.9' fill='%237fb2d6' fill-opacity='0.29'/><circle cx='52' cy='94' r='1.1' fill='%23f7ece1' fill-opacity='0.35'/><circle cx='246' cy='21' r='0.6' fill='%237fb2d6' fill-opacity='0.16'/><circle cx='122' cy='61' r='0.5' fill='%23f7ece1' fill-opacity='0.35'/><circle cx='286' cy='43' r='0.9' fill='%23f7ece1' fill-opacity='0.37'/><circle cx='230' cy='26' r='0.5' fill='%23f7ece1' fill-opacity='0.36'/><circle cx='223' cy='326' r='0.8' fill='%23f7ece1' fill-opacity='0.35'/><circle cx='126' cy='334' r='1.1' fill='%23f7ece1' fill-opacity='0.42'/><circle cx='126' cy='208' r='0.7' fill='%23f7ece1' fill-opacity='0.4'/><circle cx='412' cy='50' r='0.8' fill='%23f7ece1' fill-opacity='0.2'/><circle cx='392' cy='177' r='1.1' fill='%23f7ece1' fill-opacity='0.17'/><circle cx='331' cy='344' r='0.7' fill='%23f7ece1' fill-opacity='0.39'/><circle cx='244' cy='192' r='0.5' fill='%23f7ece1' fill-opacity='0.48'/><circle cx='279' cy='25' r='1.1' fill='%23f7ece1' fill-opacity='0.25'/><circle cx='286' cy='187' r='1.1' fill='%23f7ece1' fill-opacity='0.28'/><circle cx='9' cy='194' r='0.6' fill='%23f7ece1' fill-opacity='0.36'/><circle cx='92' cy='121' r='1.1' fill='%23f7ece1' fill-opacity='0.23'/><circle cx='366' cy='34' r='0.8' fill='%23f7ece1' fill-opacity='0.28'/><circle cx='58' cy='181' r='0.9' fill='%23f7ece1' fill-opacity='0.24'/><circle cx='151' cy='371' r='0.6' fill='%23f7ece1' fill-opacity='0.19'/><circle cx='97' cy='98' r='0.8' fill='%23f7ece1' fill-opacity='0.44'/><circle cx='118' cy='61' r='0.9' fill='%23f7ece1' fill-opacity='0.27'/><circle cx='400' cy='290' r='0.9' fill='%23f7ece1' fill-opacity='0.48'/><circle cx='311' cy='192' r='1.1' fill='%23f7ece1' fill-opacity='0.43'/><circle cx='168' cy='43' r='1.1' fill='%23f7ece1' fill-opacity='0.28'/><circle cx='414' cy='185' r='0.5' fill='%23f7ece1' fill-opacity='0.26'/><circle cx='0' cy='64' r='0.5' fill='%23f7ece1' fill-opacity='0.48'/><circle cx='30' cy='87' r='0.8' fill='%23f7ece1' fill-opacity='0.19'/><circle cx='146' cy='153' r='0.5' fill='%23f7ece1' fill-opacity='0.18'/><circle cx='411' cy='202' r='0.7' fill='%23f7ece1' fill-opacity='0.17'/><circle cx='144' cy='111' r='1.1' fill='%23f7ece1' fill-opacity='0.2'/><circle cx='399' cy='222' r='0.6' fill='%237fb2d6' fill-opacity='0.39'/><circle cx='318' cy='125' r='1.1' fill='%23f7ece1' fill-opacity='0.45'/><circle cx='110' cy='154' r='0.6' fill='%23f7ece1' fill-opacity='0.27'/><circle cx='227' cy='211' r='1.1' fill='%237fb2d6' fill-opacity='0.22'/><circle cx='414' cy='358' r='0.6' fill='%23f7ece1' fill-opacity='0.43'/><circle cx='95' cy='217' r='0.7' fill='%23b56576' fill-opacity='0.4'/><circle cx='332' cy='198' r='0.6' fill='%23b56576' fill-opacity='0.39'/><circle cx='188' cy='394' r='0.7' fill='%23f7ece1' fill-opacity='0.48'/><circle cx='93' cy='95' r='0.6' fill='%23f7ece1' fill-opacity='0.26'/><circle cx='414' cy='256' r='0.5' fill='%23f7ece1' fill-opacity='0.31'/><circle cx='336' cy='36' r='1.1' fill='%23f7ece1' fill-opacity='0.18'/></svg>");
+  background-size: 420px 420px;
+}
+
+.cst-links line {
+  stroke: var(--graph-link);
+  stroke-width: 1;
+}
+.cst-links {
+  transition: opacity 200ms ease;
+}
+.cst-links[data-dim] {
+  opacity: 0.45;
+}
+
+/* Active constellation: brighter hairlines that draw outward from the star, once per hover. */
+.cst-link-lit {
+  stroke: var(--graph-link-active);
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: cst-draw 260ms var(--ease-out) forwards;
+}
+@keyframes cst-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+.cst-node {
+  transition: opacity 200ms ease;
+}
+.cst-node[data-dim] {
+  opacity: 0.22;
+}
+
+.cst-star,
+.cst-glow,
+.cst-core,
+.cst-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+.cst-star {
+  width: 0;
+  height: 0;
+}
+.cst-glow {
+  width: var(--glow);
+  height: var(--glow);
+  translate: -50% -50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-tertiary) 70%, transparent) 0%,
+    color-mix(in srgb, var(--star-color) 58%, transparent) 16%,
+    color-mix(in srgb, var(--star-color) 18%, transparent) 50%,
+    transparent 100%
+  );
+}
+.cst-core {
+  width: var(--core);
+  height: var(--core);
+  translate: -50% -50%;
+  background: color-mix(in srgb, var(--color-tertiary) 88%, var(--star-color));
+}
+.cst-node[data-kind="project"] .cst-core {
+  background: #fffaf4;
+}
+.cst-node[data-kind="tech"] .cst-glow {
+  opacity: 0.9;
+}
+
+/* Twinkle: each star holds steady for most of its 3.2-6.4s cycle and dips briefly (about a third
+   of the cycle). Per-star durations and negative delays keep any two from syncing, so only a few
+   are mid-dip at once. Opacity and transform only. */
+.cst-node[data-kind="tech"] .cst-star {
+  animation-name: cst-twinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: var(--ease-sine);
+}
+@keyframes cst-twinkle {
+  0%, 30%, 62%, 100% { opacity: 1; transform: scale(1); }
+  46% { opacity: 0.55; transform: scale(0.94); }
+}
+.cst[data-paused] .cst-star {
+  animation-play-state: paused;
+}
+
+/* Selection ring: fast and small, since it fires on every hover/focus. */
+.cst-ring {
+  width: 22px;
+  height: 22px;
+  translate: -50% -50%;
+  border: 1px solid color-mix(in srgb, var(--color-tertiary) 70%, transparent);
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 160ms var(--ease-out), transform 160ms var(--ease-out);
+}
+.cst-node[data-kind="project"] .cst-ring {
+  width: 28px;
+  height: 28px;
+}
+.cst-node[data-active] .cst-ring {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.cst-label {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  white-space: nowrap;
+  line-height: 1;
+  color: color-mix(in srgb, var(--graph-label) 72%, transparent);
+  text-shadow: 0 0 3px var(--color-primary), 0 0 6px var(--color-primary);
+  transition: color 160ms ease;
+}
+.cst-node[data-kind="project"] .cst-label {
+  color: var(--graph-label);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.cst-node[data-active] .cst-label {
+  color: var(--graph-label);
+}
+
+.cst-legend-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-tertiary) 55%, var(--star-color));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--star-color) 35%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .intro-glow { animation: none; }
+  .cst .cst-node[data-kind] .cst-star { animation: none; }
+  .cst-link-lit { animation: none; stroke-dashoffset: 0; }
+  .cst-ring { transform: none; }
 }

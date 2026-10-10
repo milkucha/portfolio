@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { KeyboardEvent, PointerEvent } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { CSSProperties, KeyboardEvent, PointerEvent } from "react";
 import {
   forceCollide,
   forceLink,
@@ -24,9 +24,20 @@ import {
 import type { Project, Tech, TechCategory } from "@/data/types";
 import { GraphCard } from "./GraphCard";
 
+/*
+ * Constellation rendering. Performance notes (see .claude/skills/fixing-motion-performance):
+ * - Stars are HTML elements over a hairline SVG. Twinkle is a CSS keyframe on opacity/transform
+ *   of the star element only, so Chrome runs it on the compositor; the glow is a static
+ *   radial-gradient painted once, never a filter.
+ * - Positions are written straight to the DOM from the d3 tick (no React render per frame), and
+ *   the simulation stops at alphaMin. It only runs while the graph is on screen and the tab is
+ *   visible; the twinkle is paused (animation-play-state) otherwise.
+ * - prefers-reduced-motion: layout is computed synchronously and nothing animates.
+ */
+
 type GraphNode =
-  | { kind: "project"; id: string; label: string; project: Project; baseR: number }
-  | { kind: "tech"; id: string; label: string; tech: Tech; baseR: number };
+  | { kind: "project"; id: string; label: string; project: Project; baseR: number; usage: number }
+  | { kind: "tech"; id: string; label: string; tech: Tech; baseR: number; usage: number };
 
 interface SimNode extends SimulationNodeDatum {
   id: string;
@@ -37,10 +48,31 @@ type Point = { x: number; y: number };
 const TECH_LABEL_GAP = 16;
 
 const fontSizeFor = (kind: GraphNode["kind"], scale: number) =>
-  kind === "project" ? Math.max(11, 15 * scale) : Math.max(11, 13 * scale);
+  kind === "project" ? Math.max(12, 14 * scale) : Math.max(11, 12 * scale);
 
 /** Rough label width estimate (no DOM measuring needed). */
-const labelHalfWidth = (label: string, scale: number) => (label.length * fontSizeFor("tech", scale) * 0.56) / 2;
+const labelHalfWidth = (n: GraphNode, scale: number) =>
+  (n.label.length * fontSizeFor(n.kind, scale) * (n.kind === "project" ? 0.6 : 0.56)) / 2;
+
+/** Visual star geometry, in px at scale 1: core radius and glow radius. */
+const starFor = (n: GraphNode) =>
+  n.kind === "project"
+    ? { core: n.project.minor ? 3.5 : 4.5, glow: n.project.minor ? 24 : 32 }
+    : { core: 2 + Math.min(3, n.usage) * 0.45, glow: 12 + Math.min(3, n.usage) * 3 };
+
+/** Hit target radius: a project is >= 40px across, a tech >= 30px. */
+const hitRFor = (n: GraphNode, scale: number) =>
+  n.kind === "project" ? Math.max(20, 24 * scale) : Math.max(15, 17 * scale);
+
+/** Distance from star centre to the top of its label. */
+const labelOffsetFor = (n: GraphNode, scale: number) => (starFor(n).core + 9) * Math.max(scale, 0.8);
+
+/** Small deterministic hash so each star gets its own, stable twinkle timing. */
+function hash(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+  return h >>> 0;
+}
 
 /** Static graph description derived from the data module. */
 function buildNodes(): GraphNode[] {
@@ -54,6 +86,7 @@ function buildNodes(): GraphNode[] {
       label: p.label,
       project: p,
       baseR: p.minor ? 40 : Math.min(56, 44 + p.stack.length * 1.5),
+      usage: p.stack.length,
     })),
     ...used.map<GraphNode>((t) => ({
       kind: "tech",
@@ -61,6 +94,7 @@ function buildNodes(): GraphNode[] {
       label: t.label,
       tech: t,
       baseR: Math.min(28, 20 + ((usage.get(t.id) ?? 1) - 1) * 4),
+      usage: usage.get(t.id) ?? 1,
     })),
   ];
 }
@@ -110,28 +144,79 @@ function usePrefersReducedMotion(): boolean {
 // The graph's shape is static (derived from the data module), so compute it once.
 const graphNodes = buildNodes();
 const indexById = new Map(graphNodes.map((n, i) => [n.id, i] as const));
+const linkEnds = links.map((l) => [indexById.get(l.source)!, indexById.get(l.target)!] as const);
 const neighbours = new Map<string, Set<string>>(graphNodes.map((n) => [n.id, new Set([n.id])]));
 for (const l of links) {
   neighbours.get(l.source)?.add(l.target);
   neighbours.get(l.target)?.add(l.source);
 }
 
+/** Per-star CSS: geometry plus a desynchronised twinkle (tech stars only; projects hold steady). */
+const starStyles = graphNodes.map((n) => {
+  const { core, glow } = starFor(n);
+  const color = n.kind === "project" ? projectColor : categoryColors[n.tech.category];
+  const h = hash(n.id);
+  const duration = 3200 + (h % 3200); // 3.2s to 6.4s, so no two stars share a period
+  const style: CSSProperties = {
+    ["--star-color" as string]: color,
+    ["--core" as string]: `${core * 2}px`,
+    ["--glow" as string]: `${glow * 2}px`,
+  };
+  if (n.kind === "tech") {
+    style.animationDuration = `${duration}ms`;
+    style.animationDelay = `-${(h >>> 8) % duration}ms`; // negative: start mid-cycle, already out of phase
+  }
+  return style;
+});
+
 export function ProjectGraph() {
   const containerRef = useRef<HTMLDivElement>(null);
   const simRef = useRef<Simulation<SimNode, SimulationLinkDatum<SimNode>> | null>(null);
   const simNodesRef = useRef<SimNode[]>([]);
+  const nodeEls = useRef<(HTMLDivElement | null)[]>([]);
+  const lineEls = useRef<(SVGLineElement | null)[]>([]);
+  const litEls = useRef<(SVGLineElement | null)[]>([]);
+  const visibleRef = useRef(false);
   const dragRef = useRef<{ id: string; pointerId: number; x0: number; y0: number; moved: boolean } | null>(
     null,
   );
 
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
-  const [positions, setPositions] = useState<Point[] | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
+  const [paused, setPaused] = useState(true);
   const reducedMotion = usePrefersReducedMotion();
 
   // Scale node sizes and forces down on narrow screens so the graph fits at phone width.
   const scale = size ? Math.max(0.7, Math.min(1, size.w / 960)) : 1;
+
+  /** Write current simulation positions straight to the DOM (no React render). */
+  const applyPositionsRef = useRef(() => {});
+  useLayoutEffect(() => {
+    applyPositionsRef.current = () => {
+      const nodes = simNodesRef.current;
+      if (!nodes.length) return;
+      for (let i = 0; i < nodes.length; i++) {
+        const el = nodeEls.current[i];
+        if (el) el.style.transform = `translate(${nodes[i].x ?? 0}px, ${nodes[i].y ?? 0}px) translate(-50%, -50%)`;
+      }
+      for (let li = 0; li < linkEnds.length; li++) {
+        const [s, t] = linkEnds[li];
+        const a = nodes[s];
+        const b = nodes[t];
+        const base = lineEls.current[li];
+        if (base) setLine(base, a, b);
+        const lit = litEls.current[li];
+        // Lit lines draw outward from the active star, so reverse them when it's the target.
+        if (lit) {
+          if (lit.hasAttribute("data-rev")) setLine(lit, b, a);
+          else setLine(lit, a, b);
+        }
+      }
+    };
+  });
+  // After every render (hover, pin, resize), re-apply positions so React never owns them.
+  useLayoutEffect(() => applyPositionsRef.current());
 
   // Measure the container.
   useEffect(() => {
@@ -146,7 +231,8 @@ export function ProjectGraph() {
   }, []);
 
   // Create / reconfigure the simulation whenever the size (or motion preference) changes.
-  useEffect(() => {
+  // Layout effect, so the first positions land before the first paint.
+  useLayoutEffect(() => {
     if (!size) return;
     const { w, h } = size;
     // On wide screens the details card docks top-right, so centre the graph in the remaining space.
@@ -177,27 +263,35 @@ export function ProjectGraph() {
       .force("charge", forceManyBody<SimNode>().strength(-1100 * scale * scale))
       .force(
         "collide",
-        forceCollide<SimNode>((d, i) => radius(i) + pad + (graphNodes[i].kind === "tech" ? TECH_LABEL_GAP * scale : 0)),
+        forceCollide<SimNode>((d, i) => {
+          const g = graphNodes[i];
+          const r = radius(i) + pad + (g.kind === "tech" ? TECH_LABEL_GAP * scale : 0);
+          // Long labels need more room than the star, or neighbouring labels overlap on phones.
+          return Math.max(r, labelHalfWidth(g, scale) + pad);
+        }),
       )
       .force("x", forceX<SimNode>(cx).strength(w < 640 ? 0.09 : 0.045))
       .force("y", forceY<SimNode>(h / 2).strength(w < 640 ? 0.05 : 0.07))
-      .alphaDecay(0.035)
-      .velocityDecay(0.35);
+      // Slow, floaty settle: gentle cooling and heavy damping, so stars glide in rather than jitter.
+      .alphaDecay(0.016)
+      .alphaMin(0.004)
+      .velocityDecay(0.55);
 
-    // On wide screens the legend is overlaid along the bottom edge.
+    // On wide screens the legend is overlaid along the bottom edge and the card docks top-right,
+    // so keep stars out from under both.
     const legendSpace = w >= 768 ? 34 : 4;
+    const right = w >= 768 ? w - 340 : w;
     const clamp = () => {
       nodes.forEach((n, i) => {
-        const r = radius(i);
-        const isTech = graphNodes[i].kind === "tech";
-        const bottom = isTech ? r + 22 * scale : r;
-        // Keep tech labels (drawn under the node) inside the frame too.
-        const half = isTech ? Math.max(r, labelHalfWidth(graphNodes[i].label, scale)) : r;
-        n.x = Math.max(half + 4, Math.min(w - half - 4, n.x ?? w / 2));
+        const g = graphNodes[i];
+        const r = Math.max(starFor(g).glow * 0.5, hitRFor(g, scale));
+        // Keep labels (drawn under the star) inside the frame too.
+        const bottom = labelOffsetFor(g, scale) + fontSizeFor(g.kind, scale) + 4;
+        const half = Math.max(r, labelHalfWidth(g, scale));
+        n.x = Math.max(half + 4, Math.min(right - half - 4, n.x ?? w / 2));
         n.y = Math.max(r + 4, Math.min(h - bottom - legendSpace, n.y ?? h / 2));
       });
     };
-    const publish = () => setPositions(nodes.map((n) => ({ x: n.x ?? 0, y: n.y ?? 0 })));
 
     if (reducedMotion) {
       sim.on("tick", null).stop().alpha(1);
@@ -205,19 +299,49 @@ export function ProjectGraph() {
         sim.tick();
         clamp();
       }
-      const id = requestAnimationFrame(publish);
-      return () => cancelAnimationFrame(id);
+      applyPositionsRef.current();
+      return;
     }
 
     sim.on("tick", () => {
       clamp();
-      publish();
+      applyPositionsRef.current();
     });
-    sim.alpha(Math.max(sim.alpha(), 0.6)).restart();
+    clamp();
+    applyPositionsRef.current();
+    sim.alpha(Math.max(sim.alpha(), 0.6));
+    // Only run while on screen; the visibility effect below starts it otherwise.
+    if (visibleRef.current) sim.restart();
     return () => {
       sim.stop();
     };
   }, [size, scale, reducedMotion]);
+
+  // Pause everything while the graph is off-screen or the tab is hidden.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    let inView = false;
+    const update = () => {
+      const vis = inView && document.visibilityState === "visible";
+      visibleRef.current = vis;
+      setPaused(!vis);
+      const sim = simRef.current;
+      if (!sim || reducedMotion) return;
+      if (!vis) sim.stop();
+      else if (sim.alpha() > sim.alphaMin()) sim.restart();
+    };
+    const io = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      update();
+    });
+    io.observe(el);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      io.disconnect();
+      document.removeEventListener("visibilitychange", update);
+    };
+  }, [reducedMotion]);
 
   useEffect(() => () => void simRef.current?.stop(), []);
 
@@ -231,38 +355,38 @@ export function ProjectGraph() {
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   };
 
-  const onNodePointerDown = (id: string) => (e: PointerEvent<SVGGElement>) => {
+  const onNodePointerDown = (id: string) => (e: PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     const p = toLocal(e);
     dragRef.current = { id, pointerId: e.pointerId, x0: p.x, y0: p.y, moved: false };
   };
 
-  const onNodePointerMove = (e: PointerEvent<SVGGElement>) => {
+  const onNodePointerMove = (e: PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== e.pointerId || !size) return;
     const p = toLocal(e);
     if (!drag.moved && Math.hypot(p.x - drag.x0, p.y - drag.y0) < 4) return;
     const i = indexById.get(drag.id)!;
     const n = simNodesRef.current[i];
-    const r = graphNodes[i].baseR * scale;
+    const r = hitRFor(graphNodes[i], scale);
     const x = Math.max(r, Math.min(size.w - r, p.x));
     const y = Math.max(r, Math.min(size.h - r, p.y));
     const sim = simRef.current;
     if (!drag.moved) {
       drag.moved = true;
-      if (sim && !reducedMotion) sim.alphaTarget(0.25).restart();
+      if (sim && !reducedMotion) sim.alphaTarget(0.2).restart();
     }
     n.fx = x;
     n.fy = y;
     if (reducedMotion) {
       n.x = x;
       n.y = y;
-      setPositions(simNodesRef.current.map((m) => ({ x: m.x ?? 0, y: m.y ?? 0 })));
+      applyPositionsRef.current();
     }
   };
 
-  const onNodePointerUp = (e: PointerEvent<SVGGElement>) => {
+  const onNodePointerUp = (e: PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== e.pointerId) return;
     dragRef.current = null;
@@ -283,13 +407,13 @@ export function ProjectGraph() {
     }
   };
 
-  const onNodeKeyDown = (id: string) => (e: KeyboardEvent<SVGGElement>) => {
+  const onNodeKeyDown = (id: string) => (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       setPinned((cur) => (cur === id ? null : id));
     } else if (e.key === "Escape") {
       setPinned(null);
-      (e.currentTarget as SVGGElement).blur();
+      e.currentTarget.blur();
     }
   };
 
@@ -299,64 +423,77 @@ export function ProjectGraph() {
     <div className="flex w-full flex-col md:relative">
       <div
         ref={containerRef}
-        className="relative h-[min(68svh,560px)] w-full overflow-hidden md:h-[max(520px,calc(100svh-11rem))]"
+        className="cst relative h-[min(68svh,560px)] w-full overflow-hidden md:h-[max(520px,calc(100svh-11rem))]"
+        data-paused={paused || undefined}
         onPointerDown={(e) => {
           if (e.target === e.currentTarget || (e.target as Element).tagName === "svg") setPinned(null);
         }}
       >
-        {size && positions && (
-          <svg
-            width={size.w}
-            height={size.h}
-            viewBox={`0 0 ${size.w} ${size.h}`}
-            className="absolute inset-0 block select-none"
-            aria-label="Interactive graph of projects and the technologies they use"
-            role="group"
-          >
-            <g>
-              {links.map((l) => {
-                const a = positions[indexById.get(l.source)!];
-                const b = positions[indexById.get(l.target)!];
-                if (!a || !b) return null;
-                const on = !!active && (l.source === active || l.target === active);
-                return (
+        {size && (
+          <>
+            <svg
+              width={size.w}
+              height={size.h}
+              viewBox={`0 0 ${size.w} ${size.h}`}
+              className="absolute inset-0 block select-none"
+              aria-hidden="true"
+            >
+              <g className="cst-links" data-dim={active ? "" : undefined}>
+                {links.map((l, li) => (
                   <line
                     key={`${l.source}-${l.target}`}
-                    x1={a.x}
-                    y1={a.y}
-                    x2={b.x}
-                    y2={b.y}
-                    stroke={on ? "var(--graph-link-active)" : "var(--graph-link)"}
-                    strokeWidth={on ? 2 : 1.25}
-                    opacity={active && !on ? 0.25 : 1}
-                    className="transition-opacity duration-200"
+                    ref={(el) => {
+                      lineEls.current[li] = el;
+                    }}
                   />
-                );
-              })}
-            </g>
-            <g>
+                ))}
+              </g>
+              {active && (
+                // Keyed by the active node, so switching stars replays the draw-in.
+                <g key={active}>
+                  {links.map((l, li) =>
+                    l.source === active || l.target === active ? (
+                      <line
+                        key={`${l.source}-${l.target}`}
+                        className="cst-link-lit"
+                        pathLength={1}
+                        data-rev={l.target === active ? "" : undefined}
+                        ref={(el) => {
+                          litEls.current[li] = el;
+                        }}
+                      />
+                    ) : null,
+                  )}
+                </g>
+              )}
+            </svg>
+            <div
+              role="group"
+              aria-label="Interactive graph of projects and the technologies they use"
+              className="pointer-events-none absolute inset-0 select-none"
+            >
               {graphNodes.map((n, i) => {
-                const p = positions[i];
-                const r = n.baseR * scale;
-                const isActive = active === n.id;
-                const dim = !!lit && !lit.has(n.id);
-                const fill = n.kind === "project" ? projectColor : categoryColors[n.tech.category];
+                const hit = hitRFor(n, scale);
                 const fontSize = fontSizeFor(n.kind, scale);
                 return (
-                  <g
+                  <div
                     key={n.id}
-                    transform={`translate(${p.x} ${p.y})`}
+                    ref={(el) => {
+                      nodeEls.current[i] = el;
+                    }}
                     tabIndex={0}
                     role="button"
                     aria-pressed={pinned === n.id}
                     aria-label={
                       n.kind === "project"
                         ? `${n.project.name}: ${n.project.oneLiner}`
-                        : `${n.label}, used in ${links.filter((l) => l.target === n.id).length} project(s)`
+                        : `${n.label}, used in ${n.usage} project(s)`
                     }
-                    className="cursor-grab outline-none transition-opacity duration-200 active:cursor-grabbing"
-                    style={{ touchAction: "none" }}
-                    opacity={dim ? 0.18 : 1}
+                    className="cst-node pointer-events-auto absolute left-0 top-0 cursor-grab outline-none active:cursor-grabbing"
+                    data-kind={n.kind}
+                    data-active={active === n.id || undefined}
+                    data-dim={(!!lit && !lit.has(n.id)) || undefined}
+                    style={{ width: hit * 2, height: hit * 2, touchAction: "none" }}
                     onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(n.id)}
                     onPointerLeave={(e) => e.pointerType === "mouse" && setHovered(null)}
                     onPointerDown={onNodePointerDown(n.id)}
@@ -367,47 +504,22 @@ export function ProjectGraph() {
                     onBlur={() => setHovered(null)}
                     onKeyDown={onNodeKeyDown(n.id)}
                   >
-                    {isActive && (
-                      <circle r={r + 6} fill="none" stroke="var(--color-tertiary)" strokeOpacity={0.8} strokeWidth={2} />
-                    )}
-                    <circle
-                      r={r}
-                      fill={fill}
-                      fillOpacity={n.kind === "project" ? 1 : 0.92}
-                      stroke="var(--graph-bg)"
-                      strokeWidth={2}
-                    />
-                    {n.kind === "project" ? (
-                      <text
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        fontSize={fontSize}
-                        fontWeight={600}
-                        fill="var(--color-primary)"
-                        className="pointer-events-none"
-                      >
-                        {n.label}
-                      </text>
-                    ) : (
-                      <text
-                        y={r + fontSize + 1}
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        fontSize={fontSize}
-                        fill="var(--graph-label)"
-                        stroke="var(--graph-bg)"
-                        strokeWidth={3}
-                        paintOrder="stroke"
-                        className="pointer-events-none"
-                      >
-                        {n.label}
-                      </text>
-                    )}
-                  </g>
+                    <span className="cst-star" style={starStyles[i]}>
+                      <span className="cst-glow" />
+                      <span className="cst-core" />
+                    </span>
+                    <span className="cst-ring" />
+                    <span
+                      className="cst-label"
+                      style={{ top: `calc(50% + ${labelOffsetFor(n, scale)}px)`, fontSize }}
+                    >
+                      {n.label}
+                    </span>
+                  </div>
                 );
               })}
-            </g>
-          </svg>
+            </div>
+          </>
         )}
       </div>
       <Legend />
@@ -419,17 +531,24 @@ export function ProjectGraph() {
   );
 }
 
+function setLine(el: SVGLineElement, a: SimNode, b: SimNode) {
+  el.setAttribute("x1", String(a.x ?? 0));
+  el.setAttribute("y1", String(a.y ?? 0));
+  el.setAttribute("x2", String(b.x ?? 0));
+  el.setAttribute("y2", String(b.y ?? 0));
+}
+
 function Legend() {
   const cats = Array.from(new Set(techs.map((t) => t.category))) as TechCategory[];
   return (
     <ul className="pointer-events-none flex px-4 pt-3 md:absolute md:bottom-3 md:left-4 md:p-0 flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--muted)]">
       <li className="flex items-center gap-1.5">
-        <span className="inline-block size-2.5 rounded-full" style={{ background: projectColor }} />
+        <span className="cst-legend-dot" style={{ ["--star-color" as string]: projectColor }} />
         Project
       </li>
       {cats.map((c) => (
         <li key={c} className="flex items-center gap-1.5">
-          <span className="inline-block size-2.5 rounded-full" style={{ background: categoryColors[c] }} />
+          <span className="cst-legend-dot" style={{ ["--star-color" as string]: categoryColors[c] }} />
           {categoryLabels[c]}
         </li>
       ))}
