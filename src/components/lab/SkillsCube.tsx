@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { KeyboardEvent, PointerEvent } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
+import type { CSSProperties, KeyboardEvent, PointerEvent } from "react";
 import { cubeFaces, type FaceSlot } from "./cubeFaces";
 import {
   type Quat,
@@ -27,6 +27,7 @@ const styles = {
   label: "lab-cube-label",
   name: "lab-cube-name",
   hint: "lab-cube-hint",
+  hintPart: "lab-cube-hintPart",
   buttons: "lab-cube-buttons",
   lab: "lab-cube-lab",
   button: "lab-cube-button",
@@ -56,12 +57,35 @@ const SLOTS: Record<FaceSlot, SlotGeometry> = {
 };
 const SLOT_NAMES = Object.keys(SLOTS) as FaceSlot[];
 
-/** Which face currently points most toward the viewer. */
+/* ---------- rest pose ---------- */
+
+/**
+ * Tilt of the rest pose, composed on top of every face-snap target: the cube never settles dead
+ * face-on but at a slight 3/4 view. Edit these two.
+ *   REST_PITCH > 0 tips the top edge toward the viewer (top face shows).
+ *   REST_YAW   > 0 turns the front face's right edge away (left face shows); < 0 shows the right.
+ */
+const REST_PITCH_DEG = 18;
+const REST_YAW_DEG = 22;
+
+const DEG = Math.PI / 180;
+/** World-space "view" rotation: yaw about the cube's vertical first, then pitch about screen x. */
+const VIEW: Quat = normalize(
+  mul(fromAxisAngle([1, 0, 0], -REST_PITCH_DEG * DEG), fromAxisAngle([0, 1, 0], REST_YAW_DEG * DEG)),
+);
+const VIEW_INV = conj(VIEW);
+/** The cube's own vertical as seen through the tilt: idle spins about this, so it never wobbles. */
+const SPIN_AXIS: Vec3 = rotate(VIEW, [0, 1, 0]);
+/** Orientation the cube rests in when `slot` is the chosen face. */
+const restFor = (slot: FaceSlot): Quat => mul(VIEW, SLOTS[slot].upright);
+
+/** Which face currently points most toward the viewer (judged with the tilt removed). */
 function frontSlot(q: Quat): FaceSlot {
+  const untilted = mul(VIEW_INV, q);
   let best: FaceSlot = "front";
   let bestZ = -Infinity;
   for (const s of SLOT_NAMES) {
-    const z = rotate(q, SLOTS[s].normal)[2];
+    const z = rotate(untilted, SLOTS[s].normal)[2];
     if (z > bestZ) {
       bestZ = z;
       best = s;
@@ -70,13 +94,14 @@ function frontSlot(q: Quat): FaceSlot {
   return best;
 }
 
+/** Deterministic starting pose (same on server and client, so no hydration mismatch): the rest pose. */
+const INITIAL_Q: Quat = restFor("front");
 /**
- * Deterministic starting pose (same on server and client, so no hydration mismatch): a 3/4 view
- * that shows the front, the left side and the top.
+ * The cube is pushed back so the resting front face's centre sits at z = 0: scale exactly 1 there
+ * (the tilted face is foreshortened around it, so text is near-1:1 rather than exact).
  */
-const INITIAL_Q: Quat = normalize(mul(fromAxisAngle([1, 0, 0], -0.36), fromAxisAngle([0, 1, 0], 0.5)));
-/** The cube is pushed back by half its size so the front face sits at z = 0: scale exactly 1 at rest. */
-const transformFor = (q: Quat) => `translateZ(calc(var(--half) * -1)) ${toMatrix3d(q)}`;
+const REST_DEPTH = rotate(VIEW, [0, 0, 1])[2].toFixed(6);
+const transformFor = (q: Quat) => `translateZ(calc(var(--half) * -${REST_DEPTH})) ${toMatrix3d(q)}`;
 const INITIAL_TRANSFORM = transformFor(INITIAL_Q);
 const INITIAL_SLOT = frontSlot(INITIAL_Q);
 
@@ -84,6 +109,7 @@ const INITIAL_SLOT = frontSlot(INITIAL_Q);
 
 const IDLE_SPEED = 0.32; // rad/s around the vertical axis
 const IDLE_DELAY = 3500; // ms of no interaction before idle resumes
+const PICK_HOLD = 10000; // ms the cube stays put after a face is picked (button / arrow key)
 const IDLE_RAMP = 1.4; // s to ease idle speed in/out
 const SPRING_K = 140; // stiffness (natural freq ~11.8 rad/s)
 const SPRING_C = 2 * Math.sqrt(SPRING_K); // critically damped: no overshoot wobble
@@ -101,6 +127,7 @@ interface Sim {
   pending: [number, number]; // drag pixels not yet applied
   lastMove: number;
   lastInteraction: number;
+  holdUntil: number; // idle stays off until this time (after an explicit pick)
   idleBlend: number; // 0..1
   hovering: boolean;
   focused: boolean;
@@ -126,6 +153,7 @@ export function SkillsCube() {
     pending: [0, 0],
     lastMove: 0,
     lastInteraction: -Infinity,
+    holdUntil: 0,
     idleBlend: 0,
     hovering: false,
     focused: false,
@@ -137,7 +165,7 @@ export function SkillsCube() {
   });
   const [active, setActive] = useState<FaceSlot>(INITIAL_SLOT);
   const [dragging, setDragging] = useState(false);
-  const [fill, setFill] = useState<"ghost" | "wire" | "solid">("ghost");
+  const [fill, setFill] = useState<"color" | "ghost" | "wire">("color");
 
   // prefers-reduced-motion
   useEffect(() => {
@@ -196,18 +224,22 @@ export function SkillsCube() {
         s.dirty = true;
         const errLen = Math.hypot(...logMap(mul(s.target, conj(s.q))));
         if (errLen < 2e-4 && Math.hypot(...s.w) < 2e-3) {
-          s.q = s.target; // land exactly: face-on, scale 1, crisp text
+          s.q = s.target; // land exactly on the rest pose: stable transform, crisp re-raster
           s.w = [0, 0, 0];
           s.mode = "free";
         }
       } else {
         const allowed =
-          !s.reduced && !s.hovering && !s.focused && now - s.lastInteraction > IDLE_DELAY;
+          !s.reduced &&
+          !s.hovering &&
+          !s.focused &&
+          now - s.lastInteraction > IDLE_DELAY &&
+          now > s.holdUntil;
         s.idleBlend = Math.min(1, Math.max(0, s.idleBlend + (allowed ? dt : -dt) / IDLE_RAMP));
         if (s.idleBlend > 0) {
           const speed = IDLE_SPEED * smoothstep(s.idleBlend);
-          s.w = [0, speed, 0];
-          s.q = normalize(mul(expMap([0, speed * dt, 0]), s.q));
+          s.w = [SPIN_AXIS[0] * speed, SPIN_AXIS[1] * speed, SPIN_AXIS[2] * speed];
+          s.q = normalize(mul(expMap([s.w[0] * dt, s.w[1] * dt, s.w[2] * dt]), s.q));
           s.dirty = true;
         } else {
           s.w = [0, 0, 0];
@@ -246,7 +278,12 @@ export function SkillsCube() {
     s.mode = "spring";
   };
 
-  const snapToNearest = (q: Quat) => snapTo(SLOTS[frontSlot(q)].upright);
+  const snapToNearest = (q: Quat) => snapTo(restFor(frontSlot(q)));
+
+  /** An explicit pick: hold the chosen face longer before idle spin may resume. */
+  const hold = () => {
+    sim.current.holdUntil = clock() + PICK_HOLD;
+  };
 
   /** Settle on the nearest face without a jolt (keeps current velocity). */
   const settle = () => {
@@ -254,14 +291,18 @@ export function SkillsCube() {
     if (s.mode === "free" && s.idleBlend > 0) snapToNearest(s.q);
   };
 
-  const goTo = (slot: FaceSlot) => snapTo(SLOTS[slot].upright);
+  const goTo = (slot: FaceSlot) => {
+    hold();
+    snapTo(restFor(slot));
+  };
 
   const turn = (axis: Vec3, angle: number) => {
     const s = sim.current;
-    // Build on where we are heading, so fast repeated presses queue up 90deg steps cleanly.
-    const base = s.mode === "spring" ? s.target : SLOTS[frontSlot(s.q)].upright;
-    const next = mul(fromAxisAngle(axis, angle), base);
-    snapToNearest(next);
+    hold();
+    // Build on where we are heading, so fast repeated presses queue up 90deg steps cleanly. The
+    // step is taken in the untilted frame, so arrows turn about the screen axes, not tilted ones.
+    const base = mul(VIEW_INV, s.mode === "spring" ? s.target : restFor(frontSlot(s.q)));
+    snapToNearest(mul(VIEW, mul(fromAxisAngle(axis, angle), base)));
   };
 
   /* ---------- input ---------- */
@@ -279,6 +320,7 @@ export function SkillsCube() {
     s.mode = "drag";
     s.idleBlend = 0;
     s.lastInteraction = clock();
+    s.holdUntil = 0; // a drag is a fresh interaction with the normal idle delay
     setDragging(true);
   };
 
@@ -361,11 +403,32 @@ export function SkillsCube() {
       >
         <div ref={cubeRef} className={styles.cube} style={{ transform: INITIAL_TRANSFORM }}>
           {cubeFaces.map((face) => (
-            <div key={face.id} className={styles.face} style={{ transform: SLOTS[face.slot].place }}>
+            <div
+              key={face.id}
+              className={styles.face}
+              style={
+                {
+                  transform: SLOTS[face.slot].place,
+                  "--face-bg": face.color,
+                  "--face-ink": face.ink,
+                } as CSSProperties
+              }
+            >
               <div className={styles.fill} />
               <div className={styles.label} aria-hidden="true">
                 <span className={styles.name}>{face.name}</span>
-                <span className={styles.hint}>{face.hint}</span>
+                <span className={styles.hint}>
+                  {/* Wrap only between " · " segments, never inside one ("REST / APIs"). */}
+                  {face.hint.split(" · ").map((part, i, all) => (
+                    <Fragment key={i}>
+                      {i > 0 ? " " : ""}
+                      <span className={styles.hintPart}>
+                        {part}
+                        {i < all.length - 1 ? " ·" : ""}
+                      </span>
+                    </Fragment>
+                  ))}
+                </span>
               </div>
             </div>
           ))}
@@ -392,7 +455,7 @@ export function SkillsCube() {
 
       <div className={styles.lab} role="group" aria-label="Face style (lab only)">
         <span>faces:</span>
-        {(["ghost", "wire", "solid"] as const).map((v) => (
+        {(["color", "ghost", "wire"] as const).map((v) => (
           <button
             key={v}
             type="button"
