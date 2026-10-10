@@ -15,7 +15,26 @@ import {
   rotate,
   toMatrix3d,
 } from "./quat";
+import { faceProjects } from "./cubeProjects";
 import "./cube.css";
+
+/* ---------- view tilt + spin: hand-tweak these ---------- */
+
+/**
+ * The constant 3/4 view the cube is seen from, both while it spins and when it rests on a face.
+ * Taken from the first prototype (726b35e), whose initial pose was rotX(-0.36 rad) * rotY(0.5 rad):
+ * the "suspended" look.
+ *   VIEW_PITCH_DEG > 0 tips the top edge toward the viewer (the top face shows).
+ *   VIEW_YAW_DEG   > 0 turns the front face's right edge away (the left face shows); < 0 the right.
+ *   VIEW_ROLL_DEG  tilts the whole thing in the screen plane (clockwise > 0). 726b35e had none.
+ */
+const VIEW_PITCH_DEG = 20.63; // = 0.36 rad
+const VIEW_YAW_DEG = 28.65; // = 0.50 rad
+const VIEW_ROLL_DEG = 0;
+/** Idle spin speed about the cube's own (tilted) vertical. 18.3 deg/s ~ one turn per 20 s. */
+const SPIN_DEG_PER_S = 18.3;
+/** Seconds of ease-in for the spin on page load (short, so it is moving straight away). */
+const ENTRY_RAMP = 0.35;
 
 const styles = {
   wrap: "lab-cube-wrap",
@@ -32,6 +51,19 @@ const styles = {
   lab: "lab-cube-lab",
   button: "lab-cube-button",
   srOnly: "lab-cube-srOnly",
+  layout: "lab-cube-layout",
+  cubeCol: "lab-cube-cubeCol",
+  panel: "lab-cube-panel",
+  panelCard: "lab-cube-panelCard",
+  panelHead: "lab-cube-panelHead",
+  swatch: "lab-cube-swatch",
+  entry: "lab-cube-entry",
+  entryName: "lab-cube-entryName",
+  entryLine: "lab-cube-entryLine",
+  highlights: "lab-cube-highlights",
+  chips: "lab-cube-chips",
+  chip: "lab-cube-chip",
+  links: "lab-cube-links",
 } as const;
 
 /* ---------- geometry ---------- */
@@ -59,19 +91,16 @@ const SLOT_NAMES = Object.keys(SLOTS) as FaceSlot[];
 
 /* ---------- rest pose ---------- */
 
-/**
- * Tilt of the rest pose, composed on top of every face-snap target: the cube never settles dead
- * face-on but at a slight 3/4 view. Edit these two.
- *   REST_PITCH > 0 tips the top edge toward the viewer (top face shows).
- *   REST_YAW   > 0 turns the front face's right edge away (left face shows); < 0 shows the right.
- */
-const REST_PITCH_DEG = 18;
-const REST_YAW_DEG = 22;
-
 const DEG = Math.PI / 180;
-/** World-space "view" rotation: yaw about the cube's vertical first, then pitch about screen x. */
+/**
+ * World-space "view" rotation, composed on top of every face-snap target (so the cube never settles
+ * dead face-on): yaw about the cube's vertical first, then pitch about screen x, then roll.
+ */
 const VIEW: Quat = normalize(
-  mul(fromAxisAngle([1, 0, 0], -REST_PITCH_DEG * DEG), fromAxisAngle([0, 1, 0], REST_YAW_DEG * DEG)),
+  mul(
+    fromAxisAngle([0, 0, 1], VIEW_ROLL_DEG * DEG),
+    mul(fromAxisAngle([1, 0, 0], -VIEW_PITCH_DEG * DEG), fromAxisAngle([0, 1, 0], VIEW_YAW_DEG * DEG)),
+  ),
 );
 const VIEW_INV = conj(VIEW);
 /** The cube's own vertical as seen through the tilt: idle spins about this, so it never wobbles. */
@@ -107,7 +136,7 @@ const INITIAL_SLOT = frontSlot(INITIAL_Q);
 
 /* ---------- motion tuning ---------- */
 
-const IDLE_SPEED = 0.32; // rad/s around the vertical axis
+const IDLE_SPEED = SPIN_DEG_PER_S * DEG; // rad/s around the (tilted) vertical axis
 const IDLE_DELAY = 3500; // ms of no interaction before idle resumes
 const PICK_HOLD = 10000; // ms the cube stays put after a face is picked (button / arrow key)
 const IDLE_RAMP = 1.4; // s to ease idle speed in/out
@@ -131,6 +160,14 @@ interface Sim {
   idleBlend: number; // 0..1
   hovering: boolean;
   focused: boolean;
+  /** Pointer over / keyboard focus inside the info panel: counts as interacting (no idle). */
+  panelHover: boolean;
+  panelFocus: boolean;
+  /** Still in the first, on-load spin-up (uses the short ENTRY_RAMP). */
+  entry: boolean;
+  /** Face the panel currently shows, null when hidden. Mirrors React state for the rAF loop. */
+  panelSlot: FaceSlot | null;
+  panelSeq: number;
   reduced: boolean;
   pointerId: number | null;
   lastX: number;
@@ -157,6 +194,11 @@ export function SkillsCube() {
     idleBlend: 0,
     hovering: false,
     focused: false,
+    panelHover: false,
+    panelFocus: false,
+    entry: true,
+    panelSlot: null,
+    panelSeq: 0,
     reduced: false,
     pointerId: null,
     lastX: 0,
@@ -166,6 +208,8 @@ export function SkillsCube() {
   const [active, setActive] = useState<FaceSlot>(INITIAL_SLOT);
   const [dragging, setDragging] = useState(false);
   const [fill, setFill] = useState<"color" | "ghost" | "wire">("color");
+  /** Info panel: last face shown (kept while fading out), `seq` re-keys the card to replay its entrance. */
+  const [panel, setPanel] = useState<{ slot: FaceSlot; seq: number; open: boolean } | null>(null);
 
   // prefers-reduced-motion
   useEffect(() => {
@@ -233,9 +277,25 @@ export function SkillsCube() {
           !s.reduced &&
           !s.hovering &&
           !s.focused &&
+          !s.panelHover &&
+          !s.panelFocus &&
           now - s.lastInteraction > IDLE_DELAY &&
           now > s.holdUntil;
-        s.idleBlend = Math.min(1, Math.max(0, s.idleBlend + (allowed ? dt : -dt) / IDLE_RAMP));
+        const ramp = s.entry ? ENTRY_RAMP : IDLE_RAMP;
+        s.idleBlend = Math.min(1, Math.max(0, s.idleBlend + (allowed ? dt : -dt) / ramp));
+        if (s.idleBlend >= 1) s.entry = false;
+        if (s.idleBlend > 0 && s.panelSlot !== null) {
+          // Spinning again: the panel no longer describes the front face.
+          s.panelSlot = null;
+          setPanel((p) => p && { ...p, open: false });
+        }
+        if (s.reduced && s.idleBlend === 0 && s.panelSlot === null && s.panelSeq === 0) {
+          // Reduced motion: the cube never spins, so the face it rests on counts as focused.
+          const slot = frontSlot(s.q);
+          s.panelSlot = slot;
+          s.panelSeq = 1;
+          setPanel({ slot, seq: 1, open: true });
+        }
         if (s.idleBlend > 0) {
           const speed = IDLE_SPEED * smoothstep(s.idleBlend);
           s.w = [SPIN_AXIS[0] * speed, SPIN_AXIS[1] * speed, SPIN_AXIS[2] * speed];
@@ -263,10 +323,26 @@ export function SkillsCube() {
 
   /* ---------- commands ---------- */
 
+  /** Show the panel for `slot` (null hides it, keeping the last content to fade out). */
+  const showPanel = (slot: FaceSlot | null) => {
+    const s = sim.current;
+    if (s.panelSlot === slot) return;
+    s.panelSlot = slot;
+    if (slot === null) {
+      setPanel((p) => p && { ...p, open: false });
+      return;
+    }
+    s.panelSeq += 1;
+    setPanel({ slot, seq: s.panelSeq, open: true });
+  };
+
   const snapTo = (target: Quat) => {
     const s = sim.current;
     s.lastInteraction = clock();
     s.idleBlend = 0;
+    s.entry = false;
+    // Every snap lands a face front-on: show its panel straight away, while the spring settles.
+    showPanel(frontSlot(target));
     if (s.reduced) {
       s.q = target;
       s.w = [0, 0, 0];
@@ -319,6 +395,8 @@ export function SkillsCube() {
     s.w = [0, 0, 0]; // grabbing stops the cube dead, like catching it
     s.mode = "drag";
     s.idleBlend = 0;
+    s.entry = false;
+    showPanel(null);
     s.lastInteraction = clock();
     s.holdUntil = 0; // a drag is a fresh interaction with the normal idle delay
     setDragging(true);
@@ -364,109 +442,178 @@ export function SkillsCube() {
     turn(m[0], m[1]);
   };
 
-  const activeFace = cubeFaces.find((f) => f.slot === active);
+  const panelFace = panel ? cubeFaces.find((f) => f.slot === panel.slot) : undefined;
+
+  const onPanelLeave = () => {
+    sim.current.lastInteraction = clock();
+  };
 
   return (
-    <div className={styles.wrap}>
-      <div
-        className={`${styles.stage} ${dragging ? styles.dragging : ""}`}
-        data-fill={fill}
-        tabIndex={0}
-        role="group"
-        aria-roledescription="rotating cube"
-        aria-label="Skills cube. Drag, or use the arrow keys, to rotate."
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        onPointerEnter={(e) => {
-          if (e.pointerType !== "mouse") return;
-          sim.current.hovering = true;
-          settle();
-        }}
-        onPointerLeave={(e) => {
-          if (e.pointerType !== "mouse") return;
-          sim.current.hovering = false;
-          sim.current.lastInteraction = clock();
-        }}
-        onFocus={(e) => {
-          // Only keyboard focus pauses idle; a mouse/touch drag shouldn't pin it until blur.
-          if (!e.currentTarget.matches(":focus-visible")) return;
-          sim.current.focused = true;
-          settle();
-        }}
-        onBlur={() => {
-          sim.current.focused = false;
-          sim.current.lastInteraction = clock();
-        }}
-        onKeyDown={onKeyDown}
-      >
-        <div ref={cubeRef} className={styles.cube} style={{ transform: INITIAL_TRANSFORM }}>
-          {cubeFaces.map((face) => (
-            <div
-              key={face.id}
-              className={styles.face}
-              style={
-                {
-                  transform: SLOTS[face.slot].place,
-                  "--face-bg": face.color,
-                  "--face-ink": face.ink,
-                } as CSSProperties
-              }
-            >
-              <div className={styles.fill} />
-              <div className={styles.label} aria-hidden="true">
-                <span className={styles.name}>{face.name}</span>
-                <span className={styles.hint}>
-                  {/* Wrap only between " · " segments, never inside one ("REST / APIs"). */}
-                  {face.hint.split(" · ").map((part, i, all) => (
-                    <Fragment key={i}>
-                      {i > 0 ? " " : ""}
-                      <span className={styles.hintPart}>
-                        {part}
-                        {i < all.length - 1 ? " ·" : ""}
-                      </span>
-                    </Fragment>
-                  ))}
-                </span>
+    <div className={styles.layout}>
+      <div className={`${styles.wrap} ${styles.cubeCol}`}>
+        <div
+          className={`${styles.stage} ${dragging ? styles.dragging : ""}`}
+          data-fill={fill}
+          tabIndex={0}
+          role="group"
+          aria-roledescription="rotating cube"
+          aria-label="Skills cube. Drag, or use the arrow keys, to rotate."
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onPointerEnter={(e) => {
+            if (e.pointerType !== "mouse") return;
+            sim.current.hovering = true;
+            settle();
+          }}
+          onPointerLeave={(e) => {
+            if (e.pointerType !== "mouse") return;
+            sim.current.hovering = false;
+            sim.current.lastInteraction = clock();
+          }}
+          onFocus={(e) => {
+            // Only keyboard focus pauses idle; a mouse/touch drag shouldn't pin it until blur.
+            if (!e.currentTarget.matches(":focus-visible")) return;
+            sim.current.focused = true;
+            settle();
+          }}
+          onBlur={() => {
+            sim.current.focused = false;
+            sim.current.lastInteraction = clock();
+          }}
+          onKeyDown={onKeyDown}
+        >
+          <div ref={cubeRef} className={styles.cube} style={{ transform: INITIAL_TRANSFORM }}>
+            {cubeFaces.map((face) => (
+              <div
+                key={face.id}
+                className={styles.face}
+                style={
+                  {
+                    transform: SLOTS[face.slot].place,
+                    "--face-bg": face.color,
+                    "--face-ink": face.ink,
+                  } as CSSProperties
+                }
+              >
+                <div className={styles.fill} />
+                <div className={styles.label} aria-hidden="true">
+                  <span className={styles.name}>{face.name}</span>
+                  <span className={styles.hint}>
+                    {/* Wrap only between " · " segments, never inside one ("REST / APIs"). */}
+                    {face.hint.split(" · ").map((part, i, all) => (
+                      <Fragment key={i}>
+                        {i > 0 ? " " : ""}
+                        <span className={styles.hintPart}>
+                          {part}
+                          {i < all.length - 1 ? " ·" : ""}
+                        </span>
+                      </Fragment>
+                    ))}
+                  </span>
+                </div>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
+
+        <nav aria-label="Cube faces" className={styles.buttons}>
+          {cubeFaces.map((face) => (
+            <button
+              key={face.id}
+              type="button"
+              className={styles.button}
+              aria-pressed={face.slot === active}
+              onClick={() => goTo(face.slot)}
+            >
+              {face.name}
+            </button>
+          ))}
+        </nav>
+
+        <div className={styles.lab} role="group" aria-label="Face style (lab only)">
+          <span>faces:</span>
+          {(["color", "ghost", "wire"] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              className={styles.button}
+              aria-pressed={fill === v}
+              onClick={() => setFill(v)}
+            >
+              {v}
+            </button>
           ))}
         </div>
       </div>
 
-      <p className={styles.srOnly} aria-live="polite">
-        {activeFace ? `${activeFace.name}: ${activeFace.hint}` : ""}
-      </p>
-
-      <nav aria-label="Cube faces" className={styles.buttons}>
-        {cubeFaces.map((face) => (
-          <button
-            key={face.id}
-            type="button"
-            className={styles.button}
-            aria-pressed={face.slot === active}
-            onClick={() => goTo(face.slot)}
+      {/* Info panel for the focused face. Always mounted, so the live region exists before it first
+          fills; hidden (inert, faded) while the cube spins. Focus never moves here on its own. */}
+      <section
+        className={styles.panel}
+        aria-label="Projects for the focused face"
+        aria-live="polite"
+        data-open={panel?.open ? "true" : "false"}
+        inert={!panel?.open}
+        onPointerEnter={(e) => {
+          if (e.pointerType === "mouse") sim.current.panelHover = true;
+        }}
+        onPointerLeave={(e) => {
+          if (e.pointerType !== "mouse") return;
+          sim.current.panelHover = false;
+          onPanelLeave();
+        }}
+        onFocus={() => {
+          sim.current.panelFocus = true;
+        }}
+        onBlur={(e) => {
+          if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+          sim.current.panelFocus = false;
+          onPanelLeave();
+        }}
+      >
+        {panel && panelFace ? (
+          <div
+            key={panel.seq}
+            className={styles.panelCard}
+            style={{ "--accent": panelFace.color } as CSSProperties}
           >
-            {face.name}
-          </button>
-        ))}
-      </nav>
-
-      <div className={styles.lab} role="group" aria-label="Face style (lab only)">
-        <span>faces:</span>
-        {(["color", "ghost", "wire"] as const).map((v) => (
-          <button
-            key={v}
-            type="button"
-            className={styles.button}
-            aria-pressed={fill === v}
-            onClick={() => setFill(v)}
-          >
-            {v}
-          </button>
-        ))}
-      </div>
+            <h2 className={styles.panelHead}>
+              <span className={styles.swatch} aria-hidden="true" />
+              {panelFace.name}
+            </h2>
+            {faceProjects[panelFace.id].map((p) => (
+              <article key={p.name} className={styles.entry}>
+                <h3 className={styles.entryName}>{p.name}</h3>
+                <p className={styles.entryLine}>{p.oneLiner}</p>
+                <ul className={styles.highlights}>
+                  {p.highlights.map((h) => (
+                    <li key={h}>{h}</li>
+                  ))}
+                </ul>
+                <ul className={styles.chips} aria-label="Stack">
+                  {p.stack.map((t) => (
+                    <li key={t} className={styles.chip}>
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+                {p.links.length > 0 ? (
+                  <p className={styles.links}>
+                    {p.links.map((l) => (
+                      <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer">
+                        {l.label}
+                        <span aria-hidden="true"> &#8599;</span>
+                      </a>
+                    ))}
+                  </p>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        ) : null}
+      </section>
     </div>
   );
 }

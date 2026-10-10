@@ -162,3 +162,181 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* ---------- page layout: cube left (and a little low), info panel right; stacked on phones ---------- */
+
+.lab-cube-layout {
+  --ink: #020202;
+  --paper: #f7ece1;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+@media (min-width: 641px) {
+  .lab-cube-layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 4vw, 4rem);
+    /* "lower": the cube sits below the optical centre of the viewport. */
+    padding-top: clamp(1.5rem, 9vh, 7rem);
+  }
+  .lab-cube-cubeCol {
+    /* Top-aligned: a tall panel grows the row downward instead of moving the cube. */
+    align-self: start;
+  }
+  .lab-cube-panel {
+    align-self: center;
+    justify-self: start;
+  }
+  .lab-cube-stage {
+    --size: clamp(150px, 25vw, 280px);
+  }
+  @supports (width: round(1px, 2px)) {
+    .lab-cube-stage {
+      --size: round(clamp(150px, 25vw, 280px), 2px);
+    }
+  }
+}
+
+/* ---------- info panel ---------- */
+
+.lab-cube-panel {
+  width: 100%;
+  max-width: 26rem;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  transition:
+    opacity 160ms ease-out,
+    visibility 0s;
+}
+.lab-cube-panel[data-open="false"] {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 160ms ease-out,
+    visibility 0s linear 160ms;
+}
+
+.lab-cube-panelCard {
+  animation: lab-cube-panel-in 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes lab-cube-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-cube-panel,
+  .lab-cube-panel[data-open="false"] {
+    transition: none;
+  }
+  .lab-cube-panelCard {
+    animation: none;
+  }
+}
+
+.lab-cube-panelHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid var(--ink);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.lab-cube-swatch {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  box-sizing: border-box;
+  border: 1px solid var(--ink);
+  background: var(--accent);
+}
+
+.lab-cube-entry {
+  padding: 1rem 0;
+}
+.lab-cube-entry + .lab-cube-entry {
+  border-top: 1px solid var(--ink);
+}
+
+.lab-cube-entryName {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.lab-cube-entryLine {
+  margin: 0.375rem 0 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.lab-cube-highlights {
+  margin: 0 0 0.875rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+.lab-cube-highlights li {
+  position: relative;
+  padding-left: 1rem;
+}
+.lab-cube-highlights li + li {
+  margin-top: 0.25rem;
+}
+.lab-cube-highlights li::before {
+  content: "\2013";
+  position: absolute;
+  left: 0;
+}
+
+.lab-cube-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lab-cube-chip {
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--ink);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.lab-cube-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0.875rem 0 0;
+  font-size: 0.8125rem;
+}
+.lab-cube-links a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+.lab-cube-links a:hover {
+  text-decoration-thickness: 2px;
+}
+.lab-cube-links a:focus-visible {
+  outline: 1px dashed var(--ink);
+  outline-offset: 2px;
+}

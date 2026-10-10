@@ -14,8 +14,11 @@ export type PaletteColor = (typeof palette)[keyof typeof palette];
 /** Text is always black or cream: whichever clears 4.5:1 on the face colour. */
 export type FaceInk = typeof palette.primary | typeof palette.tertiary;
 
+export type FaceId = "backend" | "frontend" | "ai" | "gamedev" | "modding" | "design";
+
 export interface CubeFace {
-  id: string;
+  /** Also the key into faceProjects (cubeProjects.ts). */
+  id: FaceId;
   /** Domain name, the big line on the face (and the button label). */
   name: string;
   /** Tiny one-line hint under the name. */

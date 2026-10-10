@@ -14,8 +14,8 @@ export const viewport: Viewport = {
 
 export default function CubeLabPage() {
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-6 overflow-x-clip bg-[#f7ece1] py-12 text-[#020202]">
-      <p className="px-4 text-center text-xs tracking-wide">lab / cube prototype</p>
+    <main className="min-h-svh overflow-x-clip bg-[#f7ece1] pt-6 pb-16 text-[#020202]">
+      <p className="mb-6 px-4 text-center text-xs tracking-wide">lab / cube prototype</p>
       <SkillsCube />
     </main>
   );
