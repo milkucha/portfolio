@@ -32,13 +32,13 @@ export default function Home() {
         <section
           id="projects"
           aria-labelledby="projects-title"
-          className="flex min-h-[calc(100svh-3.5rem)] scroll-mt-14 flex-col border-t border-tertiary/10"
+          className="flex min-h-[calc(100svh-3.5rem)] scroll-mt-14 flex-col border-t border-primary/10 bg-tertiary text-primary"
         >
           <div className="mx-auto w-full max-w-6xl px-4 pt-8">
             <h2 id="projects-title" className="text-2xl font-semibold tracking-tight">
               Projects
             </h2>
-            <p className="mt-1 text-sm text-tertiary/60">
+            <p className="mt-1 text-sm text-primary/65">
               What I build, and the stack each project runs on.
             </p>
           </div>

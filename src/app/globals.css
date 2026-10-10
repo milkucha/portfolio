@@ -17,11 +17,16 @@
   --muted: color-mix(in srgb, var(--color-tertiary) 60%, transparent);
 
   /* Projects graph. Node colours are the vault's .obsidian/graph.json colorGroups, one per
-     category tag (first match wins there too, so #activities hubs get their own green). */
-  --og-bg: var(--color-primary);
-  --og-line: color-mix(in srgb, var(--color-tertiary) 17%, transparent);
-  --og-line-active: color-mix(in srgb, var(--color-tertiary) 60%, transparent);
-  --og-label: color-mix(in srgb, var(--color-tertiary) 80%, transparent);
+     category tag (first match wins there too, so #activities hubs get their own green).
+     The graph sits on cream, so links, labels and outlines are near-black. Every dot gets a
+     1px black outline (the cube prototype's minimal style): the yellow and light blue fills are
+     ~1.1:1 against cream and only read through it. */
+  --og-bg: var(--color-tertiary);
+  --og-ink: var(--color-primary);
+  --og-line: color-mix(in srgb, var(--color-primary) 16%, transparent);
+  --og-line-active: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  --og-label: var(--color-primary);
+  --og-outline: 1px;
   --og-project: #fff59d;
   --og-concept: #4a90d9;
   --og-language: #4a90d9;
@@ -84,7 +89,7 @@ body {
 }
 
 /* ---- Projects graph (ProjectGraph.tsx): a replica of the Obsidian graph view -----------------
-   Flat dots, hairline grey links, labels hidden until hover. Only opacity ever transitions, and
+   Flat outlined dots on cream, hairline dark links, labels hidden until hover. Only opacity ever transitions, and
    nothing animates continuously. */
 
 .og {
@@ -143,10 +148,11 @@ body {
   height: calc(var(--og-r) * 2);
   border-radius: 9999px;
   background: var(--og-c);
+  box-shadow: 0 0 0 var(--og-outline) var(--og-ink);
   pointer-events: none;
 }
 .og-node:focus-visible .og-dot {
-  box-shadow: 0 0 0 2px var(--og-bg), 0 0 0 3px var(--color-tertiary);
+  box-shadow: 0 0 0 var(--og-outline) var(--og-ink), 0 0 0 3px var(--og-bg), 0 0 0 4.5px var(--og-ink);
 }
 .og-label {
   position: absolute;
@@ -166,7 +172,7 @@ body {
 .og-node[data-kind="project"] .og-label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-tertiary);
+  color: var(--og-ink);
 }
 .og-node[data-label] .og-label {
   opacity: 1;

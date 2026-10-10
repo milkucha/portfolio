@@ -15,7 +15,7 @@ export function GraphCard({
 }) {
   if (!project) {
     return (
-      <p aria-live="polite" className="text-xs text-tertiary/45">
+      <p aria-live="polite" className="text-xs text-primary/60">
         <span className="hidden md:inline">Hover a project to see what it connects to. Drag to rearrange.</span>
         <span className="md:hidden">Tap a project to see what it connects to.</span>
       </p>
@@ -25,19 +25,19 @@ export function GraphCard({
     <div
       aria-live="polite"
       key={project.id}
-      className="og-card rounded-lg border border-tertiary/10 bg-primary/90 p-4 text-sm text-tertiary"
+      className="og-card rounded-lg border border-primary bg-tertiary/90 p-4 text-sm text-primary"
     >
       <h3 className="text-sm font-semibold">{project.name}</h3>
-      <p className="mt-1 leading-relaxed text-tertiary/75">{project.oneLiner}</p>
-      <ul className="mt-3 space-y-1 text-xs leading-relaxed text-tertiary/60">
+      <p className="mt-1 leading-relaxed text-primary/80">{project.oneLiner}</p>
+      <ul className="mt-3 space-y-1 text-xs leading-relaxed text-primary/70">
         {project.highlights.map((h) => (
           <li key={h}>{h}</li>
         ))}
       </ul>
-      <p className="mt-3 text-xs text-tertiary/45">
+      <p className="mt-3 text-xs text-primary/60">
         {project.stack.map((id) => techLabel.get(id) ?? id).join(" · ")}
       </p>
-      <p className="mt-1 text-xs text-tertiary/45">{project.status}</p>
+      <p className="mt-1 text-xs text-primary/60">{project.status}</p>
       {(project.links.length > 0 || pinned) && (
         <p className="mt-3 flex flex-wrap gap-x-3 text-xs">
           {project.links.map((l) => (
@@ -46,7 +46,7 @@ export function GraphCard({
               href={l.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-tertiary/80 underline decoration-tertiary/25 underline-offset-2 hover:decoration-tertiary/70"
+              className="text-primary underline decoration-primary/30 underline-offset-2 hover:decoration-primary"
             >
               {l.label} ↗
             </a>
@@ -55,7 +55,7 @@ export function GraphCard({
             <button
               type="button"
               onClick={onClose}
-              className="ml-auto text-tertiary/45 underline-offset-2 hover:text-tertiary hover:underline"
+              className="ml-auto text-primary/60 underline-offset-2 hover:text-primary hover:underline"
             >
               Close
             </button>

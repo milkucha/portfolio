@@ -63,12 +63,23 @@ const projectById = new Map(projects.map((p) => [p.id, p]));
 const CARD_RESERVE = 16 + 320 + 32;
 const freeWidthFor = (w: number) => (w >= 768 ? w - CARD_RESERVE : w);
 
-/** Obsidian-style radius: grows with the square root of the node's link count. */
+/** Obsidian-style base radius: grows with the square root of the node's link count. */
+const baseRadius = (n: VaultNode) => OBSIDIAN.nodeSizeMultiplier * (1.6 + 1.25 * Math.sqrt(n.degree));
+/** Projects are drawn 5x the Obsidian size, every other note at half, so the four projects
+ *  read as the landmarks. Projects shrink with the frame on phones so they still fit. */
+const PROJECT_SCALE = 5;
+const NOTE_SCALE = 0.5;
 const radiusFor = (n: VaultNode, s: number) =>
-  OBSIDIAN.nodeSizeMultiplier * (1.6 + 1.25 * Math.sqrt(n.degree)) * Math.max(0.8, Math.min(1, s));
+  n.kind === "project"
+    ? baseRadius(n) * PROJECT_SCALE * Math.max(0.5, Math.min(1, s))
+    : baseRadius(n) * NOTE_SCALE * Math.max(0.8, Math.min(1, s));
 
-/** Pointer target: >= 40px across for projects, a forgiving ring for the small dots. */
-const hitFor = (n: VaultNode, r: number) => (n.kind === "project" ? Math.max(20, r + 8) : Math.max(9, r + 4));
+/** Pointer target (invisible circle): the project disc itself plus a margin, and at least
+ *  24px across for the small dots. */
+const hitFor = (n: VaultNode, r: number) => (n.kind === "project" ? r + 4 : Math.max(12, r + 6));
+
+/** Space kept below a project for its label, which sits outside the disc. */
+const PROJECT_LABEL_GAP = 20;
 
 /** Colours: the vault's graph colorGroups, per category tag (see globals.css --og-*). */
 const colorFor = (n: VaultNode) =>
@@ -176,11 +187,18 @@ export function ProjectGraph() {
     // pane does, without spilling off the top and bottom.
     const aspect = Math.max(1, freeW / h);
 
+    const isProject = nodes.map((n) => n.kind === "project");
     sim
       .force(
         "link",
         forceLink<SimNode, SimulationLinkDatum<SimNode>>(linkEnds.map(([s, t]) => ({ source: s, target: t })))
-          .distance(OBSIDIAN.linkDistance * scale)
+          // Measured edge to edge, so the big project discs keep the same gap to their notes as
+          // two small dots would (plus a little extra room for the project's label).
+          .distance((l) => {
+            const a = (l.source as SimNode).index!;
+            const b = (l.target as SimNode).index!;
+            return OBSIDIAN.linkDistance * scale + rs[a] + rs[b] + (isProject[a] || isProject[b] ? 8 * scale : 0);
+          })
           .strength(
             (l) =>
               OBSIDIAN.linkStrength /
@@ -189,11 +207,16 @@ export function ProjectGraph() {
       )
       .force(
         "charge",
+        // Projects push harder, in proportion to their size, so they spread apart instead of
+        // clumping in the middle; the small notes keep Obsidian's repel.
         forceManyBody<SimNode>()
-          .strength(-OBSIDIAN.repelStrength * REPEL_SCALE * scale)
-          .distanceMax(420 * scale),
+          .strength((_, i) => -OBSIDIAN.repelStrength * REPEL_SCALE * scale * (isProject[i] ? 4 : 1))
+          .distanceMax(460 * scale),
       )
-      .force("collide", forceCollide<SimNode>((_, i) => rs[i] + 3))
+      .force(
+        "collide",
+        forceCollide<SimNode>((_, i) => (isProject[i] ? rs[i] + 14 * scale : rs[i] + 3)).iterations(2),
+      )
       .force("x", forceX<SimNode>(cx).strength(OBSIDIAN.centerStrength / aspect))
       .force("y", forceY<SimNode>(cy).strength(OBSIDIAN.centerStrength * Math.min(1.6, aspect)))
       .velocityDecay(0.45);
@@ -203,9 +226,10 @@ export function ProjectGraph() {
     const clamp = () => {
       for (let i = 0; i < sn.length; i++) {
         const m = rs[i] + 6;
-        const mx = rs[i] + sideGap;
+        const mb = m + (isProject[i] ? PROJECT_LABEL_GAP : 0);
+        const mx = isProject[i] ? rs[i] + 6 : rs[i] + sideGap;
         sn[i].x = Math.max(mx, Math.min(freeW - mx, sn[i].x ?? cx));
-        sn[i].y = Math.max(m, Math.min(h - m, sn[i].y ?? cy));
+        sn[i].y = Math.max(m, Math.min(h - mb, sn[i].y ?? cy));
       }
     };
 
