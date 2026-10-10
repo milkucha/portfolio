@@ -37,14 +37,17 @@ body {
   font-family: var(--font-sans);
 }
 
-/* A slow nod to the old welcome section's secondary <-> quinary background animation. */
+/* A slow nod to the old welcome section's secondary <-> quinary background animation.
+   Cream base so the purple intro text stays readable: glows are capped at 12% so the
+   worst-case blend still gives the purple >= 4.7:1 (cream alone: 5.4:1). */
 @keyframes intro-glow {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
 .intro-glow {
-  background-image: radial-gradient(60% 60% at 20% 30%, color-mix(in srgb, var(--color-secondary) 22%, transparent), transparent 70%),
-    radial-gradient(55% 55% at 80% 70%, color-mix(in srgb, var(--color-quinary) 20%, transparent), transparent 70%);
+  background-color: var(--color-tertiary);
+  background-image: radial-gradient(60% 60% at 20% 30%, color-mix(in srgb, var(--color-secondary) 12%, transparent), transparent 70%),
+    radial-gradient(55% 55% at 80% 70%, color-mix(in srgb, var(--color-quinary) 12%, transparent), transparent 70%);
   background-size: 200% 200%;
   animation: intro-glow 10s ease-in-out infinite;
 }

@@ -30,8 +30,13 @@ export interface Project {
   minor?: boolean;
 }
 
+/** Which icon the contact section draws for a link. */
+export type ContactIcon = "github" | "email" | "youtube" | "modrinth";
+
 export interface ContactLink {
+  /** Accessible name of the icon link, e.g. "GitHub". */
   label: string;
+  icon: ContactIcon;
   href: string;
   /** Text shown, e.g. a handle or address. */
   display: string;

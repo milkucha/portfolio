@@ -9,15 +9,17 @@ export const site: SiteInfo = {
     "Right now I'm building a production backend for a vacation rental company I freelance for, maintaining an open-source Minecraft mod with over 550,000 downloads, and working on a proof of concept for a world-building tool that uses constrained AI agents to simulate culture.",
   ],
   contact: [
-    { label: "GitHub", href: "https://github.com/milkucha", display: "github.com/milkucha" },
-    { label: "Email", href: "mailto:milkucha@disroot.org", display: "milkucha@disroot.org" },
+    { label: "GitHub", icon: "github", href: "https://github.com/milkucha", display: "github.com/milkucha" },
+    { label: "Email", icon: "email", href: "mailto:milkucha@disroot.org", display: "milkucha@disroot.org" },
     {
       label: "YouTube",
+      icon: "youtube",
       href: "https://www.youtube.com/@milkuchachuklim",
       display: "@milkuchachuklim",
     },
     {
       label: "TRMT on Modrinth",
+      icon: "modrinth",
       href: "https://modrinth.com/mod/the-roads-more-travelled",
       display: "The Roads More Travelled",
     },
