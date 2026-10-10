@@ -1,0 +1,155 @@
+/* Plain (global) CSS, all classes prefixed lab-cube-: this repo's turbopack rule runs every *.css
+   through Tailwind as plain CSS, so CSS modules don't get scoped class names.
+   Lab prototype: minimalist wireframe skills cube. Pure CSS 3D; JS only writes .lab-cube-cube's transform. */
+
+.lab-cube-wrap {
+  --ink: #020202;
+  --paper: #f7ece1;
+  --edge: 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.75rem;
+  width: 100%;
+}
+
+.lab-cube-stage {
+  /* Clamp-based size; rounded to an even px count where supported so the half-size translateZ and
+     the face edges land on whole pixels. */
+  --size: clamp(150px, 46vw, 280px);
+  --half: calc(var(--size) / 2);
+  --fill-alpha: 0.86;
+  width: calc(var(--size) * 1.75);
+  height: calc(var(--size) * 1.75);
+  max-width: 100%;
+  display: grid;
+  place-items: center;
+  perspective: calc(var(--size) * 4);
+  /* Only the cube swallows touch gestures; the rest of the page scrolls normally. */
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+@supports (width: round(1px, 2px)) {
+  .lab-cube-stage {
+    --size: round(clamp(150px, 46vw, 280px), 2px);
+  }
+}
+.lab-cube-stage[data-fill="wire"] {
+  --fill-alpha: 0;
+}
+.lab-cube-stage[data-fill="solid"] {
+  --fill-alpha: 1;
+}
+.lab-cube-stage:focus-visible {
+  outline: 1px dashed var(--ink);
+  outline-offset: -1px;
+}
+.lab-cube-dragging {
+  cursor: grabbing;
+}
+
+.lab-cube-cube {
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  transform-style: preserve-3d;
+  /* No will-change: it would freeze the raster scale and leave text blurry at rest. */
+}
+
+.lab-cube-face {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+/* Edges + fill. Always visible from behind, so the back edges read as wireframe. Two faces meet at
+   each edge at 90deg, so their 1px borders union into one line of near-constant apparent width. */
+.lab-cube-fill {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  border: var(--edge) solid var(--ink);
+  background: rgb(247 236 225 / var(--fill-alpha));
+}
+
+/* Text: hidden when its face points away, so back faces never show mirrored text. */
+.lab-cube-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 12%;
+  text-align: center;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  pointer-events: none;
+}
+
+.lab-cube-name {
+  font-size: calc(var(--size) * 0.085);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.lab-cube-hint {
+  font-size: calc(var(--size) * 0.052);
+  line-height: 1.3;
+}
+
+.lab-cube-buttons,
+.lab-cube-lab {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 1rem;
+  max-width: 34rem;
+  padding: 0 16px;
+  color: var(--ink);
+  font-size: 0.8125rem;
+}
+
+.lab-cube-lab {
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.lab-cube-button {
+  padding: 0.25rem 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.3em;
+  text-decoration-thickness: 1px;
+}
+.lab-cube-button:hover,
+.lab-cube-button[aria-pressed="true"] {
+  text-decoration-color: currentColor;
+}
+.lab-cube-button:focus-visible {
+  outline: 1px dashed var(--ink);
+  outline-offset: 2px;
+}
+
+.lab-cube-srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
