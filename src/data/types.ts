@@ -50,8 +50,28 @@ export interface SiteInfo {
   contact: ContactLink[];
 }
 
-/** A link in the graph: always project -> tech. */
+/** Category tag a vault note carries on its first line (see the vault's CLAUDE.md). */
+export type VaultTag = TechCategory | "activities";
+
+/** A node of src/data/graph.json, generated from the vault by scripts/build-graph.mjs. */
+export interface VaultNode {
+  id: string;
+  label: string;
+  /** project = a featured project note; hub = an #activities note; concept = any other concept. */
+  kind: "project" | "concept" | "hub";
+  tag: VaultTag | null;
+  /** 0 = project, 1 = linked from a project, 2 = linked from a first-degree concept. */
+  ring: 0 | 1 | 2;
+  degree: number;
+}
+
+/** An undirected link between two vault notes. */
 export interface GraphLink {
   source: string;
   target: string;
+}
+
+export interface VaultGraph {
+  nodes: VaultNode[];
+  links: GraphLink[];
 }

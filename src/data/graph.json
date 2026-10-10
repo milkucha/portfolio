@@ -1,0 +1,1206 @@
+{
+ "nodes": [
+  {
+   "id": "trmt",
+   "label": "TRMT",
+   "kind": "project",
+   "tag": null,
+   "ring": 0,
+   "degree": 14
+  },
+  {
+   "id": "oceana",
+   "label": "Oceana Core",
+   "kind": "project",
+   "tag": null,
+   "ring": 0,
+   "degree": 23
+  },
+  {
+   "id": "provenance",
+   "label": "Provenance",
+   "kind": "project",
+   "tag": null,
+   "ring": 0,
+   "degree": 15
+  },
+  {
+   "id": "site",
+   "label": "This site",
+   "kind": "project",
+   "tag": null,
+   "ring": 0,
+   "degree": 14
+  },
+  {
+   "id": "blabber",
+   "label": "Blabber",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 2
+  },
+  {
+   "id": "css",
+   "label": "CSS",
+   "kind": "concept",
+   "tag": "language",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "csv",
+   "label": "CSV",
+   "kind": "concept",
+   "tag": "data-format",
+   "ring": 1,
+   "degree": 1
+  },
+  {
+   "id": "claude-code",
+   "label": "Claude Code",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 5
+  },
+  {
+   "id": "curseforge",
+   "label": "CurseForge",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 5
+  },
+  {
+   "id": "django-rest-framework",
+   "label": "Django REST Framework",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 4
+  },
+  {
+   "id": "django",
+   "label": "Django",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 5
+  },
+  {
+   "id": "docker",
+   "label": "Docker",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 2
+  },
+  {
+   "id": "fabric",
+   "label": "Fabric",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "forge",
+   "label": "Forge",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "github",
+   "label": "GitHub",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 6
+  },
+  {
+   "id": "gradle",
+   "label": "Gradle",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "gunicorn",
+   "label": "Gunicorn",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "html",
+   "label": "HTML",
+   "kind": "concept",
+   "tag": "language",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "json",
+   "label": "JSON",
+   "kind": "concept",
+   "tag": "data-format",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "java",
+   "label": "Java",
+   "kind": "concept",
+   "tag": "language",
+   "ring": 1,
+   "degree": 4
+  },
+  {
+   "id": "javascript",
+   "label": "JavaScript",
+   "kind": "concept",
+   "tag": "language",
+   "ring": 1,
+   "degree": 9
+  },
+  {
+   "id": "jev",
+   "label": "Jev",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 4
+  },
+  {
+   "id": "jotai",
+   "label": "Jotai",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 4
+  },
+  {
+   "id": "mantine",
+   "label": "Mantine",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 4
+  },
+  {
+   "id": "markdown",
+   "label": "Markdown",
+   "kind": "concept",
+   "tag": "data-format",
+   "ring": 1,
+   "degree": 1
+  },
+  {
+   "id": "minecraft",
+   "label": "Minecraft",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 13
+  },
+  {
+   "id": "modrinth",
+   "label": "Modrinth",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 5
+  },
+  {
+   "id": "neoforge",
+   "label": "NeoForge",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "next-js",
+   "label": "Next.js",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 8
+  },
+  {
+   "id": "node-js",
+   "label": "Node.js",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 6
+  },
+  {
+   "id": "ollama",
+   "label": "Ollama",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 6
+  },
+  {
+   "id": "png",
+   "label": "PNG",
+   "kind": "concept",
+   "tag": "data-format",
+   "ring": 1,
+   "degree": 1
+  },
+  {
+   "id": "pwa",
+   "label": "PWA",
+   "kind": "concept",
+   "tag": "technique",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "playwright",
+   "label": "Playwright",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 5
+  },
+  {
+   "id": "postgresql",
+   "label": "PostgreSQL",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 2
+  },
+  {
+   "id": "python",
+   "label": "Python",
+   "kind": "concept",
+   "tag": "language",
+   "ring": 1,
+   "degree": 8
+  },
+  {
+   "id": "railway",
+   "label": "Railway",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "react",
+   "label": "React",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 11
+  },
+  {
+   "id": "sql",
+   "label": "SQL",
+   "kind": "concept",
+   "tag": "language",
+   "ring": 1,
+   "degree": 4
+  },
+  {
+   "id": "shell",
+   "label": "Shell",
+   "kind": "concept",
+   "tag": "language",
+   "ring": 1,
+   "degree": 2
+  },
+  {
+   "id": "tailwind-css",
+   "label": "Tailwind CSS",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 5
+  },
+  {
+   "id": "taterzens",
+   "label": "Taterzens",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 2
+  },
+  {
+   "id": "typescript",
+   "label": "TypeScript",
+   "kind": "concept",
+   "tag": "language",
+   "ring": 1,
+   "degree": 9
+  },
+  {
+   "id": "vercel",
+   "label": "Vercel",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 4
+  },
+  {
+   "id": "wsl",
+   "label": "WSL",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 6
+  },
+  {
+   "id": "whitenoise",
+   "label": "WhiteNoise",
+   "kind": "concept",
+   "tag": "framework",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "xlsx",
+   "label": "XLSX",
+   "kind": "concept",
+   "tag": "data-format",
+   "ring": 1,
+   "degree": 1
+  },
+  {
+   "id": "youtube",
+   "label": "YouTube",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 1
+  },
+  {
+   "id": "design",
+   "label": "design",
+   "kind": "hub",
+   "tag": "activities",
+   "ring": 1,
+   "degree": 1
+  },
+  {
+   "id": "mcfunction",
+   "label": "mcfunction",
+   "kind": "concept",
+   "tag": "data-format",
+   "ring": 1,
+   "degree": 2
+  },
+  {
+   "id": "modding",
+   "label": "modding",
+   "kind": "hub",
+   "tag": "activities",
+   "ring": 1,
+   "degree": 15
+  },
+  {
+   "id": "modpacks",
+   "label": "modpacks",
+   "kind": "concept",
+   "tag": null,
+   "ring": 1,
+   "degree": 5
+  },
+  {
+   "id": "npm",
+   "label": "npm",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 1,
+   "degree": 3
+  },
+  {
+   "id": "web-development",
+   "label": "web development",
+   "kind": "hub",
+   "tag": "activities",
+   "ring": 1,
+   "degree": 18
+  },
+  {
+   "id": "git",
+   "label": "Git",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 2,
+   "degree": 2
+  },
+  {
+   "id": "ssh",
+   "label": "SSH",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 2,
+   "degree": 3
+  },
+  {
+   "id": "tailscale",
+   "label": "Tailscale",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 2,
+   "degree": 3
+  },
+  {
+   "id": "ubuntu",
+   "label": "Ubuntu",
+   "kind": "concept",
+   "tag": "tool",
+   "ring": 2,
+   "degree": 3
+  },
+  {
+   "id": "databases",
+   "label": "databases",
+   "kind": "hub",
+   "tag": "activities",
+   "ring": 2,
+   "degree": 2
+  },
+  {
+   "id": "game-dev",
+   "label": "game dev",
+   "kind": "hub",
+   "tag": "activities",
+   "ring": 2,
+   "degree": 4
+  },
+  {
+   "id": "machine-learning",
+   "label": "machine learning",
+   "kind": "hub",
+   "tag": "activities",
+   "ring": 2,
+   "degree": 2
+  },
+  {
+   "id": "passthrough-modding",
+   "label": "passthrough modding",
+   "kind": "concept",
+   "tag": "technique",
+   "ring": 2,
+   "degree": 4
+  },
+  {
+   "id": "programming",
+   "label": "programming",
+   "kind": "hub",
+   "tag": "activities",
+   "ring": 2,
+   "degree": 6
+  },
+  {
+   "id": "reverse-engineering",
+   "label": "reverse engineering",
+   "kind": "concept",
+   "tag": "technique",
+   "ring": 2,
+   "degree": 3
+  },
+  {
+   "id": "software-development",
+   "label": "software development",
+   "kind": "hub",
+   "tag": "activities",
+   "ring": 2,
+   "degree": 10
+  }
+ ],
+ "links": [
+  {
+   "source": "modrinth",
+   "target": "trmt"
+  },
+  {
+   "source": "curseforge",
+   "target": "trmt"
+  },
+  {
+   "source": "youtube",
+   "target": "trmt"
+  },
+  {
+   "source": "modpacks",
+   "target": "trmt"
+  },
+  {
+   "source": "java",
+   "target": "trmt"
+  },
+  {
+   "source": "gradle",
+   "target": "trmt"
+  },
+  {
+   "source": "json",
+   "target": "trmt"
+  },
+  {
+   "source": "png",
+   "target": "trmt"
+  },
+  {
+   "source": "minecraft",
+   "target": "trmt"
+  },
+  {
+   "source": "fabric",
+   "target": "trmt"
+  },
+  {
+   "source": "modding",
+   "target": "trmt"
+  },
+  {
+   "source": "forge",
+   "target": "trmt"
+  },
+  {
+   "source": "neoforge",
+   "target": "trmt"
+  },
+  {
+   "source": "github",
+   "target": "trmt"
+  },
+  {
+   "source": "django",
+   "target": "oceana"
+  },
+  {
+   "source": "github",
+   "target": "oceana"
+  },
+  {
+   "source": "python",
+   "target": "oceana"
+  },
+  {
+   "source": "javascript",
+   "target": "oceana"
+  },
+  {
+   "source": "postgresql",
+   "target": "oceana"
+  },
+  {
+   "source": "json",
+   "target": "oceana"
+  },
+  {
+   "source": "sql",
+   "target": "oceana"
+  },
+  {
+   "source": "csv",
+   "target": "oceana"
+  },
+  {
+   "source": "xlsx",
+   "target": "oceana"
+  },
+  {
+   "source": "gunicorn",
+   "target": "oceana"
+  },
+  {
+   "source": "whitenoise",
+   "target": "oceana"
+  },
+  {
+   "source": "railway",
+   "target": "oceana"
+  },
+  {
+   "source": "docker",
+   "target": "oceana"
+  },
+  {
+   "source": "claude-code",
+   "target": "oceana"
+  },
+  {
+   "source": "react",
+   "target": "oceana"
+  },
+  {
+   "source": "typescript",
+   "target": "oceana"
+  },
+  {
+   "source": "jotai",
+   "target": "oceana"
+  },
+  {
+   "source": "mantine",
+   "target": "oceana"
+  },
+  {
+   "source": "playwright",
+   "target": "oceana"
+  },
+  {
+   "source": "django-rest-framework",
+   "target": "oceana"
+  },
+  {
+   "source": "pwa",
+   "target": "oceana"
+  },
+  {
+   "source": "wsl",
+   "target": "oceana"
+  },
+  {
+   "source": "minecraft",
+   "target": "provenance"
+  },
+  {
+   "source": "modding",
+   "target": "provenance"
+  },
+  {
+   "source": "taterzens",
+   "target": "provenance"
+  },
+  {
+   "source": "blabber",
+   "target": "provenance"
+  },
+  {
+   "source": "python",
+   "target": "provenance"
+  },
+  {
+   "source": "shell",
+   "target": "provenance"
+  },
+  {
+   "source": "html",
+   "target": "provenance"
+  },
+  {
+   "source": "javascript",
+   "target": "provenance"
+  },
+  {
+   "source": "json",
+   "target": "provenance"
+  },
+  {
+   "source": "markdown",
+   "target": "provenance"
+  },
+  {
+   "source": "mcfunction",
+   "target": "provenance"
+  },
+  {
+   "source": "claude-code",
+   "target": "provenance"
+  },
+  {
+   "source": "ollama",
+   "target": "provenance"
+  },
+  {
+   "source": "jev",
+   "target": "provenance"
+  },
+  {
+   "source": "react",
+   "target": "site"
+  },
+  {
+   "source": "next-js",
+   "target": "site"
+  },
+  {
+   "source": "typescript",
+   "target": "site"
+  },
+  {
+   "source": "github",
+   "target": "site"
+  },
+  {
+   "source": "vercel",
+   "target": "site"
+  },
+  {
+   "source": "playwright",
+   "target": "site"
+  },
+  {
+   "source": "javascript",
+   "target": "site"
+  },
+  {
+   "source": "html",
+   "target": "site"
+  },
+  {
+   "source": "css",
+   "target": "site"
+  },
+  {
+   "source": "tailwind-css",
+   "target": "site"
+  },
+  {
+   "source": "npm",
+   "target": "site"
+  },
+  {
+   "source": "node-js",
+   "target": "site"
+  },
+  {
+   "source": "web-development",
+   "target": "site"
+  },
+  {
+   "source": "design",
+   "target": "site"
+  },
+  {
+   "source": "blabber",
+   "target": "minecraft"
+  },
+  {
+   "source": "css",
+   "target": "web-development"
+  },
+  {
+   "source": "claude-code",
+   "target": "programming"
+  },
+  {
+   "source": "curseforge",
+   "target": "minecraft"
+  },
+  {
+   "source": "curseforge",
+   "target": "modding"
+  },
+  {
+   "source": "curseforge",
+   "target": "modpacks"
+  },
+  {
+   "source": "curseforge",
+   "target": "modrinth"
+  },
+  {
+   "source": "django-rest-framework",
+   "target": "django"
+  },
+  {
+   "source": "django-rest-framework",
+   "target": "web-development"
+  },
+  {
+   "source": "django-rest-framework",
+   "target": "python"
+  },
+  {
+   "source": "django",
+   "target": "web-development"
+  },
+  {
+   "source": "django",
+   "target": "python"
+  },
+  {
+   "source": "docker",
+   "target": "software-development"
+  },
+  {
+   "source": "fabric",
+   "target": "minecraft"
+  },
+  {
+   "source": "fabric",
+   "target": "modding"
+  },
+  {
+   "source": "forge",
+   "target": "minecraft"
+  },
+  {
+   "source": "forge",
+   "target": "modding"
+  },
+  {
+   "source": "git",
+   "target": "github"
+  },
+  {
+   "source": "github",
+   "target": "provenance"
+  },
+  {
+   "source": "gradle",
+   "target": "java"
+  },
+  {
+   "source": "gradle",
+   "target": "modding"
+  },
+  {
+   "source": "gunicorn",
+   "target": "python"
+  },
+  {
+   "source": "gunicorn",
+   "target": "software-development"
+  },
+  {
+   "source": "html",
+   "target": "web-development"
+  },
+  {
+   "source": "java",
+   "target": "programming"
+  },
+  {
+   "source": "java",
+   "target": "modding"
+  },
+  {
+   "source": "javascript",
+   "target": "programming"
+  },
+  {
+   "source": "javascript",
+   "target": "web-development"
+  },
+  {
+   "source": "claude-code",
+   "target": "jev"
+  },
+  {
+   "source": "jev",
+   "target": "ollama"
+  },
+  {
+   "source": "jev",
+   "target": "machine-learning"
+  },
+  {
+   "source": "jotai",
+   "target": "react"
+  },
+  {
+   "source": "jotai",
+   "target": "typescript"
+  },
+  {
+   "source": "jotai",
+   "target": "web-development"
+  },
+  {
+   "source": "mantine",
+   "target": "react"
+  },
+  {
+   "source": "mantine",
+   "target": "typescript"
+  },
+  {
+   "source": "mantine",
+   "target": "web-development"
+  },
+  {
+   "source": "minecraft",
+   "target": "modding"
+  },
+  {
+   "source": "minecraft",
+   "target": "modrinth"
+  },
+  {
+   "source": "modrinth",
+   "target": "modding"
+  },
+  {
+   "source": "modrinth",
+   "target": "modpacks"
+  },
+  {
+   "source": "minecraft",
+   "target": "neoforge"
+  },
+  {
+   "source": "neoforge",
+   "target": "modding"
+  },
+  {
+   "source": "next-js",
+   "target": "web-development"
+  },
+  {
+   "source": "javascript",
+   "target": "next-js"
+  },
+  {
+   "source": "next-js",
+   "target": "typescript"
+  },
+  {
+   "source": "javascript",
+   "target": "node-js"
+  },
+  {
+   "source": "next-js",
+   "target": "node-js"
+  },
+  {
+   "source": "node-js",
+   "target": "wsl"
+  },
+  {
+   "source": "node-js",
+   "target": "web-development"
+  },
+  {
+   "source": "ollama",
+   "target": "machine-learning"
+  },
+  {
+   "source": "claude-code",
+   "target": "ollama"
+  },
+  {
+   "source": "ollama",
+   "target": "programming"
+  },
+  {
+   "source": "ollama",
+   "target": "python"
+  },
+  {
+   "source": "pwa",
+   "target": "web-development"
+  },
+  {
+   "source": "pwa",
+   "target": "react"
+  },
+  {
+   "source": "playwright",
+   "target": "web-development"
+  },
+  {
+   "source": "playwright",
+   "target": "typescript"
+  },
+  {
+   "source": "postgresql",
+   "target": "sql"
+  },
+  {
+   "source": "python",
+   "target": "programming"
+  },
+  {
+   "source": "python",
+   "target": "software-development"
+  },
+  {
+   "source": "railway",
+   "target": "software-development"
+  },
+  {
+   "source": "railway",
+   "target": "databases"
+  },
+  {
+   "source": "javascript",
+   "target": "react"
+  },
+  {
+   "source": "react",
+   "target": "web-development"
+  },
+  {
+   "source": "next-js",
+   "target": "react"
+  },
+  {
+   "source": "react",
+   "target": "typescript"
+  },
+  {
+   "source": "playwright",
+   "target": "react"
+  },
+  {
+   "source": "sql",
+   "target": "programming"
+  },
+  {
+   "source": "sql",
+   "target": "databases"
+  },
+  {
+   "source": "shell",
+   "target": "software-development"
+  },
+  {
+   "source": "css",
+   "target": "tailwind-css"
+  },
+  {
+   "source": "react",
+   "target": "tailwind-css"
+  },
+  {
+   "source": "next-js",
+   "target": "tailwind-css"
+  },
+  {
+   "source": "tailwind-css",
+   "target": "web-development"
+  },
+  {
+   "source": "minecraft",
+   "target": "taterzens"
+  },
+  {
+   "source": "javascript",
+   "target": "typescript"
+  },
+  {
+   "source": "typescript",
+   "target": "web-development"
+  },
+  {
+   "source": "next-js",
+   "target": "vercel"
+  },
+  {
+   "source": "github",
+   "target": "vercel"
+  },
+  {
+   "source": "vercel",
+   "target": "web-development"
+  },
+  {
+   "source": "wsl",
+   "target": "software-development"
+  },
+  {
+   "source": "ubuntu",
+   "target": "wsl"
+  },
+  {
+   "source": "tailscale",
+   "target": "wsl"
+  },
+  {
+   "source": "ssh",
+   "target": "wsl"
+  },
+  {
+   "source": "django",
+   "target": "whitenoise"
+  },
+  {
+   "source": "whitenoise",
+   "target": "web-development"
+  },
+  {
+   "source": "mcfunction",
+   "target": "modding"
+  },
+  {
+   "source": "game-dev",
+   "target": "modding"
+  },
+  {
+   "source": "modding",
+   "target": "passthrough-modding"
+  },
+  {
+   "source": "modding",
+   "target": "reverse-engineering"
+  },
+  {
+   "source": "minecraft",
+   "target": "modpacks"
+  },
+  {
+   "source": "modding",
+   "target": "modpacks"
+  },
+  {
+   "source": "node-js",
+   "target": "npm"
+  },
+  {
+   "source": "npm",
+   "target": "web-development"
+  },
+  {
+   "source": "git",
+   "target": "software-development"
+  },
+  {
+   "source": "ssh",
+   "target": "tailscale"
+  },
+  {
+   "source": "ssh",
+   "target": "software-development"
+  },
+  {
+   "source": "tailscale",
+   "target": "software-development"
+  },
+  {
+   "source": "ubuntu",
+   "target": "oceana"
+  },
+  {
+   "source": "ubuntu",
+   "target": "software-development"
+  },
+  {
+   "source": "minecraft",
+   "target": "game-dev"
+  },
+  {
+   "source": "game-dev",
+   "target": "passthrough-modding"
+  },
+  {
+   "source": "minecraft",
+   "target": "passthrough-modding"
+  },
+  {
+   "source": "passthrough-modding",
+   "target": "reverse-engineering"
+  },
+  {
+   "source": "game-dev",
+   "target": "reverse-engineering"
+  }
+ ]
+}

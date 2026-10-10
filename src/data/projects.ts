@@ -1,6 +1,7 @@
-import type { GraphLink, Project, Tech, TechCategory } from "./types";
+import type { Project, Tech } from "./types";
 
-// Tech nodes, curated for the graph. A later version may generate this from the vault.
+// Curated stack lines for the project card and the screen-reader list. The graph itself is
+// generated from the vault (src/data/graph.json, scripts/build-graph.mjs).
 export const techs: Tech[] = [
   { id: "java", label: "Java", category: "language" },
   { id: "python", label: "Python", category: "language" },
@@ -89,34 +90,3 @@ export const projects: Project[] = [
     minor: true,
   },
 ];
-
-export const links: GraphLink[] = projects.flatMap((p) =>
-  p.stack.map((t) => ({ source: p.id, target: t })),
-);
-
-export const categoryLabels: Record<TechCategory, string> = {
-  language: "Language",
-  framework: "Framework",
-  tool: "Tool",
-  "data-format": "Data format",
-  technique: "Technique",
-};
-
-/**
- * Node colors reference the CSS tokens in src/app/globals.css (old-site palette),
- * so they can be tweaked in one place. Tech categories are shades of the
- * secondary blue, blending toward the quaternary purple.
- */
-export const categoryColors: Record<TechCategory, string> = {
-  language: "var(--color-cat-language)",
-  framework: "var(--color-cat-framework)",
-  tool: "var(--color-cat-tool)",
-  "data-format": "var(--color-cat-data-format)",
-  technique: "var(--color-cat-technique)",
-};
-
-export const projectColor = "var(--color-quinary)";
-
-export function projectsUsing(techId: string): Project[] {
-  return projects.filter((p) => p.stack.includes(techId));
-}
