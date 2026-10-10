@@ -43,17 +43,39 @@ body {
 
 /* A slow nod to the old welcome section's secondary <-> quinary background animation.
    Cream base so the purple intro text stays readable: glows are capped at 12% so the
-   worst-case blend still gives the purple >= 4.7:1 (cream alone: 5.4:1). */
-@keyframes intro-glow {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
+   worst-case blend (both glows at full strength) still gives the purple 4.6:1 (cream alone: 5.4:1).
+
+   Compositor-only: the gradients are painted once onto their own layer (.intro-glow-layer,
+   rendered by IntroGlow.tsx) and only that layer's transform animates. The layer is twice the
+   section's width and slides by half of it, which reproduces the old
+   `background-size: 200% 200%; background-position: 0% -> 100%` sweep exactly. It is cropped to
+   the section's height (the old sweep never moved vertically), so the gradient geometry is
+   rewritten in layer units: ellipse heights doubled, centres moved from 30%/70% of a 2x-tall box
+   to 10%/90% of a 1x-tall one. IntroGlow pauses it off-screen and in hidden tabs. */
 .intro-glow {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   background-color: var(--color-tertiary);
-  background-image: radial-gradient(60% 60% at 20% 30%, color-mix(in srgb, var(--color-secondary) 12%, transparent), transparent 70%),
-    radial-gradient(55% 55% at 80% 70%, color-mix(in srgb, var(--color-quinary) 12%, transparent), transparent 70%);
-  background-size: 200% 200%;
+}
+.intro-glow-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 200%;
+  height: 100%;
+  pointer-events: none;
+  background-image: radial-gradient(60% 120% at 20% 10%, color-mix(in srgb, var(--color-secondary) 12%, transparent), transparent 70%),
+    radial-gradient(55% 110% at 80% 90%, color-mix(in srgb, var(--color-quinary) 12%, transparent), transparent 70%);
   animation: intro-glow 10s ease-in-out infinite;
+}
+.intro-glow-layer[data-paused] {
+  animation-play-state: paused;
+}
+@keyframes intro-glow {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-50%, 0, 0); }
 }
 
 /* ---- Projects constellation (ProjectGraph.tsx) --------------------------------------------
@@ -204,7 +226,7 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .intro-glow { animation: none; }
+  .intro-glow-layer { animation: none; }
   .cst .cst-node[data-kind] .cst-star { animation: none; }
   .cst-link-lit { animation: none; stroke-dashoffset: 0; }
   .cst-ring { transform: none; }

@@ -47,6 +47,12 @@ type Point = { x: number; y: number };
 
 const TECH_LABEL_GAP = 16;
 
+/** md+ only: the details card docks top-right (16px inset + 320px wide) plus a clear gap before it. */
+const CARD_RESERVE = 16 + 320 + 32;
+
+/** Width the stars lay out in: the full frame on phones, the frame minus the card on md+. */
+const freeWidthFor = (w: number) => (w >= 768 ? w - CARD_RESERVE : w);
+
 const fontSizeFor = (kind: GraphNode["kind"], scale: number) =>
   kind === "project" ? Math.max(12, 14 * scale) : Math.max(11, 12 * scale);
 
@@ -187,8 +193,9 @@ export function ProjectGraph() {
   const [paused, setPaused] = useState(true);
   const reducedMotion = usePrefersReducedMotion();
 
-  // Scale node sizes and forces down on narrow screens so the graph fits at phone width.
-  const scale = size ? Math.max(0.7, Math.min(1, size.w / 960)) : 1;
+  // Scale node sizes and forces to the space the stars actually get (the frame minus the docked
+  // card on md+), so the layout fits that area with room to spare instead of packing its edges.
+  const scale = size ? Math.max(0.7, Math.min(1, freeWidthFor(size.w) / 960)) : 1;
 
   /** Write current simulation positions straight to the DOM (no React render). */
   const applyPositionsRef = useRef(() => {});
@@ -236,7 +243,8 @@ export function ProjectGraph() {
     if (!size) return;
     const { w, h } = size;
     // On wide screens the details card docks top-right, so centre the graph in the remaining space.
-    const cx = w >= 768 ? (w - 330) / 2 : w / 2;
+    const freeW = freeWidthFor(w);
+    const cx = freeW / 2;
     const radius = (i: number) => graphNodes[i].baseR * scale;
 
     if (!simRef.current) {
@@ -280,14 +288,39 @@ export function ProjectGraph() {
     // On wide screens the legend is overlaid along the bottom edge and the card docks top-right,
     // so keep stars out from under both.
     const legendSpace = w >= 768 ? 34 : 4;
-    const right = w >= 768 ? w - 340 : w;
+    const right = freeW;
+    // Soft margin: inside this band a star is eased back toward the middle, so the layout settles
+    // with breathing room at the edges instead of a column of stars pressed flat against a wall.
+    // The hard clamp below is only a backstop. Phones keep the old tight fit (no soft margin).
+    const margin = w >= 768 ? 40 * scale : 0;
+    const extentFor = (i: number) => {
+      const g = graphNodes[i];
+      const r = Math.max(starFor(g).glow * 0.5, hitRFor(g, scale));
+      return { r, half: Math.max(r, labelHalfWidth(g, scale)), bottom: labelOffsetFor(g, scale) + fontSizeFor(g.kind, scale) + 4 };
+    };
+    const softEdges = (alpha: number) => {
+      if (!margin) return;
+      const k = Math.min(0.8, 3 * alpha);
+      nodes.forEach((n, i) => {
+        if (n.fx != null) return;
+        const { r, half, bottom } = extentFor(i);
+        const x = n.x ?? 0;
+        const y = n.y ?? 0;
+        const minX = half + margin;
+        const maxX = right - half - margin;
+        const minY = r + margin * 0.5;
+        const maxY = h - bottom - legendSpace - margin * 0.5;
+        if (x < minX) n.vx = (n.vx ?? 0) + (minX - x) * k;
+        else if (x > maxX) n.vx = (n.vx ?? 0) + (maxX - x) * k;
+        if (y < minY) n.vy = (n.vy ?? 0) + (minY - y) * k;
+        else if (y > maxY) n.vy = (n.vy ?? 0) + (maxY - y) * k;
+      });
+    };
+    sim.force("edges", softEdges);
     const clamp = () => {
       nodes.forEach((n, i) => {
-        const g = graphNodes[i];
-        const r = Math.max(starFor(g).glow * 0.5, hitRFor(g, scale));
         // Keep labels (drawn under the star) inside the frame too.
-        const bottom = labelOffsetFor(g, scale) + fontSizeFor(g.kind, scale) + 4;
-        const half = Math.max(r, labelHalfWidth(g, scale));
+        const { r, half, bottom } = extentFor(i);
         n.x = Math.max(half + 4, Math.min(right - half - 4, n.x ?? w / 2));
         n.y = Math.max(r + 4, Math.min(h - bottom - legendSpace, n.y ?? h / 2));
       });

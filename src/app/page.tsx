@@ -1,4 +1,5 @@
 import { Contact } from "@/components/Contact";
+import { IntroGlow } from "@/components/IntroGlow";
 import { Nav } from "@/components/Nav";
 import { ProjectGraph } from "@/components/ProjectGraph";
 import { ProjectList } from "@/components/ProjectList";
@@ -14,6 +15,7 @@ export default function Home() {
           aria-labelledby="intro-title"
           className="intro-glow flex min-h-[calc(100svh-3.5rem)] scroll-mt-14 items-center"
         >
+          <IntroGlow />
           <div className="mx-auto w-full max-w-3xl px-4 py-20">
             <h1 id="intro-title" className="text-4xl font-semibold tracking-tight text-quaternary sm:text-6xl">
               {site.name}
