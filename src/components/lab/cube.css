@@ -205,15 +205,56 @@
   }
 }
 
-/* ---------- panel placement: below the cube on phones, right column on desktop ---------- */
+/* ---------- intro text: shares the panel's grid cell and crossfades with it ---------- */
 
-.lab-cube-panel {
+.lab-cube-panel,
+.lab-cube-intro {
   grid-area: 2 / 1;
 }
 @media (min-width: 641px) {
-  .lab-cube-panel {
+  .lab-cube-panel,
+  .lab-cube-intro {
     grid-area: 1 / 2;
   }
+  .lab-cube-intro {
+    align-self: center;
+    justify-self: start;
+  }
+}
+.lab-cube-intro {
+  width: 100%;
+  max-width: 26rem;
+  color: var(--ink);
+  transition:
+    opacity 320ms ease-out,
+    visibility 0s;
+}
+.lab-cube-intro[data-open="false"] {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 320ms ease-out,
+    visibility 0s linear 320ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-cube-intro,
+  .lab-cube-intro[data-open="false"] {
+    transition: none;
+  }
+}
+.lab-cube-introName {
+  margin: 0 0 1rem;
+  font-family: var(--font-league-spartan), var(--font-sans);
+  font-size: clamp(2.5rem, 8vw, 4.5rem); /* 72px at full size */
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 0.95;
+}
+.lab-cube-introBio {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-dm-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.55;
 }
 
 /* ---------- info panel ---------- */
