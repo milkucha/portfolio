@@ -95,6 +95,9 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   pointer-events: none;
+  /* JS sets --label-rot in quarter turns so the text stays in the screen's upper-left corner. */
+  transform: rotate(var(--label-rot, 0deg));
+  transition: transform 350ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .lab-cube-stage:not([data-fill="color"]) .lab-cube-label {
   color: var(--ink);
@@ -442,6 +445,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .lab-cube-label {
+    transition: none;
+  }
   .lab-cube-panel,
   .lab-cube-panel[data-open="false"] {
     transition: none;
