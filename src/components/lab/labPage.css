@@ -14,13 +14,19 @@
   top: 0;
   z-index: 10;
   display: flex;
+  justify-content: flex-end;
   gap: 1.5rem;
   height: 3.5rem;
   align-items: center;
   padding: 0 16px;
-  background: var(--paper);
+  background: #020202;
+  color: #fff;
   font-family: var(--mono);
   font-size: 0.8125rem;
+}
+.lab-page-nav a:focus-visible {
+  outline: 1px dashed #fff;
+  outline-offset: 4px;
 }
 .lab-page-nav a,
 .lab-page-links a {
@@ -103,5 +109,38 @@
   .lab-page-linkLabel {
     width: 11rem;
     flex: none;
+  }
+}
+
+/* Typed name: zero-width cursor sits at the typing point; the untyped rest holds its space. */
+.lab-page-untyped {
+  visibility: hidden;
+}
+.lab-page-cursor {
+  position: relative;
+  display: inline-block;
+  width: 0;
+}
+.lab-page-cursor::after {
+  content: "";
+  position: absolute;
+  left: 0.06em;
+  bottom: 0.08em;
+  width: 0.42em;
+  height: 0.72em;
+  background: currentColor;
+  animation: lab-page-blink 1.06s steps(1) infinite;
+}
+.lab-page-cursor[data-done="false"]::after {
+  animation: none; /* solid while typing, like a terminal */
+}
+@keyframes lab-page-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-page-cursor::after {
+    animation: none;
   }
 }
