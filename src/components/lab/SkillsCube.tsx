@@ -18,6 +18,7 @@ import {
   toMatrix3d,
 } from "./quat";
 import { faceProjects } from "./cubeProjects";
+import { LinkIcon } from "./linkIcons";
 import "./cube.css";
 
 /* ---------- view tilt + spin: hand-tweak these ---------- */
@@ -64,6 +65,7 @@ const styles = {
   menuLabel: "lab-cube-menuLabel",
   menuProjects: "lab-cube-menuProjects",
   menuFaces: "lab-cube-menuFaces",
+  faceName: "lab-cube-faceName",
   menuContact: "lab-cube-menuContact",
   buttons: "lab-cube-buttons",
   contact: "lab-cube-contact",
@@ -89,6 +91,7 @@ const styles = {
   chips: "lab-cube-chips",
   workflow: "lab-cube-workflow",
   workflowLabel: "lab-cube-workflowLabel",
+  chipGroup: "lab-cube-chipGroup",
   chip: "lab-cube-chip",
   links: "lab-cube-links",
 } as const;
@@ -685,7 +688,7 @@ export function SkillsCube() {
                 aria-pressed={!!panel?.open && face.slot === panel.slot}
                 onClick={() => goTo(face.slot)}
               >
-                {face.name}
+                <span className={styles.faceName}>{face.name}</span>
               </button>
             ))}
           </nav>
@@ -802,13 +805,16 @@ export function SkillsCube() {
                     <li key={h}>{h}</li>
                   ))}
                 </ul>
-                <ul className={styles.chips} aria-label="Stack">
-                  {p.stack.map((t) => (
-                    <li key={t} className={styles.chip}>
-                      {t}
-                    </li>
-                  ))}
-                </ul>
+                <div className={styles.chipGroup}>
+                  <p className={styles.workflowLabel}>Tech</p>
+                  <ul className={styles.chips} aria-label="Tech">
+                    {p.stack.map((t) => (
+                      <li key={t} className={styles.chip}>
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
                 {p.workflow.length > 0 ? (
                   <div className={styles.workflow}>
                     <p className={styles.workflowLabel}>Workflow</p>
@@ -824,9 +830,15 @@ export function SkillsCube() {
                 {p.links.length > 0 ? (
                   <p className={styles.links}>
                     {p.links.map((l) => (
-                      <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer">
-                        {l.label}
-                        <span aria-hidden="true"> &#8599;</span>
+                      <a
+                        key={l.href}
+                        href={l.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`${l.label} (opens in a new tab)`}
+                        title={l.label}
+                      >
+                        <LinkIcon name={l.icon} />
                       </a>
                     ))}
                   </p>

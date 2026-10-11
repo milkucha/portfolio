@@ -162,12 +162,34 @@
     white-space: nowrap;
   }
 }
+/* Hover/focus: the name lifts and tilts to the right, pivoting at its bottom-left, like a document
+   being pulled from a folder. On an inner span so it doesn't fight the unroll transition. */
+.lab-cube-faceName {
+  display: inline-block;
+  transform-origin: 0 100%;
+  transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.lab-cube-menuFaces > button:hover .lab-cube-faceName,
+.lab-cube-menuFaces > button:focus-visible .lab-cube-faceName {
+  transform: translateY(-6px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-cube-faceName {
+    transition: none;
+  }
+  .lab-cube-menuFaces > button:hover .lab-cube-faceName,
+  .lab-cube-menuFaces > button:focus-visible .lab-cube-faceName {
+    transform: none;
+  }
+}
 .lab-cube-menuProjects[aria-expanded="true"] {
   text-decoration-color: currentColor;
 }
 /* The options unroll to the right: each button slides in and fades, staggered (transform/opacity only).
    The row keeps its space while closed, so nothing reflows. */
 .lab-cube-menuFaces > button {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   opacity: 0;
   visibility: hidden;
   transform: translateX(-0.75rem);
@@ -535,7 +557,8 @@
   white-space: nowrap;
 }
 
-.lab-cube-workflow {
+.lab-cube-workflow,
+.lab-cube-chipGroup {
   margin-top: 0.75rem;
 }
 .lab-cube-workflowLabel {
@@ -549,20 +572,33 @@
 .lab-cube-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 1.25rem;
+  gap: 0.5rem;
   margin: 0.875rem 0 0;
-  font-size: 0.8125rem;
+}
+/* Bare icons, no frame: dimmed slightly at rest, full ink on hover/focus. */
+.lab-cube-links {
+  gap: 1rem;
 }
 .lab-cube-links a {
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.25em;
+  display: inline-grid;
+  place-items: center;
+  padding: 0.125rem;
+  color: var(--ink);
+  font-size: 1.375rem;
+  line-height: 1;
+  text-decoration: none;
+  opacity: 0.85;
 }
-.lab-cube-links a:hover {
-  text-decoration-thickness: 2px;
+/* Hover/focus: the icon switches colour (instant, like the old inverted state; no frame, no motion). */
+.lab-cube-layout {
+  --link-hover: #b56576;
+}
+.lab-cube-links a:hover,
+.lab-cube-links a:focus-visible {
+  opacity: 1;
+  color: var(--link-hover);
 }
 .lab-cube-links a:focus-visible {
   outline: 1px dashed var(--ink);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }

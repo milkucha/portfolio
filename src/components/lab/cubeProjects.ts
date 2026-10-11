@@ -4,14 +4,17 @@
  *
  * Texts and links for TRMT, Oceana Core, Provenance and "This site" are taken from the main site's
  * src/data/projects.ts (nextjs-rewrite). Oceana must stay free of client-confidential detail: keep
- * it exactly as worded there, with no links.
+ * it as worded there; its only link is the public website (web icon), added on request.
  */
 
 import type { FaceId } from "./cubeFaces";
+import type { LinkIconName } from "./linkIcons";
 
 export interface PanelLink {
+  /** Accessible name (also the tooltip); the button itself shows only the icon. */
   label: string;
   href: string;
+  icon: LinkIconName;
 }
 
 export interface PanelEntry {
@@ -38,12 +41,17 @@ const trmt: PanelEntry = {
     "Maintained across 4 Minecraft versions and Fabric, Forge and NeoForge in parallel branches",
     "Lightweight by design: a sparse, self-cleaning map tracks footsteps; everything is JSON-configurable",
   ],
-  stack: ["Java", "Gradle", "Minecraft modding", "GitHub Actions", "JSON"],
+  stack: ["Java", "Gradle", "Minecraft", "Fabric", "Forge", "NeoForge", "GitHub Actions"],
   workflow: ["Claude Code", "OpenCode"],
   links: [
-    { label: "GitHub", href: "https://github.com/milkucha/trmt" },
-    { label: "Modrinth", href: "https://modrinth.com/mod/the-roads-more-travelled" },
-    { label: "CurseForge", href: "https://www.curseforge.com/minecraft/mc-mods/the-roads-more-travelled" },
+    { label: "GitHub", href: "https://github.com/milkucha/trmt", icon: "github" },
+    { label: "Modrinth", href: "https://modrinth.com/mod/the-roads-more-travelled", icon: "modrinth" },
+    {
+      label: "CurseForge",
+      href: "https://www.curseforge.com/minecraft/mc-mods/the-roads-more-travelled",
+      icon: "curseforge",
+    },
+    { label: "YouTube", href: "https://www.youtube.com/@milkuchachuklim", icon: "youtube" },
   ],
 };
 
@@ -56,9 +64,9 @@ const oceana: PanelEntry = {
     "Reservation ingestion from a property-management system's REST API",
     "Relational data model on PostgreSQL, with JSON/XLSX exports",
   ],
-  stack: ["Python", "Django", "PostgreSQL", "JavaScript", "Docker", "REST APIs", "JSON"],
+  stack: ["Python", "Django", "PostgreSQL", "Docker", "REST APIs"],
   workflow: ["Claude Code", "OpenCode"],
-  links: [],
+  links: [{ label: "Website", href: "https://www.oceanasuites.com", icon: "web" }],
 };
 
 const provenance: PanelEntry = {
@@ -70,9 +78,9 @@ const provenance: PanelEntry = {
     "Agents only see a bounded, randomly-sampled slice of a typed knowledge base, enforced structurally",
     "Model-agnostic and token-lean, with part of the orchestration running locally via Ollama",
   ],
-  stack: ["Python", "JavaScript", "JSON", "Ollama"],
+  stack: ["Python", "Ollama"],
   workflow: ["Claude Code", "OpenCode"],
-  links: [{ label: "GitHub", href: "https://github.com/milkucha/provenance" }],
+  links: [{ label: "GitHub", href: "https://github.com/milkucha/provenance", icon: "github" }],
 };
 
 const site: PanelEntry = {
@@ -84,7 +92,7 @@ const site: PanelEntry = {
   ],
   stack: ["TypeScript", "React", "Next.js", "Tailwind CSS"],
   workflow: [],
-  links: [{ label: "GitHub", href: "https://github.com/milkucha/portfolio" }],
+  links: [{ label: "GitHub", href: "https://github.com/milkucha/portfolio", icon: "github" }],
 };
 
 const icarus: PanelEntry = {
@@ -97,7 +105,7 @@ const icarus: PanelEntry = {
   ],
   stack: ["Godot", "GDScript", "Aseprite"],
   workflow: [],
-  links: [{ label: "itch.io", href: "https://milkucha.itch.io/icarus" }],
+  links: [{ label: "itch.io", href: "https://milkucha.itch.io/icarus", icon: "itch" }],
 };
 
 const kucha: PanelEntry = {
@@ -120,7 +128,7 @@ const design: PanelEntry = {
     "Voxel city renders: Minecraft builds exported through a Python pipeline into MagicaVoxel",
     "UX and product design at Elim, 2021-2023",
   ],
-  stack: ["MagicaVoxel", "Python", "Minecraft"],
+  stack: ["Figma", "Blender", "MagicaVoxel", "Python"],
   workflow: [],
   links: [],
 };
