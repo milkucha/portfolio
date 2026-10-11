@@ -49,7 +49,16 @@ const styles = {
   name: "lab-cube-name",
   hint: "lab-cube-hint",
   hintPart: "lab-cube-hintPart",
+  menu: "lab-cube-menu",
+  menuBio: "lab-cube-menuBio",
+  menuLabel: "lab-cube-menuLabel",
+  menuFaces: "lab-cube-menuFaces",
+  menuContact: "lab-cube-menuContact",
   buttons: "lab-cube-buttons",
+  contact: "lab-cube-contact",
+  contactList: "lab-cube-contactList",
+  contactRow: "lab-cube-contactRow",
+  contactLabel: "lab-cube-contactLabel",
   lab: "lab-cube-lab",
   button: "lab-cube-button",
   srOnly: "lab-cube-srOnly",
@@ -139,7 +148,6 @@ const INITIAL_Q: Quat = restFor("front");
 const REST_DEPTH = rotate(VIEW, [0, 0, 1])[2].toFixed(6);
 const transformFor = (q: Quat) => `translateZ(calc(var(--half) * -${REST_DEPTH})) ${toMatrix3d(q)}`;
 const INITIAL_TRANSFORM = transformFor(INITIAL_Q);
-const INITIAL_SLOT = frontSlot(INITIAL_Q);
 
 /* ---------- motion tuning ---------- */
 
@@ -216,11 +224,12 @@ export function SkillsCube() {
     lastY: 0,
     dirty: false,
   });
-  const [active, setActive] = useState<FaceSlot>(INITIAL_SLOT);
   const [dragging, setDragging] = useState(false);
   const [fill, setFill] = useState<"color" | "ghost" | "wire">("color");
   /** Info panel: last face shown (kept while fading out), `seq` re-keys the card to replay its entrance. */
   const [panel, setPanel] = useState<{ slot: FaceSlot; seq: number; open: boolean } | null>(null);
+  /** Right pane shows the contact card (exclusive with the intro and the project panel). */
+  const [contactOpen, setContactOpen] = useState(false);
 
   // prefers-reduced-motion
   useEffect(() => {
@@ -251,7 +260,6 @@ export function SkillsCube() {
   useEffect(() => {
     let raf = 0;
     let last = clock();
-    let shownSlot: FaceSlot = INITIAL_SLOT;
 
     const tick = (now: number) => {
       const s = sim.current;
@@ -335,11 +343,6 @@ export function SkillsCube() {
       if (s.dirty && cubeRef.current) {
         cubeRef.current.style.transform = transformFor(s.q);
         s.dirty = false;
-        const slot = frontSlot(s.q);
-        if (slot !== shownSlot) {
-          shownSlot = slot;
-          setActive(slot);
-        }
       }
       raf = requestAnimationFrame(tick);
     };
@@ -358,8 +361,27 @@ export function SkillsCube() {
       setPanel((p) => p && { ...p, open: false });
       return;
     }
+    setContactOpen(false); // choosing a face, any way, replaces the contact card
     s.panelSeq += 1;
     setPanel({ slot, seq: s.panelSeq, open: true });
+  };
+
+  /** BIO: back to the intro. Closes any card and lets the idle spin resume straight away. */
+  const showBio = () => {
+    const s = sim.current;
+    showPanel(null);
+    setContactOpen(false);
+    s.lastInteraction = -Infinity;
+    s.holdUntil = 0;
+  };
+
+  /** CONTACT: replaces the intro or project card with the contact card; the cube idles on its own. */
+  const showContact = () => {
+    const s = sim.current;
+    showPanel(null);
+    setContactOpen(true);
+    s.lastInteraction = clock();
+    s.holdUntil = 0;
   };
 
   const snapTo = (target: Quat) => {
@@ -540,19 +562,40 @@ export function SkillsCube() {
           </div>
         </div>
 
-        <nav aria-label="Cube faces" className={styles.buttons}>
-          {cubeFaces.map((face) => (
-            <button
-              key={face.id}
-              type="button"
-              className={styles.button}
-              aria-pressed={face.slot === active}
-              onClick={() => goTo(face.slot)}
-            >
-              {face.name}
-            </button>
-          ))}
-        </nav>
+        <div className={styles.menu}>
+          <button
+            type="button"
+            className={`${styles.button} ${styles.menuLabel} ${styles.menuBio}`}
+            aria-pressed={!contactOpen && !panel?.open}
+            onClick={showBio}
+          >
+            Bio
+          </button>
+          <span className={styles.menuLabel} id="lab-cube-projects-label">
+            Projects
+          </span>
+          <nav aria-labelledby="lab-cube-projects-label" className={styles.menuFaces}>
+            {cubeFaces.map((face) => (
+              <button
+                key={face.id}
+                type="button"
+                className={styles.button}
+                aria-pressed={!!panel?.open && face.slot === panel.slot}
+                onClick={() => goTo(face.slot)}
+              >
+                {face.name}
+              </button>
+            ))}
+          </nav>
+          <button
+            type="button"
+            className={`${styles.button} ${styles.menuLabel} ${styles.menuContact}`}
+            aria-pressed={contactOpen}
+            onClick={showContact}
+          >
+            Contact
+          </button>
+        </div>
 
         <div className={styles.lab} role="group" aria-label="Face style (lab only)">
           <span>faces:</span>
@@ -574,8 +617,8 @@ export function SkillsCube() {
       <section
         className={styles.intro}
         aria-labelledby="lab-cube-intro-title"
-        data-open={panel?.open ? "false" : "true"}
-        inert={!!panel?.open}
+        data-open={panel?.open || contactOpen ? "false" : "true"}
+        inert={!!panel?.open || contactOpen}
       >
         <h1 id="lab-cube-intro-title" className={styles.introName}>
           {site.name}
@@ -585,6 +628,29 @@ export function SkillsCube() {
             {para}
           </p>
         ))}
+      </section>
+
+      {/* Contact card: the third state of the right pane. Always mounted so it can fade out. */}
+      <section
+        className={styles.contact}
+        aria-label="Contact"
+        data-open={contactOpen ? "true" : "false"}
+        inert={!contactOpen}
+      >
+        <h2 className={styles.panelHead}>Contact</h2>
+        <ul className={styles.contactList}>
+          {site.contact.map((c) => (
+            <li key={c.href} className={styles.contactRow}>
+              <span className={styles.contactLabel}>{c.label}</span>
+              <a
+                href={c.href}
+                {...(c.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              >
+                {c.display}
+              </a>
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* Info panel for the focused face. Always mounted, so the live region exists before it first

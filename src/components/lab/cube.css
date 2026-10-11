@@ -117,6 +117,58 @@
   white-space: nowrap;
 }
 
+/* Three-row menu: BIO / PROJECTS + face buttons / CONTACT, labels in one left-aligned column. */
+.lab-cube-menu {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.25rem 1.5rem;
+  align-self: center;
+  max-width: 100%;
+  padding: 0 16px;
+  color: var(--ink);
+  font-family: var(--font-dm-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+}
+.lab-cube-menuLabel {
+  justify-self: start;
+  text-align: left;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.lab-cube-menuBio {
+  grid-column: 1;
+  grid-row: 1;
+}
+.lab-cube-menu > span.lab-cube-menuLabel {
+  grid-column: 1;
+  grid-row: 2;
+}
+.lab-cube-menuFaces {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+.lab-cube-menuContact {
+  grid-column: 1;
+  grid-row: 3;
+}
+@media (max-width: 640px) {
+  .lab-cube-menu {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lab-cube-menuBio,
+  .lab-cube-menu > span.lab-cube-menuLabel,
+  .lab-cube-menuFaces,
+  .lab-cube-menuContact {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
 .lab-cube-buttons,
 .lab-cube-lab {
   display: flex;
@@ -208,15 +260,18 @@
 /* ---------- intro text: shares the panel's grid cell and crossfades with it ---------- */
 
 .lab-cube-panel,
-.lab-cube-intro {
+.lab-cube-intro,
+.lab-cube-contact {
   grid-area: 2 / 1;
 }
 @media (min-width: 641px) {
   .lab-cube-panel,
-  .lab-cube-intro {
+  .lab-cube-intro,
+  .lab-cube-contact {
     grid-area: 1 / 2;
   }
-  .lab-cube-intro {
+  .lab-cube-intro,
+  .lab-cube-contact {
     align-self: center;
     justify-self: start;
   }
@@ -226,15 +281,15 @@
   max-width: 26rem;
   color: var(--ink);
   transition:
-    opacity 320ms ease-out,
+    opacity 600ms ease-out,
     visibility 0s;
 }
 .lab-cube-intro[data-open="false"] {
   opacity: 0;
   visibility: hidden;
   transition:
-    opacity 320ms ease-out,
-    visibility 0s linear 320ms;
+    opacity 600ms ease-out,
+    visibility 0s linear 600ms;
 }
 @media (prefers-reduced-motion: reduce) {
   .lab-cube-intro,
@@ -242,6 +297,70 @@
     transition: none;
   }
 }
+/* ---------- contact card: third state of the right pane ---------- */
+
+.lab-cube-contact {
+  width: 100%;
+  max-width: 26rem;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  transition:
+    opacity 600ms ease-out,
+    visibility 0s;
+}
+.lab-cube-contact[data-open="false"] {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 600ms ease-out,
+    visibility 0s linear 600ms;
+}
+.lab-cube-contactList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lab-cube-contactRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.75rem 0;
+}
+.lab-cube-contactRow + .lab-cube-contactRow {
+  border-top: 1px solid var(--ink);
+}
+.lab-cube-contactLabel {
+  font-family: var(--font-dm-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.lab-cube-contactRow a {
+  width: fit-content;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 0.9375rem;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.3em;
+  text-decoration-thickness: 1px;
+}
+.lab-cube-contactRow a:hover,
+.lab-cube-contactRow a:focus-visible {
+  text-decoration-color: currentColor;
+}
+.lab-cube-contactRow a:focus-visible {
+  outline: 1px dashed var(--ink);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-cube-contact,
+  .lab-cube-contact[data-open="false"] {
+    transition: none;
+  }
+}
+
 .lab-cube-introName {
   margin: 0 0 1rem;
   font-family: var(--font-league-spartan), var(--font-sans);
@@ -265,19 +384,19 @@
   color: var(--ink);
   font-family: var(--font-sans);
   transition:
-    opacity 320ms ease-out,
+    opacity 600ms ease-out,
     visibility 0s;
 }
 .lab-cube-panel[data-open="false"] {
   opacity: 0;
   visibility: hidden;
   transition:
-    opacity 320ms ease-out,
-    visibility 0s linear 320ms;
+    opacity 600ms ease-out,
+    visibility 0s linear 600ms;
 }
 
 .lab-cube-panelCard {
-  animation: lab-cube-panel-in 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation: lab-cube-panel-in 600ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 @keyframes lab-cube-panel-in {
   from {
