@@ -33,9 +33,19 @@ import "./cube.css";
 const VIEW_PITCH_DEG = 10.63; // = 0.36 rad
 const VIEW_YAW_DEG = 5.65; // = 0.50 rad
 const VIEW_ROLL_DEG = -20;
-/** Idle spin speed about the cube's own (tilted) vertical. 18.3 deg/s ~ one turn per 20 s. */
-const SPIN_DEG_PER_S = 10.3;
-/** Seconds of ease-in for the spin on page load (short, so it is moving straight away). */
+/**
+ * Idle motion is a slow, calm tumble: a continuous rotation about an axis that itself drifts around
+ * the vertical, so every face (top and bottom included) swings past the viewer, never snapping.
+ *   TUMBLE_DEG_PER_S    rotation speed about the tumble axis (12 deg/s ~ one turn per 30 s).
+ *   TUMBLE_TILT_DEG     how far the axis leans from vertical (0 = the old flat spin; ~55 reaches all faces).
+ *   PRECESS_DEG_PER_S   how fast the axis circles the vertical (4 deg/s ~ once per 90 s; 0 = fixed axis,
+ *                       which never brings the top face round).
+ * With 55 / 12 / 4 all six faces have been in front within about a minute, each for ~7 s per visit.
+ */
+const TUMBLE_DEG_PER_S = 12;
+const TUMBLE_TILT_DEG = 55;
+const PRECESS_DEG_PER_S = 4;
+/** Seconds of ease-in for the tumble on page load (short, so it is moving straight away). */
 const ENTRY_RAMP = 0.5;
 
 const styles = {
@@ -120,8 +130,11 @@ const VIEW: Quat = normalize(
   ),
 );
 const VIEW_INV = conj(VIEW);
-/** The cube's own vertical as seen through the tilt: idle spins about this, so it never wobbles. */
-const SPIN_AXIS: Vec3 = rotate(VIEW, [0, 1, 0]);
+/** World-space tumble axis for a given precession phase (rad): leans TUMBLE_TILT_DEG off vertical. */
+const tumbleAxis = (phase: number): Vec3 => {
+  const a = TUMBLE_TILT_DEG * DEG;
+  return [Math.sin(a) * Math.cos(phase), Math.cos(a), Math.sin(a) * Math.sin(phase)];
+};
 /** Orientation the cube rests in when `slot` is the chosen face. */
 const restFor = (slot: FaceSlot): Quat => mul(VIEW, SLOTS[slot].upright);
 
@@ -152,7 +165,8 @@ const INITIAL_TRANSFORM = transformFor(INITIAL_Q);
 
 /* ---------- motion tuning ---------- */
 
-const IDLE_SPEED = SPIN_DEG_PER_S * DEG; // rad/s around the (tilted) vertical axis
+const IDLE_SPEED = TUMBLE_DEG_PER_S * DEG; // rad/s around the tumble axis
+const PRECESS_SPEED = PRECESS_DEG_PER_S * DEG; // rad/s the tumble axis circles the vertical
 const IDLE_DELAY = 3500; // ms of no interaction before idle resumes
 const PICK_HOLD = 10000; // ms the cube stays put after a face is picked (button / arrow key)
 const IDLE_RAMP = 1.4; // s to ease idle speed in/out
@@ -179,6 +193,8 @@ interface Sim {
   /** Pointer over / keyboard focus inside the info panel: counts as interacting (no idle). */
   panelHover: boolean;
   panelFocus: boolean;
+  /** Precession phase (rad) of the tumble axis. */
+  phase: number;
   /** Still in the first, on-load spin-up (uses the short ENTRY_RAMP). */
   entry: boolean;
   /** Face the panel currently shows, null when hidden. Mirrors React state for the rAF loop. */
@@ -215,6 +231,7 @@ export function SkillsCube() {
     focused: false,
     panelHover: false,
     panelFocus: false,
+    phase: 0,
     entry: true,
     panelSlot: null,
     panelSeq: 0,
@@ -335,7 +352,9 @@ export function SkillsCube() {
         }
         if (s.idleBlend > 0) {
           const speed = IDLE_SPEED * smoothstep(s.idleBlend);
-          s.w = [SPIN_AXIS[0] * speed, SPIN_AXIS[1] * speed, SPIN_AXIS[2] * speed];
+          s.phase += PRECESS_SPEED * dt;
+          const axis = tumbleAxis(s.phase);
+          s.w = [axis[0] * speed, axis[1] * speed, axis[2] * speed];
           s.q = normalize(mul(expMap([s.w[0] * dt, s.w[1] * dt, s.w[2] * dt]), s.q));
           s.dirty = true;
         } else {
