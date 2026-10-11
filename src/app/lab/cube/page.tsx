@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { SkillsCube } from "@/components/lab/SkillsCube";
+import { TypedName } from "@/components/lab/TypedName";
 import { INTRO_LINES } from "@/components/lab/introText";
 import { site } from "@/data/site";
 import "@/components/lab/labPage.css";
@@ -27,7 +28,7 @@ export default function CubeLabPage() {
       <section id="bio" aria-labelledby="bio-title" className="lab-page-section">
         <div className="lab-page-inner">
           <h1 id="bio-title" className="lab-page-name">
-            {site.name}
+            <TypedName text={site.name} />
           </h1>
           {INTRO_LINES.map((line) => (
             <p key={line} className="lab-page-bio">
