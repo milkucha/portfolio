@@ -52,6 +52,7 @@ const styles = {
   menu: "lab-cube-menu",
   menuBio: "lab-cube-menuBio",
   menuLabel: "lab-cube-menuLabel",
+  menuProjects: "lab-cube-menuProjects",
   menuFaces: "lab-cube-menuFaces",
   menuContact: "lab-cube-menuContact",
   buttons: "lab-cube-buttons",
@@ -230,6 +231,8 @@ export function SkillsCube() {
   const [panel, setPanel] = useState<{ slot: FaceSlot; seq: number; open: boolean } | null>(null);
   /** Right pane shows the contact card (exclusive with the intro and the project panel). */
   const [contactOpen, setContactOpen] = useState(false);
+  /** PROJECTS menu unrolled: the face buttons are hidden until it is opened. */
+  const [projectsOpen, setProjectsOpen] = useState(false);
 
   // prefers-reduced-motion
   useEffect(() => {
@@ -567,17 +570,34 @@ export function SkillsCube() {
             type="button"
             className={`${styles.button} ${styles.menuLabel} ${styles.menuBio}`}
             aria-pressed={!contactOpen && !panel?.open}
-            onClick={showBio}
+            onClick={() => {
+              setProjectsOpen(false);
+              showBio();
+            }}
           >
             Bio
           </button>
-          <span className={styles.menuLabel} id="lab-cube-projects-label">
+          <button
+            type="button"
+            id="lab-cube-projects-label"
+            className={`${styles.button} ${styles.menuLabel} ${styles.menuProjects}`}
+            aria-expanded={projectsOpen}
+            aria-controls="lab-cube-faces"
+            onClick={() => setProjectsOpen((o) => !o)}
+          >
             Projects
-          </span>
-          <nav aria-labelledby="lab-cube-projects-label" className={styles.menuFaces}>
-            {cubeFaces.map((face) => (
+          </button>
+          <nav
+            id="lab-cube-faces"
+            aria-labelledby="lab-cube-projects-label"
+            className={styles.menuFaces}
+            data-open={projectsOpen ? "true" : "false"}
+            inert={!projectsOpen}
+          >
+            {cubeFaces.map((face, i) => (
               <button
                 key={face.id}
+                style={{ "--i": i } as CSSProperties}
                 type="button"
                 className={styles.button}
                 aria-pressed={!!panel?.open && face.slot === panel.slot}
@@ -591,7 +611,10 @@ export function SkillsCube() {
             type="button"
             className={`${styles.button} ${styles.menuLabel} ${styles.menuContact}`}
             aria-pressed={contactOpen}
-            onClick={showContact}
+            onClick={() => {
+              setProjectsOpen(false);
+              showContact();
+            }}
           >
             Contact
           </button>
