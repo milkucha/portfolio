@@ -1,21 +1,22 @@
 #!/usr/bin/env node
 /**
- * Builds src/data/graph.json from the Obsidian vault this repo lives in.
+ * Builds src/data/graph.json from the Obsidian vault.
  *
  *   node scripts/build-graph.mjs [vaultPath]
  *
- * Default vault path: three levels up from the repo root (projects/portfolio/repo -> vault).
+ * Default vault path: ~/vault/everything (the repo lives at ~/portfolio, outside the vault).
  * Runs locally only; the generated JSON is committed because Vercel can't see the vault.
  *
  * PRIVACY: the output is published. It holds only note titles, category tags and links, never
  * note content. Nodes listed in EXCLUDE are dropped (and so are their links).
  */
 import { readFileSync, readdirSync, writeFileSync, existsSync, statSync } from "node:fs";
+import { homedir } from "node:os";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const vault = resolve(process.argv[2] ?? join(repoRoot, "..", "..", ".."));
+const vault = resolve(process.argv[2] ?? join(homedir(), "vault", "everything"));
 const outFile = join(repoRoot, "src", "data", "graph.json");
 
 /** Featured project notes (vault-relative) -> id used by src/data/projects.ts, and display label. */
