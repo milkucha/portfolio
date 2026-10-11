@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent, PointerEvent } from "react";
 import { cubeFaces, type FaceSlot } from "./cubeFaces";
 import {
@@ -28,13 +28,13 @@ import "./cube.css";
  *   VIEW_YAW_DEG   > 0 turns the front face's right edge away (the left face shows); < 0 the right.
  *   VIEW_ROLL_DEG  tilts the whole thing in the screen plane (clockwise > 0). 726b35e had none.
  */
-const VIEW_PITCH_DEG = 30.63; // = 0.36 rad
-const VIEW_YAW_DEG = 15.65; // = 0.50 rad
-const VIEW_ROLL_DEG = 0;
+const VIEW_PITCH_DEG = 10.63; // = 0.36 rad
+const VIEW_YAW_DEG = 5.65; // = 0.50 rad
+const VIEW_ROLL_DEG = -20;
 /** Idle spin speed about the cube's own (tilted) vertical. 18.3 deg/s ~ one turn per 20 s. */
-const SPIN_DEG_PER_S = 18.3;
+const SPIN_DEG_PER_S = 10.3;
 /** Seconds of ease-in for the spin on page load (short, so it is moving straight away). */
-const ENTRY_RAMP = 0.35;
+const ENTRY_RAMP = 0.5;
 
 const styles = {
   wrap: "lab-cube-wrap",
@@ -62,6 +62,8 @@ const styles = {
   entryLine: "lab-cube-entryLine",
   highlights: "lab-cube-highlights",
   chips: "lab-cube-chips",
+  workflow: "lab-cube-workflow",
+  workflowLabel: "lab-cube-workflowLabel",
   chip: "lab-cube-chip",
   links: "lab-cube-links",
 } as const;
@@ -146,6 +148,8 @@ const COAST = 0.16; // s of momentum used to pick the landing face after a fling
 const MAX_SPIN = 16; // rad/s cap on fling speed
 const DRAG_RELEASE_STALE = 70; // ms: if the pointer rested this long before release, no fling
 
+const FADE_MS = 320; // panel crossfade; keep in step with cube.css
+
 type Mode = "free" | "drag" | "spring";
 
 interface Sim {
@@ -165,9 +169,14 @@ interface Sim {
   panelFocus: boolean;
   /** Still in the first, on-load spin-up (uses the short ENTRY_RAMP). */
   entry: boolean;
-  /** Face the panel currently shows, null when hidden. Mirrors React state for the rAF loop. */
-  panelSlot: FaceSlot | null;
+  /** Face the panel currently shows. Mirrors React state for the rAF loop. */
+  panelSlot: FaceSlot;
+  /** Face the panel is heading for (differs from panelSlot during the fade-out). */
+  wantSlot: FaceSlot;
   panelSeq: number;
+  fadeTimer: ReturnType<typeof setTimeout> | null;
+  /** Cube section is in the viewport: idle spin only runs while it is. */
+  onscreen: boolean;
   reduced: boolean;
   pointerId: number | null;
   lastX: number;
@@ -182,6 +191,7 @@ const smoothstep = (t: number) => t * t * (3 - 2 * t);
 
 export function SkillsCube() {
   const cubeRef = useRef<HTMLDivElement>(null);
+  const layoutRef = useRef<HTMLDivElement>(null);
   const sim = useRef<Sim>({
     q: INITIAL_Q,
     w: [0, 0, 0],
@@ -197,8 +207,11 @@ export function SkillsCube() {
     panelHover: false,
     panelFocus: false,
     entry: true,
-    panelSlot: null,
+    panelSlot: INITIAL_SLOT,
+    wantSlot: INITIAL_SLOT,
     panelSeq: 0,
+    fadeTimer: null,
+    onscreen: true,
     reduced: false,
     pointerId: null,
     lastX: 0,
@@ -208,8 +221,41 @@ export function SkillsCube() {
   const [active, setActive] = useState<FaceSlot>(INITIAL_SLOT);
   const [dragging, setDragging] = useState(false);
   const [fill, setFill] = useState<"color" | "ghost" | "wire">("color");
-  /** Info panel: last face shown (kept while fading out), `seq` re-keys the card to replay its entrance. */
-  const [panel, setPanel] = useState<{ slot: FaceSlot; seq: number; open: boolean } | null>(null);
+  /** Info panel: the focused face's card. `open` drops to false for the fade-out between faces; `seq` re-keys the card to replay its entrance. */
+  const [panel, setPanel] = useState<{ slot: FaceSlot; seq: number; open: boolean }>({
+    slot: INITIAL_SLOT,
+    seq: 0,
+    open: true,
+  });
+
+  /**
+   * Point the panel at `slot`: fade the current card out, then swap in the new one. Only called when
+   * the focused face changes, never per frame. A change that lands back on the shown face cancels
+   * the swap, so a quick pass over a face doesn't blink the panel.
+   */
+  const focusFace = (slot: FaceSlot) => {
+    const s = sim.current;
+    if (s.wantSlot === slot) return;
+    s.wantSlot = slot;
+    if (s.fadeTimer) {
+      clearTimeout(s.fadeTimer);
+      s.fadeTimer = null;
+    }
+    if (s.panelSlot === slot) {
+      setPanel((p) => ({ ...p, open: true }));
+      return;
+    }
+    setPanel((p) => ({ ...p, open: false }));
+    s.fadeTimer = setTimeout(
+      () => {
+        s.fadeTimer = null;
+        s.panelSlot = slot;
+        s.panelSeq += 1;
+        setPanel({ slot, seq: s.panelSeq, open: true });
+      },
+      s.reduced ? 0 : FADE_MS,
+    );
+  };
 
   // prefers-reduced-motion
   useEffect(() => {
@@ -220,6 +266,23 @@ export function SkillsCube() {
     apply();
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  // Idle spin only runs while the cube section is on screen; pending panel swap cleared on unmount.
+  useEffect(() => {
+    const s = sim.current;
+    const el = layoutRef.current;
+    let io: IntersectionObserver | undefined;
+    if (el) {
+      io = new IntersectionObserver(([entry]) => {
+        s.onscreen = entry.isIntersecting;
+      });
+      io.observe(el);
+    }
+    return () => {
+      io?.disconnect();
+      if (s.fadeTimer) clearTimeout(s.fadeTimer);
+    };
   }, []);
 
   // The one animation loop: the only writer of the cube's transform.
@@ -275,6 +338,7 @@ export function SkillsCube() {
       } else {
         const allowed =
           !s.reduced &&
+          s.onscreen &&
           !s.hovering &&
           !s.focused &&
           !s.panelHover &&
@@ -284,18 +348,6 @@ export function SkillsCube() {
         const ramp = s.entry ? ENTRY_RAMP : IDLE_RAMP;
         s.idleBlend = Math.min(1, Math.max(0, s.idleBlend + (allowed ? dt : -dt) / ramp));
         if (s.idleBlend >= 1) s.entry = false;
-        if (s.idleBlend > 0 && s.panelSlot !== null) {
-          // Spinning again: the panel no longer describes the front face.
-          s.panelSlot = null;
-          setPanel((p) => p && { ...p, open: false });
-        }
-        if (s.reduced && s.idleBlend === 0 && s.panelSlot === null && s.panelSeq === 0) {
-          // Reduced motion: the cube never spins, so the face it rests on counts as focused.
-          const slot = frontSlot(s.q);
-          s.panelSlot = slot;
-          s.panelSeq = 1;
-          setPanel({ slot, seq: 1, open: true });
-        }
         if (s.idleBlend > 0) {
           const speed = IDLE_SPEED * smoothstep(s.idleBlend);
           s.w = [SPIN_AXIS[0] * speed, SPIN_AXIS[1] * speed, SPIN_AXIS[2] * speed];
@@ -313,6 +365,9 @@ export function SkillsCube() {
         if (slot !== shownSlot) {
           shownSlot = slot;
           setActive(slot);
+          // The panel follows the front face while it spins or is dragged; a snap already named
+          // its target face, so the faces passed on the way there don't flicker the panel.
+          if (s.mode !== "spring") focusFace(slot);
         }
       }
       raf = requestAnimationFrame(tick);
@@ -323,26 +378,13 @@ export function SkillsCube() {
 
   /* ---------- commands ---------- */
 
-  /** Show the panel for `slot` (null hides it, keeping the last content to fade out). */
-  const showPanel = (slot: FaceSlot | null) => {
-    const s = sim.current;
-    if (s.panelSlot === slot) return;
-    s.panelSlot = slot;
-    if (slot === null) {
-      setPanel((p) => p && { ...p, open: false });
-      return;
-    }
-    s.panelSeq += 1;
-    setPanel({ slot, seq: s.panelSeq, open: true });
-  };
-
   const snapTo = (target: Quat) => {
     const s = sim.current;
     s.lastInteraction = clock();
     s.idleBlend = 0;
     s.entry = false;
-    // Every snap lands a face front-on: show its panel straight away, while the spring settles.
-    showPanel(frontSlot(target));
+    // Every snap lands a face front-on: point the panel at it straight away, while the spring settles.
+    focusFace(frontSlot(target));
     if (s.reduced) {
       s.q = target;
       s.w = [0, 0, 0];
@@ -396,7 +438,6 @@ export function SkillsCube() {
     s.mode = "drag";
     s.idleBlend = 0;
     s.entry = false;
-    showPanel(null);
     s.lastInteraction = clock();
     s.holdUntil = 0; // a drag is a fresh interaction with the normal idle delay
     setDragging(true);
@@ -442,14 +483,14 @@ export function SkillsCube() {
     turn(m[0], m[1]);
   };
 
-  const panelFace = panel ? cubeFaces.find((f) => f.slot === panel.slot) : undefined;
+  const panelFace = cubeFaces.find((f) => f.slot === panel.slot);
 
   const onPanelLeave = () => {
     sim.current.lastInteraction = clock();
   };
 
   return (
-    <div className={styles.layout}>
+    <div ref={layoutRef} className={styles.layout}>
       <div className={`${styles.wrap} ${styles.cubeCol}`}>
         <div
           className={`${styles.stage} ${dragging ? styles.dragging : ""}`}
@@ -501,15 +542,11 @@ export function SkillsCube() {
                 <div className={styles.label} aria-hidden="true">
                   <span className={styles.name}>{face.name}</span>
                   <span className={styles.hint}>
-                    {/* Wrap only between " · " segments, never inside one ("REST / APIs"). */}
-                    {face.hint.split(" · ").map((part, i, all) => (
-                      <Fragment key={i}>
-                        {i > 0 ? " " : ""}
-                        <span className={styles.hintPart}>
-                          {part}
-                          {i < all.length - 1 ? " ·" : ""}
-                        </span>
-                      </Fragment>
+                    {/* One item per line. */}
+                    {face.hint.split(" · ").map((part) => (
+                      <span key={part} className={styles.hintPart}>
+                        {part}
+                      </span>
                     ))}
                   </span>
                 </div>
@@ -548,14 +585,13 @@ export function SkillsCube() {
         </div>
       </div>
 
-      {/* Info panel for the focused face. Always mounted, so the live region exists before it first
-          fills; hidden (inert, faded) while the cube spins. Focus never moves here on its own. */}
+      {/* Info panel: the card for whichever face is in focus (the carousel). It crossfades whenever
+          the front face changes, so it is always showing a project. */}
       <section
         className={styles.panel}
-        aria-label="Projects for the focused face"
-        aria-live="polite"
-        data-open={panel?.open ? "true" : "false"}
-        inert={!panel?.open}
+        aria-label="Projects for the face in focus"
+        data-open={panel.open ? "true" : "false"}
+        inert={!panel.open}
         onPointerEnter={(e) => {
           if (e.pointerType === "mouse") sim.current.panelHover = true;
         }}
@@ -573,7 +609,7 @@ export function SkillsCube() {
           onPanelLeave();
         }}
       >
-        {panel && panelFace ? (
+        {panelFace ? (
           <div
             key={panel.seq}
             className={styles.panelCard}
@@ -599,6 +635,18 @@ export function SkillsCube() {
                     </li>
                   ))}
                 </ul>
+                {p.workflow.length > 0 ? (
+                  <div className={styles.workflow}>
+                    <p className={styles.workflowLabel}>Workflow</p>
+                    <ul className={styles.chips} aria-label="Workflow">
+                      {p.workflow.map((t) => (
+                        <li key={t} className={styles.chip}>
+                          {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
                 {p.links.length > 0 ? (
                   <p className={styles.links}>
                     {p.links.map((l) => (

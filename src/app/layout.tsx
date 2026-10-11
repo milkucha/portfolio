@@ -1,10 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { DM_Mono, Inter, League_Spartan } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+});
+
+const leagueSpartan = League_Spartan({
+  variable: "--font-league-spartan",
+  subsets: ["latin"],
+});
+
+const dmMono = DM_Mono({
+  variable: "--font-dm-mono",
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -19,7 +30,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} antialiased`}>
+    <html lang="en" className={`${inter.variable} ${dmMono.variable} ${leagueSpartan.variable} antialiased`}>
       <body className="min-h-svh bg-primary text-tertiary">{children}</body>
     </html>
   );

@@ -22,6 +22,8 @@ export interface PanelEntry {
   highlights: readonly string[];
   /** Chip labels, shown as-is. */
   stack: readonly string[];
+  /** AI coding tools used on the project (shown apart from the stack); empty if none. */
+  workflow: readonly string[];
   /** External links; empty for private or client work. */
   links: readonly PanelLink[];
 }
@@ -36,7 +38,8 @@ const trmt: PanelEntry = {
     "Maintained across 4 Minecraft versions and Fabric, Forge and NeoForge in parallel branches",
     "Lightweight by design: a sparse, self-cleaning map tracks footsteps; everything is JSON-configurable",
   ],
-  stack: ["Java", "Gradle", "Minecraft modding", "GitHub Actions", "JSON", "Claude Code"],
+  stack: ["Java", "Gradle", "Minecraft modding", "GitHub Actions", "JSON"],
+  workflow: ["Claude Code", "OpenCode"],
   links: [
     { label: "GitHub", href: "https://github.com/milkucha/trmt" },
     { label: "Modrinth", href: "https://modrinth.com/mod/the-roads-more-travelled" },
@@ -53,7 +56,8 @@ const oceana: PanelEntry = {
     "Reservation ingestion from a property-management system's REST API",
     "Relational data model on PostgreSQL, with JSON/XLSX exports",
   ],
-  stack: ["Python", "Django", "PostgreSQL", "JavaScript", "Docker", "REST APIs", "JSON", "Claude Code"],
+  stack: ["Python", "Django", "PostgreSQL", "JavaScript", "Docker", "REST APIs", "JSON"],
+  workflow: ["Claude Code", "OpenCode"],
   links: [],
 };
 
@@ -66,7 +70,8 @@ const provenance: PanelEntry = {
     "Agents only see a bounded, randomly-sampled slice of a typed knowledge base, enforced structurally",
     "Model-agnostic and token-lean, with part of the orchestration running locally via Ollama",
   ],
-  stack: ["Python", "JavaScript", "JSON", "Ollama", "Claude Code"],
+  stack: ["Python", "JavaScript", "JSON", "Ollama"],
+  workflow: ["Claude Code", "OpenCode"],
   links: [{ label: "GitHub", href: "https://github.com/milkucha/provenance" }],
 };
 
@@ -78,6 +83,7 @@ const site: PanelEntry = {
     "Animates transform and opacity only, and respects reduced-motion settings",
   ],
   stack: ["TypeScript", "React", "Next.js", "Tailwind CSS"],
+  workflow: [],
   links: [{ label: "GitHub", href: "https://github.com/milkucha/portfolio" }],
 };
 
@@ -90,6 +96,7 @@ const icarus: PanelEntry = {
     "Layered parallax sky and a local high-score table",
   ],
   stack: ["Godot", "GDScript", "Aseprite"],
+  workflow: [],
   links: [{ label: "itch.io", href: "https://milkucha.itch.io/icarus" }],
 };
 
@@ -102,6 +109,7 @@ const kucha: PanelEntry = {
     "Gun, lightning, bomb and earthquake weapons, each with its own damage, knockback and cooldown",
   ],
   stack: ["Godot", "GDScript", "Aseprite"],
+  workflow: [],
   links: [],
 };
 
@@ -113,6 +121,7 @@ const design: PanelEntry = {
     "UX and product design at Elim, 2021-2023",
   ],
   stack: ["MagicaVoxel", "Python", "Minecraft"],
+  workflow: [],
   links: [],
 };
 

@@ -44,10 +44,10 @@ const { primary: black, secondary: blue, tertiary: cream, quaternary: purple, qu
  *   cream  + black 17.82
  */
 export const cubeFaces: readonly CubeFace[] = [
-  { id: "backend", name: "Backend", hint: "Django · PostgreSQL · REST APIs", slot: "front", color: blue, ink: black },
-  { id: "frontend", name: "Frontend", hint: "React · TypeScript · this site", slot: "right", color: purple, ink: cream },
-  { id: "ai", name: "Applied AI", hint: "Constrained AI agents · local LLMs", slot: "back", color: rose, ink: black },
-  { id: "gamedev", name: "Game dev", hint: "Godot games", slot: "left", color: black, ink: cream },
-  { id: "modding", name: "Modding", hint: "Minecraft mods · 550K+ downloads", slot: "bottom", color: cream, ink: black },
-  { id: "design", name: "Design", hint: "Voxel illustration · UX at Elim", slot: "top", color: cream, ink: black },
+  { id: "backend", name: "Backend", hint: "Python · Django · PostgreSQL · Docker", slot: "front", color: blue, ink: black },
+  { id: "frontend", name: "Frontend", hint: "TypeScript · React · Next.js · Tailwind CSS", slot: "right", color: purple, ink: cream },
+  { id: "ai", name: "Applied AI", hint: "Python · Ollama · LLM agents", slot: "back", color: rose, ink: black },
+  { id: "gamedev", name: "Game dev", hint: "Godot · GDScript · Aseprite", slot: "left", color: black, ink: cream },
+  { id: "modding", name: "Modding", hint: "Java · Gradle · Minecraft", slot: "bottom", color: cream, ink: black },
+  { id: "design", name: "Design", hint: "Figma · Blender · MagicaVoxel", slot: "top", color: cream, ink: black },
 ];
