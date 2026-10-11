@@ -138,6 +138,48 @@ function frontSlot(q: Quat): FaceSlot {
   return best;
 }
 
+/**
+ * Roll (rad) of `slot`'s face about the view axis relative to its upright rest pose, tilt removed.
+ * 0 = the label sits where it does at rest; +90deg = the face has turned a quarter clockwise.
+ */
+function faceRoll(q: Quat, slot: FaceSlot): number {
+  const r = mul(mul(VIEW_INV, q), conj(SLOTS[slot].upright));
+  const sign = r[0] < 0 ? -1 : 1;
+  return 2 * Math.atan2(sign * r[3], sign * r[0]);
+}
+
+/** Face-normal z (view axis, tilt removed): 1 = dead on. */
+const faceZ = (q: Quat, slot: FaceSlot): number => rotate(mul(VIEW_INV, q), SLOTS[slot].normal)[2];
+
+/**
+ * The pose `slot` would naturally have, at its most front-on, if the tumble just kept going from
+ * `q0`/`phase0`: runs the idle motion forward (cheap, ~3k quaternion steps) through the first pass
+ * of that face. Returns the cube orientation and the precession phase at that moment, so the
+ * tumble can resume from there without a jump.
+ */
+function naturalPose(q0: Quat, phase0: number, slot: FaceSlot, maxSeconds = 150): { q: Quat; phase: number } {
+  const dt = 1 / 30;
+  let q = q0;
+  let phase = phase0;
+  let best = -Infinity;
+  let found: { q: Quat; phase: number } | null = null;
+  for (let t = 0; t < maxSeconds; t += dt) {
+    phase += PRECESS_SPEED * dt;
+    const axis = tumbleAxis(phase);
+    q = normalize(mul(expMap([axis[0] * IDLE_SPEED * dt, axis[1] * IDLE_SPEED * dt, axis[2] * IDLE_SPEED * dt]), q));
+    if (frontSlot(q) === slot) {
+      const z = faceZ(q, slot);
+      if (z > best) {
+        best = z;
+        found = { q, phase };
+      }
+    } else if (found) {
+      break;
+    }
+  }
+  return found ?? { q: restFor(slot), phase: phase0 };
+}
+
 /** Deterministic starting pose (same on server and client, so no hydration mismatch): the rest pose. */
 const INITIAL_Q: Quat = restFor("front");
 /**
@@ -162,7 +204,7 @@ const COAST = 0.16; // s of momentum used to pick the landing face after a fling
 const MAX_SPIN = 16; // rad/s cap on fling speed
 const DRAG_RELEASE_STALE = 70; // ms: if the pointer rested this long before release, no fling
 
-const FADE_MS = 320; // panel crossfade; keep in step with cube.css
+const FADE_MS = 600; // panel crossfade; keep in step with cube.css
 
 type Mode = "free" | "drag" | "spring";
 
@@ -189,6 +231,8 @@ interface Sim {
   panelSlot: FaceSlot;
   /** Face the panel is heading for (differs from panelSlot during the fade-out). */
   wantSlot: FaceSlot;
+  /** Faces currently pointing toward the viewer (to spot the moment one comes into view). */
+  vis: Record<FaceSlot, boolean>;
   panelSeq: number;
   fadeTimer: ReturnType<typeof setTimeout> | null;
   /** Cube section is in the viewport: idle spin only runs while it is. */
@@ -226,6 +270,7 @@ export function SkillsCube() {
     entry: true,
     panelSlot: INITIAL_SLOT,
     wantSlot: INITIAL_SLOT,
+    vis: Object.fromEntries(SLOT_NAMES.map((n) => [n, faceZ(INITIAL_Q, n) > 0])) as Record<FaceSlot, boolean>,
     panelSeq: 0,
     fadeTimer: null,
     onscreen: true,
@@ -380,6 +425,21 @@ export function SkillsCube() {
       if (s.dirty && cubeRef.current) {
         cubeRef.current.style.transform = transformFor(s.q);
         s.dirty = false;
+        // When a face comes into view, decide once which corner its label sits in: look ahead to the
+        // pose the tumble will give it at its most front-on, and turn the label in quarter turns so
+        // the text is upper-left there. It then stays put on the face, even as the face drifts on.
+        for (const slotName of SLOT_NAMES) {
+          const visible = faceZ(s.q, slotName) > 0;
+          if (visible && !s.vis[slotName]) {
+            const ahead =
+              s.mode === "free" && s.idleBlend > 0 ? naturalPose(s.q, s.phase, slotName, 40) : null;
+            const k = Math.round(faceRoll(ahead ? ahead.q : s.q, slotName) / D90);
+            cubeRef.current
+              .querySelector<HTMLElement>(`[data-slot="${slotName}"]`)
+              ?.style.setProperty("--label-rot", `${-k * 90}deg`);
+          }
+          s.vis[slotName] = visible;
+        }
         const slot = frontSlot(s.q);
         if (slot !== shownSlot) {
           shownSlot = slot;
@@ -430,6 +490,8 @@ export function SkillsCube() {
 
   const goTo = (slot: FaceSlot) => {
     hold();
+    // One fixed, upright pose per face: the text sits in the upper left there.
+    cubeRef.current?.querySelector<HTMLElement>(`[data-slot="${slot}"]`)?.style.setProperty("--label-rot", "0deg");
     snapTo(restFor(slot));
   };
 
@@ -549,6 +611,7 @@ export function SkillsCube() {
               <div
                 key={face.id}
                 className={styles.face}
+                data-slot={face.slot}
                 style={
                   {
                     transform: SLOTS[face.slot].place,

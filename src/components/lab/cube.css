@@ -95,6 +95,9 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   pointer-events: none;
+  /* JS sets --label-rot in quarter turns so the text stays in the screen's upper-left corner. */
+  transform: rotate(var(--label-rot, 0deg));
+  transition: transform 350ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .lab-cube-stage:not([data-fill="color"]) .lab-cube-label {
   color: var(--ink);
@@ -224,19 +227,19 @@
   color: var(--ink);
   font-family: var(--font-sans);
   transition:
-    opacity 320ms ease-out,
+    opacity 600ms ease-out,
     visibility 0s;
 }
 .lab-cube-panel[data-open="false"] {
   opacity: 0;
   visibility: hidden;
   transition:
-    opacity 320ms ease-out,
-    visibility 0s linear 320ms;
+    opacity 600ms ease-out,
+    visibility 0s linear 600ms;
 }
 
 .lab-cube-panelCard {
-  animation: lab-cube-panel-in 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  animation: lab-cube-panel-in 600ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 @keyframes lab-cube-panel-in {
   from {
@@ -246,6 +249,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .lab-cube-label {
+    transition: none;
+  }
   .lab-cube-panel,
   .lab-cube-panel[data-open="false"] {
     transition: none;
