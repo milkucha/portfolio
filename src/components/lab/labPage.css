@@ -112,7 +112,19 @@
   }
 }
 
-/* Typed name: zero-width cursor sits at the typing point; the untyped rest holds its space. */
+/* Typed name: a hidden copy of the full name reserves the box (so the page never shifts as words
+   change); the live text sits on top of it. The zero-width cursor sits at the typing point and the
+   untyped rest of the current word holds its space. */
+.lab-page-typed {
+  display: inline-grid;
+}
+.lab-page-spacer,
+.lab-page-live {
+  grid-area: 1 / 1;
+}
+.lab-page-spacer {
+  visibility: hidden;
+}
 .lab-page-untyped {
   visibility: hidden;
 }

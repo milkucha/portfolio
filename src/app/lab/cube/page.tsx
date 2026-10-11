@@ -28,7 +28,7 @@ export default function CubeLabPage() {
       <section id="bio" aria-labelledby="bio-title" className="lab-page-section">
         <div className="lab-page-inner">
           <h1 id="bio-title" className="lab-page-name">
-            <TypedName text={site.name} />
+            <TypedName text={site.name} alt="milkucha" />
           </h1>
           {INTRO_LINES.map((line) => (
             <p key={line} className="lab-page-bio">
