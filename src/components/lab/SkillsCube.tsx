@@ -28,8 +28,8 @@ import "./cube.css";
  *   VIEW_YAW_DEG   > 0 turns the front face's right edge away (the left face shows); < 0 the right.
  *   VIEW_ROLL_DEG  tilts the whole thing in the screen plane (clockwise > 0). 726b35e had none.
  */
-const VIEW_PITCH_DEG = 10.63; // = 0.36 rad
-const VIEW_YAW_DEG = 18.65; // = 0.50 rad
+const VIEW_PITCH_DEG = 30.63; // = 0.36 rad
+const VIEW_YAW_DEG = 15.65; // = 0.50 rad
 const VIEW_ROLL_DEG = 0;
 /** Idle spin speed about the cube's own (tilted) vertical. 18.3 deg/s ~ one turn per 20 s. */
 const SPIN_DEG_PER_S = 18.3;
