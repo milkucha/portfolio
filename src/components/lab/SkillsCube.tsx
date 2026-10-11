@@ -15,6 +15,7 @@ import {
   rotate,
   toMatrix3d,
 } from "./quat";
+import { makeLoop } from "./cubeLoop";
 import { faceProjects } from "./cubeProjects";
 import "./cube.css";
 
@@ -32,18 +33,21 @@ const VIEW_PITCH_DEG = 10.63; // = 0.36 rad
 const VIEW_YAW_DEG = 5.65; // = 0.50 rad
 const VIEW_ROLL_DEG = -20;
 /**
- * Idle motion is a slow, calm tumble: a continuous rotation about an axis that itself drifts around
- * the vertical, so every face (top and bottom included) swings past the viewer, never snapping.
- *   TUMBLE_DEG_PER_S    rotation speed about the tumble axis (12 deg/s ~ one turn per 30 s).
- *   TUMBLE_TILT_DEG     how far the axis leans from vertical (0 = the old flat spin; ~55 reaches all faces).
- *   PRECESS_DEG_PER_S   how fast the axis circles the vertical (4 deg/s ~ once per 90 s; 0 = fixed axis,
- *                       which never brings the top face round).
- * With 55 / 12 / 4 all six faces have been in front within about a minute, each for ~7 s per visit.
+ * Idle motion is a smooth closed loop through the six face poses. Each face has exactly one focus
+ * pose (upright, text in the upper left, inside the VIEW tilt); the cube flows from pose to pose
+ * and lingers, without stopping, around each one so the face and its card can be read.
+ *   LOOP_ORDER             visiting order. This one has the shortest total travel (600 deg): four
+ *                          quarter turns and two 120 deg diagonal moves, no 180 deg flips.
+ *   LOOP_SECONDS_PER_FACE  seconds from one pose to the next, linger included (a lap is 6x this).
+ *   LOOP_DWELL             0..1: share of each leg spent lingering near-still (half at each end),
+ *                          so each face lingers for LOOP_DWELL * LOOP_SECONDS_PER_FACE seconds.
+ *   LOOP_FLOOR             0..1: speed while lingering as a fraction of peak (0 would stop dead).
  */
-const TUMBLE_DEG_PER_S = 12;
-const TUMBLE_TILT_DEG = 55;
-const PRECESS_DEG_PER_S = 4;
-/** Seconds of ease-in for the tumble on page load (short, so it is moving straight away). */
+const LOOP_ORDER: readonly FaceSlot[] = ["front", "bottom", "right", "back", "left", "top"];
+const LOOP_SECONDS_PER_FACE = 5;
+const LOOP_DWELL = 0.4;
+const LOOP_FLOOR = 0.04;
+/** Seconds of ease-in for the loop on page load (short, so it is moving straight away). */
 const ENTRY_RAMP = 0.5;
 
 const styles = {
@@ -115,11 +119,6 @@ const VIEW: Quat = normalize(
   ),
 );
 const VIEW_INV = conj(VIEW);
-/** World-space tumble axis for a given precession phase (rad): leans TUMBLE_TILT_DEG off vertical. */
-const tumbleAxis = (phase: number): Vec3 => {
-  const a = TUMBLE_TILT_DEG * DEG;
-  return [Math.sin(a) * Math.cos(phase), Math.cos(a), Math.sin(a) * Math.sin(phase)];
-};
 /** Orientation the cube rests in when `slot` is the chosen face. */
 const restFor = (slot: FaceSlot): Quat => mul(VIEW, SLOTS[slot].upright);
 
@@ -138,47 +137,13 @@ function frontSlot(q: Quat): FaceSlot {
   return best;
 }
 
-/**
- * Roll (rad) of `slot`'s face about the view axis relative to its upright rest pose, tilt removed.
- * 0 = the label sits where it does at rest; +90deg = the face has turned a quarter clockwise.
- */
-function faceRoll(q: Quat, slot: FaceSlot): number {
-  const r = mul(mul(VIEW_INV, q), conj(SLOTS[slot].upright));
-  const sign = r[0] < 0 ? -1 : 1;
-  return 2 * Math.atan2(sign * r[3], sign * r[0]);
-}
-
-/** Face-normal z (view axis, tilt removed): 1 = dead on. */
-const faceZ = (q: Quat, slot: FaceSlot): number => rotate(mul(VIEW_INV, q), SLOTS[slot].normal)[2];
-
-/**
- * The pose `slot` would naturally have, at its most front-on, if the tumble just kept going from
- * `q0`/`phase0`: runs the idle motion forward (cheap, ~3k quaternion steps) through the first pass
- * of that face. Returns the cube orientation and the precession phase at that moment, so the
- * tumble can resume from there without a jump.
- */
-function naturalPose(q0: Quat, phase0: number, slot: FaceSlot, maxSeconds = 150): { q: Quat; phase: number } {
-  const dt = 1 / 30;
-  let q = q0;
-  let phase = phase0;
-  let best = -Infinity;
-  let found: { q: Quat; phase: number } | null = null;
-  for (let t = 0; t < maxSeconds; t += dt) {
-    phase += PRECESS_SPEED * dt;
-    const axis = tumbleAxis(phase);
-    q = normalize(mul(expMap([axis[0] * IDLE_SPEED * dt, axis[1] * IDLE_SPEED * dt, axis[2] * IDLE_SPEED * dt]), q));
-    if (frontSlot(q) === slot) {
-      const z = faceZ(q, slot);
-      if (z > best) {
-        best = z;
-        found = { q, phase };
-      }
-    } else if (found) {
-      break;
-    }
-  }
-  return found ?? { q: restFor(slot), phase: phase0 };
-}
+/** The idle loop: through each face's rest pose in LOOP_ORDER (computed with the tilt removed). */
+const LOOP = makeLoop(
+  LOOP_ORDER.map((slot) => SLOTS[slot].upright),
+  LOOP_SECONDS_PER_FACE,
+  LOOP_DWELL,
+  LOOP_FLOOR,
+);
 
 /** Deterministic starting pose (same on server and client, so no hydration mismatch): the rest pose. */
 const INITIAL_Q: Quat = restFor("front");
@@ -193,8 +158,6 @@ const INITIAL_SLOT = frontSlot(INITIAL_Q);
 
 /* ---------- motion tuning ---------- */
 
-const IDLE_SPEED = TUMBLE_DEG_PER_S * DEG; // rad/s around the tumble axis
-const PRECESS_SPEED = PRECESS_DEG_PER_S * DEG; // rad/s the tumble axis circles the vertical
 const IDLE_DELAY = 3500; // ms of no interaction before idle resumes
 const PICK_HOLD = 10000; // ms the cube stays put after a face is picked (button / arrow key)
 const IDLE_RAMP = 1.4; // s to ease idle speed in/out
@@ -223,16 +186,19 @@ interface Sim {
   /** Pointer over / keyboard focus inside the info panel: counts as interacting (no idle). */
   panelHover: boolean;
   panelFocus: boolean;
-  /** Precession phase (rad) of the tumble axis. */
+  /** Position on the idle loop (seconds). */
   phase: number;
+  /** The loop is running (its position was matched to the cube's pose when it started). */
+  looping: boolean;
+  /** Offset between the cube's pose and the loop when it resumed, eased out as the loop takes over. */
+  corr: Vec3;
+  corrAmt: number;
   /** Still in the first, on-load spin-up (uses the short ENTRY_RAMP). */
   entry: boolean;
   /** Face the panel currently shows. Mirrors React state for the rAF loop. */
   panelSlot: FaceSlot;
   /** Face the panel is heading for (differs from panelSlot during the fade-out). */
   wantSlot: FaceSlot;
-  /** Faces currently pointing toward the viewer (to spot the moment one comes into view). */
-  vis: Record<FaceSlot, boolean>;
   panelSeq: number;
   fadeTimer: ReturnType<typeof setTimeout> | null;
   /** Cube section is in the viewport: idle spin only runs while it is. */
@@ -267,10 +233,12 @@ export function SkillsCube() {
     panelHover: false,
     panelFocus: false,
     phase: 0,
+    looping: false,
+    corr: [0, 0, 0],
+    corrAmt: 0,
     entry: true,
     panelSlot: INITIAL_SLOT,
     wantSlot: INITIAL_SLOT,
-    vis: Object.fromEntries(SLOT_NAMES.map((n) => [n, faceZ(INITIAL_Q, n) > 0])) as Record<FaceSlot, boolean>,
     panelSeq: 0,
     fadeTimer: null,
     onscreen: true,
@@ -357,6 +325,7 @@ export function SkillsCube() {
       const s = sim.current;
       const dt = Math.min(Math.max((now - last) / 1000, 0), 1 / 30); // clamp: no jumps after tab switches
       last = now;
+      if (s.mode !== "free") s.looping = false; // a drag or snap moved the cube: rejoin the loop afterwards
 
       if (s.mode === "drag") {
         const [dx, dy] = s.pending;
@@ -411,35 +380,33 @@ export function SkillsCube() {
         s.idleBlend = Math.min(1, Math.max(0, s.idleBlend + (allowed ? dt : -dt) / ramp));
         if (s.idleBlend >= 1) s.entry = false;
         if (s.idleBlend > 0) {
-          const speed = IDLE_SPEED * smoothstep(s.idleBlend);
-          s.phase += PRECESS_SPEED * dt;
-          const axis = tumbleAxis(s.phase);
-          s.w = [axis[0] * speed, axis[1] * speed, axis[2] * speed];
-          s.q = normalize(mul(expMap([s.w[0] * dt, s.w[1] * dt, s.w[2] * dt]), s.q));
+          const e = smoothstep(s.idleBlend);
+          const un = mul(VIEW_INV, s.q);
+          if (!s.looping) {
+            // Join the loop at the point nearest the current pose; the small leftover offset is
+            // eased out as the idle blend rises, so there is no jump.
+            s.looping = true;
+            s.phase = LOOP.nearest(un);
+            s.corr = logMap(mul(un, conj(LOOP.at(s.phase))));
+            s.corrAmt = 1;
+          }
+          s.phase = (s.phase + dt * e) % LOOP.period;
+          s.corrAmt = Math.min(s.corrAmt, 1 - e);
+          const c = s.corr;
+          const off = expMap([c[0] * s.corrAmt, c[1] * s.corrAmt, c[2] * s.corrAmt]);
+          const next = normalize(mul(VIEW, mul(off, LOOP.at(s.phase))));
+          if (dt > 1e-4) s.w = logMap(mul(next, conj(s.q))).map((x) => x / dt) as unknown as Vec3;
+          s.q = next;
           s.dirty = true;
         } else {
           s.w = [0, 0, 0];
+          s.looping = false;
         }
       }
 
       if (s.dirty && cubeRef.current) {
         cubeRef.current.style.transform = transformFor(s.q);
         s.dirty = false;
-        // When a face comes into view, decide once which corner its label sits in: look ahead to the
-        // pose the tumble will give it at its most front-on, and turn the label in quarter turns so
-        // the text is upper-left there. It then stays put on the face, even as the face drifts on.
-        for (const slotName of SLOT_NAMES) {
-          const visible = faceZ(s.q, slotName) > 0;
-          if (visible && !s.vis[slotName]) {
-            const ahead =
-              s.mode === "free" && s.idleBlend > 0 ? naturalPose(s.q, s.phase, slotName, 40) : null;
-            const k = Math.round(faceRoll(ahead ? ahead.q : s.q, slotName) / D90);
-            cubeRef.current
-              .querySelector<HTMLElement>(`[data-slot="${slotName}"]`)
-              ?.style.setProperty("--label-rot", `${-k * 90}deg`);
-          }
-          s.vis[slotName] = visible;
-        }
         const slot = frontSlot(s.q);
         if (slot !== shownSlot) {
           shownSlot = slot;
@@ -490,8 +457,7 @@ export function SkillsCube() {
 
   const goTo = (slot: FaceSlot) => {
     hold();
-    // One fixed, upright pose per face: the text sits in the upper left there.
-    cubeRef.current?.querySelector<HTMLElement>(`[data-slot="${slot}"]`)?.style.setProperty("--label-rot", "0deg");
+    // One fixed, upright pose per face (the same one the loop passes through).
     snapTo(restFor(slot));
   };
 
@@ -611,7 +577,6 @@ export function SkillsCube() {
               <div
                 key={face.id}
                 className={styles.face}
-                data-slot={face.slot}
                 style={
                   {
                     transform: SLOTS[face.slot].place,
