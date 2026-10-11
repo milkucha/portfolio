@@ -17,9 +17,9 @@ export const site: SiteInfo = {
       display: "@milkuchachuklim",
     },
     {
-      label: "TRMT on Modrinth",
-      href: "https://modrinth.com/mod/the-roads-more-travelled",
-      display: "The Roads More Travelled",
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/in/camilo-alvarez-595292156/",
+      display: "linkedin.com/in/camilo-alvarez-595292156",
     },
   ],
 };
