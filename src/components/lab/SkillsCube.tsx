@@ -15,7 +15,7 @@ import {
   rotate,
   toMatrix3d,
 } from "./quat";
-import { makeLoop } from "./cubeLoop";
+import { makeFlow } from "./cubeLoop";
 import { faceProjects } from "./cubeProjects";
 import "./cube.css";
 
@@ -33,20 +33,22 @@ const VIEW_PITCH_DEG = 10.63; // = 0.36 rad
 const VIEW_YAW_DEG = 5.65; // = 0.50 rad
 const VIEW_ROLL_DEG = -20;
 /**
- * Idle motion is a smooth closed loop through the six face poses. Each face has exactly one focus
- * pose (upright, text in the upper left, inside the VIEW tilt); the cube flows from pose to pose
- * and lingers, without stopping, around each one so the face and its card can be read.
- *   LOOP_ORDER             visiting order. This one has the shortest total travel (600 deg): four
- *                          quarter turns and two 120 deg diagonal moves, no 180 deg flips.
- *   LOOP_SECONDS_PER_FACE  seconds from one pose to the next, linger included (a lap is 6x this).
- *   LOOP_DWELL             0..1: share of each leg spent lingering near-still (half at each end),
- *                          so each face lingers for LOOP_DWELL * LOOP_SECONDS_PER_FACE seconds.
- *   LOOP_FLOOR             0..1: speed while lingering as a fraction of peak (0 would stop dead).
+ * Idle motion is one continuous, smooth, closed flow through the six face poses. Each face has
+ * exactly one focus pose (upright, text in the upper left, inside the VIEW tilt); the cube passes
+ * exactly through it at constant speed, with no pause and no kink, so a face is readable for the
+ * moment it sweeps by (about 1.2 s within 12 deg of its pose at 20 deg/s; slower = longer).
+ *   LOOP_ORDER     visiting order. This one has the shortest total travel: four quarter turns and
+ *                  two 120 deg diagonal moves, no 180 deg flips.
+ *   FLOW_DEG_PER_S angular speed along the path. A lap is ~620 deg: 20 gives ~31 s, 14 gives ~44 s.
+ *   FLOW_EASE      0..1: 0 is perfectly constant speed; e.g. 0.3 slows the cube to 70% of that
+ *                  within ~15 deg of each pose, so faces linger a little.
+ *   FLOW_TENSION   how widely the path swings round the corner at each pose: 1 is the classic
+ *                  spline, 1.4 (default) rounds the sharp turns at bottom/top, 0.6 hugs the legs.
  */
 const LOOP_ORDER: readonly FaceSlot[] = ["front", "bottom", "right", "back", "left", "top"];
-const LOOP_SECONDS_PER_FACE = 5;
-const LOOP_DWELL = 0.4;
-const LOOP_FLOOR = 0.04;
+const FLOW_DEG_PER_S = 20;
+const FLOW_EASE = 0;
+const FLOW_TENSION = 1.4;
 /** Seconds of ease-in for the loop on page load (short, so it is moving straight away). */
 const ENTRY_RAMP = 0.5;
 
@@ -137,12 +139,12 @@ function frontSlot(q: Quat): FaceSlot {
   return best;
 }
 
-/** The idle loop: through each face's rest pose in LOOP_ORDER (computed with the tilt removed). */
-const LOOP = makeLoop(
+/** The idle flow: through each face's rest pose in LOOP_ORDER (computed with the tilt removed). */
+const LOOP = makeFlow(
   LOOP_ORDER.map((slot) => SLOTS[slot].upright),
-  LOOP_SECONDS_PER_FACE,
-  LOOP_DWELL,
-  LOOP_FLOOR,
+  FLOW_DEG_PER_S,
+  FLOW_EASE,
+  FLOW_TENSION,
 );
 
 /** Deterministic starting pose (same on server and client, so no hydration mismatch): the rest pose. */
