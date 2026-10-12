@@ -609,7 +609,11 @@ export function SkillsCube() {
   };
 
   return (
-    <div ref={layoutRef} className={styles.layout}>
+    <div
+      ref={layoutRef}
+      className={styles.layout}
+      data-mode={contactOpen ? "contact" : projectsOpen || panel?.open ? "projects" : "bio"}
+    >
       <div className={`${styles.wrap} ${styles.cubeCol}`}>
         <div
           className={styles.stage}

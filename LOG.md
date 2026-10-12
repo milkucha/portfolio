@@ -168,3 +168,4 @@ At <=640px the page is one screen with no page scroll, three zones top to bottom
 - Measured page scroll height equals window height (no page scroll) at 390x844, 360x740, 375x667 and 430x932, in bio, projects and contact states.
 - Test on a phone over Tailscale: http://100.98.244.7:3001/lab/cube
 - 2026-10-12 Phone bio: intro block vertically centred in the content zone (flex column, safe center, balanced top padding); projects and contact cards unchanged. Measured gaps above/below equal (205/205 at 390x844, 170/170 at 360x740).
+- 2026-10-12 Phone bio: cube grows in the BIO state (--size clamp(96px, min(58vw, 32svh - 32px), 280px), stage box about 46-48% of the height above the menu) and contracts to the projects/contact size with a 450ms --size transition (@property --size registered inside the phone block; layout wrapper exposes data-mode="bio|projects|contact"). Desktop untouched.
