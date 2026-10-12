@@ -11,6 +11,7 @@ export const site: SiteInfo = {
   contact: [
     { label: "GitHub", href: "https://github.com/milkucha", display: "github.com/milkucha" },
     { label: "Email", href: "mailto:milkucha@disroot.org", display: "milkucha@disroot.org" },
+    { label: "Location", display: "Berlin" },
     {
       label: "YouTube",
       href: "https://www.youtube.com/@milkuchachuklim",

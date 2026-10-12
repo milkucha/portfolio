@@ -32,7 +32,8 @@ export interface Project {
 
 export interface ContactLink {
   label: string;
-  href: string;
+  /** Omitted for a plain-text row (e.g. a location). */
+  href?: string;
   /** Text shown, e.g. a handle or address. */
   display: string;
 }

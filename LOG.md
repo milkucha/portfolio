@@ -70,3 +70,11 @@ Not done / open:
 - "This site" card still says "drag with inertia, spring-snapping to a face"; dragging is gone.
 - Unviewed in a browser: everything above (agents cannot see it). Check phone widths, the contact roll-down, the icon row, the italic handle, the PROJECTS crossfade.
 - Item 8 above (cut-over order before `main`) still applies.
+
+## 2026-10-12 later: copy and card pass (`proto/cube-bio`)
+
+- Bio is now four paragraphs (added "Based in Berlin. Maintainer of a Minecraft mod with 550K+ downloads.").
+- Project cards rewritten to short noun-phrase copy; max 2 highlights per card (rule in the `PanelEntry` doc comment), weaker projects have none. Figma chip removed from Arranca Cover.
+- Card design: Tech and Workflow group titles removed; workflow is now a dimmed mono footnote ("Built with Claude Code and OpenCode"), omitted when empty; highlights render only when present; optional `image` thumbnail support (none set).
+- Contact: added a plain-text "Location: Berlin" row after Email (`ContactLink.href` is now optional; main page handles it). No CV link (nothing to link to yet).
+- `COPY.md` updated to match, with an Open items list. Not viewed in a browser; tsc and eslint clean, /lab/cube returns 200.

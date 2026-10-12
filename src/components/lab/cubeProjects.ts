@@ -21,8 +21,10 @@ export interface PanelEntry {
   /** Project (or card) name. */
   name: string;
   oneLiner: string;
-  /** 2-3 short factual points. */
+  /** At most 2 short factual points; weaker projects get none. */
   highlights: readonly string[];
+  /** Optional thumbnail shown at the top of the card. */
+  image?: { src: string; alt: string };
   /** Chip labels, shown as-is. */
   stack: readonly string[];
   /** AI coding tools used on the project (shown apart from the stack); empty if none. */
@@ -34,12 +36,10 @@ export interface PanelEntry {
 
 const trmt: PanelEntry = {
   name: "The Roads More Travelled",
-  oneLiner:
-    "Dynamic terrain mod for Minecraft that erodes often-travelled routes turning them into realistic, yet vanilla-friendly worn paths.",
+  oneLiner: "Dynamic terrain mod for Minecraft: often-travelled routes erode into worn paths.",
   highlights: [
-    "Erosion data stored using sparse map, most parameters configurable via JSON",
-    "Maintained across 4 Minecraft versions and 3 mod loaders (Fabric, Forge and NeoForge)",
     "550K+ downloads across Modrinth and CurseForge; 86 GitHub stars",
+    "Maintained across 4 Minecraft versions and 3 mod loaders (Fabric, Forge, NeoForge)",
   ],
   stack: ["Java", "Gradle", "Minecraft", "Fabric", "Forge", "NeoForge", "GitHub Actions"],
   workflow: ["Claude Code"],
@@ -57,11 +57,10 @@ const trmt: PanelEntry = {
 
 const oceana: PanelEntry = {
   name: "Oceana Core",
-  oneLiner: "A back-office platform for a multi-region vacation-rental operator.",
+  oneLiner: "Production backend for a multi-region vacation-rental operator.",
   highlights: [
     "Settlement engine for taxes, fees, commissions and multi-currency revenue-share splits",
     "Reservation ingestion from a property-management system's REST API",
-    "Relational data model on PostgreSQL",
   ],
   stack: ["Python", "TypeScript", "Django", "PostgreSQL", "Docker", "REST APIs"],
   workflow: ["Claude Code", "OpenCode"],
@@ -70,13 +69,8 @@ const oceana: PanelEntry = {
 
 const provenance: PanelEntry = {
   name: "Provenance",
-  oneLiner:
-    "World-building tool that grows a fictional society from an authored seed that drifts based on typed knowledge.",
-  highlights: [
-    "Deterministic logic handles world state transformations, bounded agents supply language layer.",
-    "Simulated output and testing suite.",
-    "Model-agnostic and token-lean.",
-  ],
+  oneLiner: "World-building tool: AI agents write the language, plain code owns the world state.",
+  highlights: ["Simulated output and testing suite", "Model-agnostic and token-lean"],
   stack: ["Python", "Ollama"],
   workflow: ["Claude Code", "OpenCode"],
   links: [{ label: "GitHub", href: "https://github.com/milkucha/provenance", icon: "github" }],
@@ -84,8 +78,8 @@ const provenance: PanelEntry = {
 
 const site: PanelEntry = {
   name: "Portfolio",
-  oneLiner: "This site:",
-  highlights: ["CSS 3D driven by quaternions."],
+  oneLiner: "CSS 3D cube driven by quaternions. No 3D library.",
+  highlights: [],
   stack: ["TypeScript", "React", "Next.js", "Tailwind CSS"],
   workflow: ["Claude Code"],
   links: [{ label: "GitHub", href: "https://github.com/milkucha/portfolio", icon: "github" }],
@@ -94,7 +88,7 @@ const site: PanelEntry = {
 const icarus: PanelEntry = {
   name: "Icarus",
   oneLiner: "Arcade game about flying without hubris: fly as far as you can before you fall into the sea.",
-  highlights: ["Sidescrolling, parallax and high-score system", "Hand crafted pixel art"],
+  highlights: [],
   stack: ["Godot", "GDScript", "Aseprite"],
   workflow: [],
   links: [{ label: "itch.io", href: "https://milkucha.itch.io/icarus", icon: "itch" }],
@@ -102,8 +96,9 @@ const icarus: PanelEntry = {
 
 const kucha: PanelEntry = {
   name: "Kucha",
-  oneLiner: "2D pixel art arena brawler: two players plus AI bots, four weapons, destructible terrain.",
-  highlights: ["Multiple arenas and weapons", "AI bots", "Destructive terrain", "Multiplayer support (in progress)"],
+  oneLiner:
+    "2D pixel art arena brawler: two players plus AI bots, four weapons, destructible terrain. Multiplayer in progress.",
+  highlights: [],
   stack: ["Godot", "GDScript", "Aseprite"],
   workflow: [],
   links: [],
@@ -111,9 +106,9 @@ const kucha: PanelEntry = {
 
 const design: PanelEntry = {
   name: "Arranca Cover",
-  oneLiner: "Voxel art isometric city",
-  highlights: ["Hand authored model", "Minecraft to Blender pipeline"],
-  stack: ["Figma", "Blender", "MagicaVoxel", "Python"],
+  oneLiner: "Voxel art isometric city. Hand authored model, Minecraft to Blender pipeline.",
+  highlights: [],
+  stack: ["Blender", "MagicaVoxel", "Python"],
   workflow: [],
   links: [],
 };

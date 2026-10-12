@@ -56,15 +56,19 @@ export default function Home() {
             </h2>
             <ul className="mt-8 space-y-4">
               {site.contact.map((c) => (
-                <li key={c.href} className="flex flex-col sm:flex-row sm:items-baseline sm:gap-4">
+                <li key={c.href ?? c.label} className="flex flex-col sm:flex-row sm:items-baseline sm:gap-4">
                   <span className="w-40 shrink-0 text-sm text-tertiary/60">{c.label}</span>
-                  <a
-                    href={c.href}
-                    {...(c.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="break-all text-lg text-secondary underline-offset-4 hover:underline"
-                  >
-                    {c.display}
-                  </a>
+                  {c.href ? (
+                    <a
+                      href={c.href}
+                      {...(c.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      className="break-all text-lg text-secondary underline-offset-4 hover:underline"
+                    >
+                      {c.display}
+                    </a>
+                  ) : (
+                    <span className="text-lg text-secondary">{c.display}</span>
+                  )}
                 </li>
               ))}
             </ul>

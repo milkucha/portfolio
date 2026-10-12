@@ -89,9 +89,8 @@ const styles = {
   entryLine: "lab-cube-entryLine",
   highlights: "lab-cube-highlights",
   chips: "lab-cube-chips",
-  workflow: "lab-cube-workflow",
-  workflowLabel: "lab-cube-workflowLabel",
-  chipGroup: "lab-cube-chipGroup",
+  footnote: "lab-cube-footnote",
+  thumb: "lab-cube-thumb",
   chip: "lab-cube-chip",
   links: "lab-cube-links",
 } as const;
@@ -217,6 +216,10 @@ const IDLE_DELAY = 3500; // ms of no interaction before idle resumes
 const CONTACT_ICONS: Record<string, LinkIconName> = { LinkedIn: "linkedin", "itch.io": "itch", YouTube: "youtube" };
 const contactText = site.contact.filter((c) => !(c.label in CONTACT_ICONS));
 const contactIcons = Object.keys(CONTACT_ICONS).flatMap((label) => site.contact.filter((c) => c.label === label));
+
+/** "Claude Code", "Claude Code and OpenCode", "A, B and C". */
+const joinList = (xs: readonly string[]) =>
+  xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}` : xs.join("");
 const externalProps = (href: string) =>
   href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {};
 
@@ -764,21 +767,27 @@ export function SkillsCube() {
         <h2 className={styles.panelHead}>Contact</h2>
         <ul className={styles.contactList}>
           {contactText.map((c, i) => (
-            <li key={c.href} className={styles.contactRow} style={{ "--i": i } as CSSProperties}>
+            <li key={c.label} className={styles.contactRow} style={{ "--i": i } as CSSProperties}>
               <span className={styles.contactLabel}>{c.label}</span>
-              <a href={c.href} {...externalProps(c.href)}>
-                {c.display}
-              </a>
+              {c.href ? (
+                <a href={c.href} {...externalProps(c.href)}>
+                  {c.display}
+                </a>
+              ) : (
+                <span>{c.display}</span>
+              )}
             </li>
           ))}
           <li className={styles.contactRow} style={{ "--i": contactText.length } as CSSProperties}>
             <span className={styles.contactLabel}>Elsewhere</span>
             <span className={styles.links}>
-              {contactIcons.map((c) => (
-                <a key={c.href} href={c.href} aria-label={c.label} title={c.label} {...externalProps(c.href)}>
-                  <LinkIcon name={CONTACT_ICONS[c.label]} />
-                </a>
-              ))}
+              {contactIcons.map((c) =>
+                c.href ? (
+                  <a key={c.href} href={c.href} aria-label={c.label} title={c.label} {...externalProps(c.href)}>
+                    <LinkIcon name={CONTACT_ICONS[c.label]} />
+                  </a>
+                ) : null,
+              )}
             </span>
           </li>
         </ul>
@@ -821,34 +830,28 @@ export function SkillsCube() {
             </h2>
             {faceProjects[panelFace.id].map((p) => (
               <article key={p.name} className={styles.entry}>
+                {p.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className={styles.thumb} src={p.image.src} alt={p.image.alt} />
+                ) : null}
                 <h3 className={styles.entryName}>{p.name}</h3>
                 <p className={styles.entryLine}>{p.oneLiner}</p>
-                <ul className={styles.highlights}>
-                  {p.highlights.map((h) => (
-                    <li key={h}>{h}</li>
-                  ))}
-                </ul>
-                <div className={styles.chipGroup}>
-                  <p className={styles.workflowLabel}>Tech</p>
-                  <ul className={styles.chips} aria-label="Tech">
-                    {p.stack.map((t) => (
-                      <li key={t} className={styles.chip}>
-                        {t}
-                      </li>
+                {p.highlights.length > 0 ? (
+                  <ul className={styles.highlights}>
+                    {p.highlights.map((h) => (
+                      <li key={h}>{h}</li>
                     ))}
                   </ul>
-                </div>
+                ) : null}
+                <ul className={styles.chips} aria-label="Tech">
+                  {p.stack.map((t) => (
+                    <li key={t} className={styles.chip}>
+                      {t}
+                    </li>
+                  ))}
+                </ul>
                 {p.workflow.length > 0 ? (
-                  <div className={styles.workflow}>
-                    <p className={styles.workflowLabel}>Workflow</p>
-                    <ul className={styles.chips} aria-label="Workflow">
-                      {p.workflow.map((t) => (
-                        <li key={t} className={styles.chip}>
-                          {t}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  <p className={styles.footnote}>Built with {joinList(p.workflow)}</p>
                 ) : null}
                 {p.links.length > 0 ? (
                   <p className={styles.links}>
