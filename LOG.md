@@ -103,3 +103,4 @@ Not done / open:
 2026-10-12 later: project card titles now link (GitHub link if present, else the sole link, else plain text); icon row unchanged
 2026-10-12 later: title links have no underline; rose on hover is the only cue
 2026-10-12 later: TRMT chips removed as a test; old list in a comment in cubeProjects.ts
+2026-10-12 later: cube face label larger: name 0.085 -> 0.102 of --size (+20%), hint 0.052 -> 0.068 (+30%); fits at all sizes

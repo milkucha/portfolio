@@ -97,8 +97,10 @@
   color: var(--ink);
 }
 
+/* Sizes are fractions of the cube --size (name 0.102, hint 0.068; was 0.085 / 0.052, +20% / +30%): the longest
+   mono line ("Tailwind CSS", 12 ch) spans ~0.49 of the face inside 0.84 of usable width at every size. */
 .lab-cube-name {
-  font-size: calc(var(--size) * 0.085);
+  font-size: calc(var(--size) * 0.102);
   font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.15;
@@ -106,7 +108,7 @@
 
 .lab-cube-hint {
   font-weight: 300;
-  font-size: calc(var(--size) * 0.052);
+  font-size: calc(var(--size) * 0.068);
   line-height: 1.3;
 }
 .lab-cube-hintPart {
