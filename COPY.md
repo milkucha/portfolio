@@ -12,11 +12,10 @@ Tip: add `DELETE` or `ADD` notes in plain words if you want a line removed or a 
 
 - name (big title, wraps to two lines): Camilo Álvarez
 - line 1: Full-stack developer based in Berlin.
-- line 2: Python, TypeScript and Java.
-- line 3: Hybrid workflows with agentic tools.
-- line 4: Open source as milkucha.
-  - the word `milkucha` (in line 4) is set in italic
-- line 5: Minecraft mod maintainer, 550K+ downloads.
+- line 2: Python, TypeScript, Java, agentic tools.
+- line 3: Open source as milkucha.
+  - the word `milkucha` (in line 3) is set in italic
+- line 4: Minecraft mod maintainer, 550K+ downloads.
 
 ## 2. Menu (under the cube)
 

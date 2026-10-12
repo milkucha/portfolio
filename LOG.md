@@ -80,3 +80,4 @@ Not done / open:
 - `COPY.md` updated to match, with an Open items list. Not viewed in a browser; tsc and eslint clean, /lab/cube returns 200.
 2026-10-12 later: bio rewritten by owner to four lines, no job title line, 'JS' instead of 'TypeScript'
 2026-10-12 later: bio set to five short lines (role/location, stack, workflow, handle, mod); body 15px, 13px on phones; mobile menu gap closed
+2026-10-12 later: bio cut to four lines (role/location, stack with agentic tools, handle, mod); 'hybrid workflows' line removed
