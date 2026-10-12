@@ -16,6 +16,7 @@ export const site: SiteInfo = {
       href: "https://www.youtube.com/@milkuchachuklim",
       display: "@milkuchachuklim",
     },
+    { label: "itch.io", href: "https://milkucha.itch.io", display: "milkucha.itch.io" },
     {
       label: "LinkedIn",
       href: "https://www.linkedin.com/in/camilo-alvarez-595292156/",

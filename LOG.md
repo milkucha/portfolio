@@ -1,4 +1,4 @@
-# LOG: cube lab session, 2026-10-11
+# LOG: cube lab sessions, 2026-10-11 and 2026-10-12
 
 Where we left off. Everything is local: nothing pushed, `main` untouched, no Vercel previews exist.
 This file lives on `proto/cube-bio`.
@@ -49,3 +49,24 @@ Servers were left running on 3000, 3001, 3003, 3005, 3006. Stop one by its own P
 6. Unviewed: the agents and I could not see any of this in a browser; check phone widths, the three-state crossfade, BIO's immediate spin resume mid-snap, and resume-after-drag on the loop/flow curves.
 7. Intro copy is final for now: "Full-stack software engineer building in Python, JS and Java. Hybrid workflows with agentic tools. Drawn to complex systems and behaviours." (`introText.ts` in the sections-based branches; `INTRO_LINES` elsewhere). The "Drawn to" typo fix is on every branch.
 8. Cut-over order (CLAUDE.md) still applies before anything reaches `main`: add domain in Vercel, repoint DNS, disable GitHub Pages, then merge.
+
+## Update 2026-10-12 (state of 3001, `proto/cube-bio`)
+
+3001 is now the main version. Done since the notes above:
+
+- Spin: tumble stays (list order and spin order cannot match; accepted). Label fix ported: the snap target's label is pinned upright at snap start.
+- PROJECTS shows the focused card at once and the card follows the tumble (crossfade). BIO/CONTACT resume the spin immediately. Clicking PROJECTS again returns to the bio.
+- Cube interaction removed: no drag/fling/click, no hover reaction. Arrow keys and keyboard focus remain.
+- Faces: list order Backend, Frontend, Applied AI, Modding, Game dev, Design. Colours: purple, light blue `#7fb2d6`, black, rose, yellow `#f4e285`, cream. Black/cream opposite (Applied AI right, Design left).
+- Domain buttons: selected one underlined (underline lives on the inner span).
+- Bio: "Full-stack engineer building in Python, TypeScript and Java. Hybrid workflows with agentic tools." / "Drawn to complex systems and behaviours." / "Shipping open source as *milkucha*." (DM Mono italic). Column 26rem, name wraps to two lines.
+- Contact: rows roll down (staggered); GitHub and Email as text; "Elsewhere" icon row in the order LinkedIn, itch.io, YouTube. The itch.io URL (`https://milkucha.itch.io`) is assumed from the Icarus link.
+- TRMT YouTube link is the video (`watch?v=OvsNVaFiK1Y`); Oceana chips include TypeScript.
+- `COPY.md` lists every text on the page for editing; hand it back to apply.
+
+Not done / open:
+
+- The TRMT video link and the Oceana TypeScript chip are only on 3001. The other branches (`cube-sections`, `cube-spin-tumble`, `cube-spin-loop`, `cube-spin-flow`) still have the old project-card content (no workflow chips, no icon links, JavaScript in the Oceana chips), so the edit did not apply there. Port 3001's `cubeProjects.ts` and `linkIcons.tsx` if those branches stay alive.
+- "This site" card still says "drag with inertia, spring-snapping to a face"; dragging is gone.
+- Unviewed in a browser: everything above (agents cannot see it). Check phone widths, the contact roll-down, the icon row, the italic handle, the PROJECTS crossfade.
+- Item 8 above (cut-over order before `main`) still applies.

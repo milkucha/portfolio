@@ -51,7 +51,7 @@ const trmt: PanelEntry = {
       href: "https://www.curseforge.com/minecraft/mc-mods/the-roads-more-travelled",
       icon: "curseforge",
     },
-    { label: "YouTube", href: "https://www.youtube.com/@milkuchachuklim", icon: "youtube" },
+    { label: "YouTube", href: "https://www.youtube.com/watch?v=OvsNVaFiK1Y", icon: "youtube" },
   ],
 };
 
@@ -64,7 +64,7 @@ const oceana: PanelEntry = {
     "Reservation ingestion from a property-management system's REST API",
     "Relational data model on PostgreSQL, with JSON/XLSX exports",
   ],
-  stack: ["Python", "Django", "PostgreSQL", "Docker", "REST APIs"],
+  stack: ["Python", "TypeScript", "Django", "PostgreSQL", "Docker", "REST APIs"],
   workflow: ["Claude Code", "OpenCode"],
   links: [{ label: "Website", href: "https://www.oceanasuites.com", icon: "web" }],
 };

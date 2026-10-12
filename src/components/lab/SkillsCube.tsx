@@ -213,10 +213,10 @@ const INITIAL_TRANSFORM = transformFor(INITIAL_Q);
 const IDLE_SPEED = TUMBLE_DEG_PER_S * DEG; // rad/s around the tumble axis
 const PRECESS_SPEED = PRECESS_DEG_PER_S * DEG; // rad/s the tumble axis circles the vertical
 const IDLE_DELAY = 3500; // ms of no interaction before idle resumes
-/** Contact entries shown as icons instead of text. */
-const CONTACT_ICONS: Partial<Record<string, LinkIconName>> = { YouTube: "youtube", LinkedIn: "linkedin" };
-const contactText = site.contact.filter((c) => !CONTACT_ICONS[c.label]);
-const contactIcons = site.contact.filter((c) => CONTACT_ICONS[c.label]);
+/** Contact entries shown as icons instead of text, in display order. */
+const CONTACT_ICONS: Record<string, LinkIconName> = { LinkedIn: "linkedin", "itch.io": "itch", YouTube: "youtube" };
+const contactText = site.contact.filter((c) => !(c.label in CONTACT_ICONS));
+const contactIcons = Object.keys(CONTACT_ICONS).flatMap((label) => site.contact.filter((c) => c.label === label));
 const externalProps = (href: string) =>
   href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {};
 
@@ -776,7 +776,7 @@ export function SkillsCube() {
             <span className={styles.links}>
               {contactIcons.map((c) => (
                 <a key={c.href} href={c.href} aria-label={c.label} title={c.label} {...externalProps(c.href)}>
-                  <LinkIcon name={CONTACT_ICONS[c.label]!} />
+                  <LinkIcon name={CONTACT_ICONS[c.label]} />
                 </a>
               ))}
             </span>
