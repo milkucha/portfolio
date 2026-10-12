@@ -261,6 +261,24 @@ const clock = () => performance.now();
 
 const smoothstep = (t: number) => t * t * (3 - 2 * t);
 
+/**
+ * Turn a face's label to `deg`. A face that is facing away (backface-hidden) changes instantly, so
+ * the turn is never seen when it swings into view; a visible face keeps the CSS transition.
+ */
+function setLabelRot(cube: HTMLElement | null, slot: FaceSlot, deg: number, instant: boolean) {
+  const face = cube?.querySelector<HTMLElement>(`[data-slot="${slot}"]`);
+  if (!face) return;
+  const label = face.querySelector<HTMLElement>("[data-label]");
+  if (instant && label) {
+    label.style.transition = "none";
+    face.style.setProperty("--label-rot", `${deg}deg`);
+    void label.offsetWidth; // commit the un-animated value before transitions come back
+    label.style.transition = "";
+  } else {
+    face.style.setProperty("--label-rot", `${deg}deg`);
+  }
+}
+
 export function SkillsCube() {
   const cubeRef = useRef<HTMLDivElement>(null);
   const layoutRef = useRef<HTMLDivElement>(null);
@@ -418,13 +436,11 @@ export function SkillsCube() {
         // the text is upper-left there. It then stays put on the face, even as the face drifts on.
         for (const slotName of SLOT_NAMES) {
           const visible = faceZ(s.q, slotName) > 0;
-          if (visible && !s.vis[slotName]) {
+          if (visible && !s.vis[slotName] && !(s.mode === "spring" && slotName === frontSlot(s.target))) {
             const ahead =
               s.mode === "free" && s.idleBlend > 0 ? naturalPose(s.q, s.phase, slotName, 40) : null;
             const k = Math.round(faceRoll(ahead ? ahead.q : s.q, slotName) / D90);
-            cubeRef.current
-              .querySelector<HTMLElement>(`[data-slot="${slotName}"]`)
-              ?.style.setProperty("--label-rot", `${-k * 90}deg`);
+            setLabelRot(cubeRef.current, slotName, -k * 90, false);
           }
           s.vis[slotName] = visible;
         }
@@ -475,7 +491,11 @@ export function SkillsCube() {
     s.idleBlend = 0;
     s.entry = false;
     // Every snap lands a face front-on: show its panel straight away, while the spring settles.
-    showPanel(frontSlot(target));
+    const targetSlot = frontSlot(target);
+    showPanel(targetSlot);
+    // A snap lands every face in its upright rest pose, so its label belongs at 0 now, not once it
+    // has rolled into view (the visibility check below would otherwise pick a roll from mid-turn).
+    setLabelRot(cubeRef.current, targetSlot, 0, faceZ(s.q, targetSlot) <= 0);
     if (s.reduced) {
       s.q = target;
       s.w = [0, 0, 0];
@@ -502,8 +522,7 @@ export function SkillsCube() {
 
   const goTo = (slot: FaceSlot) => {
     hold();
-    // One fixed, upright pose per face: the text sits in the upper left there.
-    cubeRef.current?.querySelector<HTMLElement>(`[data-slot="${slot}"]`)?.style.setProperty("--label-rot", "0deg");
+    // One fixed, upright pose per face: snapTo pins the label upper-left there.
     snapTo(restFor(slot));
   };
 
@@ -634,7 +653,7 @@ export function SkillsCube() {
                 }
               >
                 <div className={styles.fill} />
-                <div className={styles.label} aria-hidden="true">
+                <div className={styles.label} data-label aria-hidden="true">
                   <span className={styles.name}>{face.name}</span>
                   <span className={styles.hint}>
                     {/* One item per line. */}
