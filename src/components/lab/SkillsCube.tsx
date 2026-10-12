@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent } from "react";
 import { cubeFaces, type FaceSlot } from "./cubeFaces";
-import { INTRO_LINES } from "./introText";
+import { INTRO_HANDLE, INTRO_LINES } from "./introText";
 import { site } from "@/data/site";
 import {
   type Quat,
@@ -80,6 +80,7 @@ const styles = {
   intro: "lab-cube-intro",
   introName: "lab-cube-introName",
   introBio: "lab-cube-introBio",
+  introHandle: "lab-cube-introHandle",
   panelCard: "lab-cube-panelCard",
   panelHead: "lab-cube-panelHead",
   swatch: "lab-cube-swatch",
@@ -745,7 +746,16 @@ export function SkillsCube() {
         </h1>
         {INTRO_LINES.map((para) => (
           <p key={para} className={styles.introBio}>
-            {para}
+            {para.split(INTRO_HANDLE).flatMap((part, i) =>
+              i === 0
+                ? [part]
+                : [
+                    <span key={i} className={styles.introHandle}>
+                      {INTRO_HANDLE}
+                    </span>,
+                    part,
+                  ],
+            )}
           </p>
         ))}
       </section>

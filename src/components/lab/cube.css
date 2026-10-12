@@ -440,6 +440,13 @@
   line-height: 1.55;
 }
 
+/* The handle in the last bio line: cursive, a touch larger to match the mono x-height. */
+.lab-cube-introHandle {
+  font-family: var(--font-caveat), cursive;
+  font-size: 1.3em;
+  line-height: 1;
+}
+
 /* ---------- info panel ---------- */
 
 .lab-cube-panel {
