@@ -664,11 +664,6 @@
    so the stage, the content cell and the menu are children of the one layout grid. The PROJECTS
    options unroll upward as a 3x2 grid above the bar. Only the content zone ever scrolls. */
 @media (max-width: 640px) {
-  @property --size {
-    syntax: "<length>";
-    inherits: true;
-    initial-value: 150px;
-  }
   .lab-cube-page {
     display: flex;
     flex-direction: column;
@@ -723,9 +718,6 @@
     .lab-cube-layout[data-mode="bio"] .lab-cube-stage {
       --size: round(clamp(96px, min(58vw, calc((100svh - var(--rest) - var(--bio-h) - 4rem) / 1.55)), 280px), 2px);
     }
-  }
-  .lab-cube-stage {
-    transition: --size 450ms cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   /* Content zone: the three cards keep sharing grid cell 2 / 1. If one is taller than the zone it

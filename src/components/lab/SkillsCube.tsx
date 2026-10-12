@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent } from "react";
 import { cubeFaces, type FaceSlot } from "./cubeFaces";
 import { INTRO_ACCENTS, INTRO_HANDLE, INTRO_LINES } from "./introText";
@@ -297,6 +297,8 @@ function setLabelRot(cube: HTMLElement | null, slot: FaceSlot, deg: number, inst
 export function SkillsCube() {
   const cubeRef = useRef<HTMLDivElement>(null);
   const layoutRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const stageRect = useRef<DOMRect | null>(null);
   const sim = useRef<Sim>({
     q: INITIAL_Q,
     w: [0, 0, 0],
@@ -327,6 +329,54 @@ export function SkillsCube() {
   const [contactOpen, setContactOpen] = useState(false);
   /** PROJECTS menu unrolled: the face buttons are hidden until it is opened. */
   const [projectsOpen, setProjectsOpen] = useState(false);
+
+  const mode = contactOpen ? "contact" : projectsOpen || panel?.open ? "projects" : "bio";
+
+  // Phones: the layout change on a mode switch is instant; the visual change is a FLIP on the stage
+  // (transform only, compositor-friendly) from the old box to the new one. Never on first render.
+  useLayoutEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const prev = stageRect.current;
+    stage.getAnimations().forEach((a) => a.cancel());
+    const settled = stage.getBoundingClientRect();
+    stageRect.current = settled;
+    if (!prev || !settled.width || !settled.height) return;
+    if (
+      !window.matchMedia("(max-width: 640px)").matches ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      (prev.left === settled.left && prev.top === settled.top && prev.width === settled.width)
+    ) {
+      return;
+    }
+    const k = prev.width / settled.width;
+    const dx = prev.left - settled.left;
+    const dy = prev.top - settled.top;
+    stage.style.willChange = "transform";
+    const anim = stage.animate(
+      [
+        { transformOrigin: "0 0", transform: `translate(${dx}px, ${dy}px) scale(${k})` },
+        { transformOrigin: "0 0", transform: "none" },
+      ],
+      { duration: 450, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
+    );
+    const done = () => {
+      stage.style.willChange = "";
+    };
+    anim.onfinish = done;
+    anim.oncancel = done;
+  }, [mode]);
+
+  // Keep the stage's last settled box current (resize, orientation change) for the next FLIP.
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const ro = new ResizeObserver(() => {
+      if (stage.getAnimations().length === 0) stageRect.current = stage.getBoundingClientRect();
+    });
+    ro.observe(stage);
+    return () => ro.disconnect();
+  }, []);
 
   // prefers-reduced-motion
   useEffect(() => {
@@ -612,10 +662,11 @@ export function SkillsCube() {
     <div
       ref={layoutRef}
       className={styles.layout}
-      data-mode={contactOpen ? "contact" : projectsOpen || panel?.open ? "projects" : "bio"}
+      data-mode={mode}
     >
       <div className={`${styles.wrap} ${styles.cubeCol}`}>
         <div
+          ref={stageRef}
           className={styles.stage}
           data-fill={fill}
           tabIndex={0}
