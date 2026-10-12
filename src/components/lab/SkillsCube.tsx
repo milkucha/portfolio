@@ -768,7 +768,7 @@ export function SkillsCube() {
                 style={{ "--i": i } as CSSProperties}
                 type="button"
                 className={styles.button}
-                aria-pressed={!!panel?.open && face.slot === panel.slot}
+                aria-pressed={!!panel && (panel.open || projectsOpen) && face.slot === panel.slot}
                 onClick={() => goTo(face.slot)}
               >
                 <span className={styles.faceName}>{face.name}</span>
