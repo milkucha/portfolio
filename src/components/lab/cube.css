@@ -714,6 +714,14 @@
     -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.25rem), transparent);
     mask-image: linear-gradient(to bottom, #000 calc(100% - 1.25rem), transparent);
   }
+  /* Bio only: centred vertically in the zone. Safe centring falls back to top-aligned (and the
+     scroller) when the text is taller than the zone. */
+  .lab-cube-intro {
+    display: flex;
+    flex-direction: column;
+    justify-content: safe center;
+    padding-top: 1.25rem; /* balances the bottom padding so the text is truly centred */
+  }
   .lab-cube-intro::-webkit-scrollbar,
   .lab-cube-panel::-webkit-scrollbar,
   .lab-cube-contact::-webkit-scrollbar {

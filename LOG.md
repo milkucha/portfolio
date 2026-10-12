@@ -167,3 +167,4 @@ At <=640px the page is one screen with no page scroll, three zones top to bottom
 - Menu zone (row 3): three equal columns BIO / PROJECTS / CONTACT, 44px tall, a 1px ink hairline above (top border of the three buttons). The six domain buttons unroll upward as a 3x2 grid above the bar (max-height transition, staggered slide-up and fade, 44px cells). The hover lift is disabled on phones.
 - Measured page scroll height equals window height (no page scroll) at 390x844, 360x740, 375x667 and 430x932, in bio, projects and contact states.
 - Test on a phone over Tailscale: http://100.98.244.7:3001/lab/cube
+- 2026-10-12 Phone bio: intro block vertically centred in the content zone (flex column, safe center, balanced top padding); projects and contact cards unchanged. Measured gaps above/below equal (205/205 at 390x844, 170/170 at 360x740).
