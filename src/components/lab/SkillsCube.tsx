@@ -48,6 +48,8 @@ const TUMBLE_TILT_DEG = 55;
 const PRECESS_DEG_PER_S = 4;
 /** Seconds of ease-in for the tumble on page load (short, so it is moving straight away). */
 const ENTRY_RAMP = 0.5;
+/** Lab only: set true to show the color / ghost / wire face-style switcher. */
+const SHOW_FILL_SWITCH = false;
 
 const styles = {
   wrap: "lab-cube-wrap",
@@ -312,7 +314,7 @@ export function SkillsCube() {
     reduced: false,
     dirty: false,
   });
-  const [fill, setFill] = useState<"color" | "ghost" | "wire">("color");
+  const [fill, setFill] = useState<"color" | "ghost" | "wire">("ghost");
   /** Info panel: last face shown (kept while fading out), `seq` re-keys the card to replay its entrance. */
   const [panel, setPanel] = useState<{ slot: FaceSlot; seq: number; open: boolean } | null>(null);
   /** Right pane shows the contact card (exclusive with the intro and the project panel). */
@@ -715,20 +717,22 @@ export function SkillsCube() {
           </button>
         </div>
 
-        <div className={styles.lab} role="group" aria-label="Face style (lab only)">
-          <span>faces:</span>
-          {(["color", "ghost", "wire"] as const).map((v) => (
-            <button
-              key={v}
-              type="button"
-              className={styles.button}
-              aria-pressed={fill === v}
-              onClick={() => setFill(v)}
-            >
-              {v}
-            </button>
-          ))}
-        </div>
+        {SHOW_FILL_SWITCH && (
+          <div className={styles.lab} role="group" aria-label="Face style (lab only)">
+            <span>faces:</span>
+            {(["color", "ghost", "wire"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                className={styles.button}
+                aria-pressed={fill === v}
+                onClick={() => setFill(v)}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Intro text: fades in while the cube spins (no face chosen), out when the panel opens. */}

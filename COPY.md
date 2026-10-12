@@ -88,7 +88,7 @@ The card title is a link (new tab) to the GitHub link if the card has one, else 
 - highlights:
   - 550K+ downloads
   - 86 GitHub stars
-  - Multi-version and multi-loader (Fabric, Forge, NeoForge) support
+  - Multi-version and multi-loader support
 - tech chips: Java, Gradle, Minecraft
 - footnote: Built with Claude Code
 - links: GitHub (https://github.com/milkucha/trmt), Modrinth (https://modrinth.com/mod/the-roads-more-travelled), CurseForge (https://www.curseforge.com/minecraft/mc-mods/the-roads-more-travelled), YouTube (https://www.youtube.com/watch?v=OvsNVaFiK1Y)
@@ -143,15 +143,15 @@ only icons, the labels above are their tooltips.
 - title: Camilo Álvarez, Full-stack Developer
 - description: Portfolio of Camilo Álvarez, software developer: projects, skills and contact.
 
-## 7. Lab-only controls (below the menu, will be removed before launch)
+## 7. Lab-only controls (hidden)
 
-- `faces:` color / ghost / wire
+- `faces:` color / ghost / wire switcher, hidden behind `SHOW_FILL_SWITCH = false` in `src/components/lab/SkillsCube.tsx` (set true to show it). Default face style is ghost.
 
 ## 8. Footer and legal pages
 
 - footer labels (bottom of the lab page, mono, small): `Impressum · Datenschutz` (links to /impressum and /datenschutz)
-- drafts live at `src/app/impressum` and `src/app/datenschutz` (shared shell in `src/components/legal/LegalShell.tsx`), English, marked "Draft. Fill in the bracketed fields and have it reviewed before launch."
-- placeholders to fill: [Street and number], [Postcode] Berlin, [Phone, optional]
+- drafts live at `src/app/impressum` and `src/app/datenschutz` (shared shell in `src/components/legal/LegalShell.tsx`), English, marked "Draft. Have it reviewed before launch."
+- address filled: Ueckermünderstrasse 1, 10439 Berlin. No phone number published; contact is by email only (milkucha@disroot.org).
 - page titles: Impressum, Datenschutz
 
 ## 9. Open items

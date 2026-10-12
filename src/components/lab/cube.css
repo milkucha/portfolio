@@ -604,9 +604,8 @@
   margin: 0 0 0.75rem;
   padding: 0;
   list-style: none;
-  font-family: var(--font-dm-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.75rem;
-  line-height: 1.5;
+  font-size: 0.8125rem;
+  line-height: 1.45;
 }
 .lab-cube-highlights li {
   position: relative;

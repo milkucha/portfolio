@@ -40,7 +40,7 @@ const trmt: PanelEntry = {
   highlights: [
     "550K+ downloads",
     "86 GitHub stars",
-    "Multi-version and multi-loader (Fabric, Forge, NeoForge) support",
+    "Multi-version and multi-loader support",
   ],
   stack: ["Java", "Gradle", "Minecraft"],
   workflow: ["Claude Code"],

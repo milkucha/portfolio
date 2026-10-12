@@ -20,7 +20,7 @@ export function LegalShell({ title, children }: { title: string; children: React
           {title}
         </h1>
         <p className="mb-8 text-[0.75rem] opacity-70">
-          Draft. Fill in the bracketed fields and have it reviewed before launch.
+          Draft. Have it reviewed before launch.
         </p>
         <div className="space-y-6 [&_h2]:mb-1 [&_h2]:text-[0.875rem] [&_h2]:font-medium [&_p]:break-words">
           {children}

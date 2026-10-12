@@ -19,9 +19,7 @@ export default function ImpressumPage() {
         <p>
           Camilo Álvarez
           <br />
-          [Street and number]
-          <br />
-          [Postcode] Berlin
+          Ueckermünderstrasse 1, 10439 Berlin
           <br />
           Germany
         </p>
@@ -30,8 +28,6 @@ export default function ImpressumPage() {
         <h2>Contact</h2>
         <p>
           Email: milkucha@disroot.org
-          <br />
-          Phone: [Phone, optional]
         </p>
       </section>
       <section>

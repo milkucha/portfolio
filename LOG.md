@@ -110,3 +110,8 @@ Not done / open:
 2026-10-12 later: card highlights now DM Mono (same stack as introBio), 0.8125rem -> 0.75rem, line-height 1.45 -> 1.5, to keep the longest line balanced in the 26rem panel; one-liner font unchanged
 2026-10-12 later: footer "Impressum · Datenschutz" at the bottom of the lab page (mono 0.6875rem, 60% opacity, centred); draft pages /impressum and /datenschutz (shared shell src/components/legal/LegalShell.tsx, placeholders in brackets, noindex); COPY.md section 8 added, copied to the main worktree
 - TODO: fill placeholders in impressum/datenschutz and review before launch; address privacy options: business address service or coworking
+2026-10-12 later: TRMT third highlight now "Multi-version and multi-loader support"; COPY.md updated
+2026-10-12 later: reverted the highlights font experiment from 670f2c9 (cube.css): highlights back to the sans face, 0.8125rem, line-height 1.45
+2026-10-12 later: legal pages: address filled (Ueckermünderstrasse 1, 10439 Berlin), phone removed everywhere, Draft notice now "Draft. Have it reviewed before launch."
+2026-10-12 later: Impressum: email is the only contact means; some lawyers expect a second means (phone or contact form): owner decided no phone
+2026-10-12 later: faces switcher hidden behind SHOW_FILL_SWITCH = false in SkillsCube.tsx (code kept); default fill now ghost; COPY.md section 7 and 8 updated and copied to the main worktree
