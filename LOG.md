@@ -1,21 +1,16 @@
 # LOG: cube lab sessions, 2026-10-11 and 2026-10-12
 
-Where we left off. Everything is local: nothing pushed, `main` untouched, no Vercel previews exist.
-This file lives on `proto/cube-bio`.
+**Current state (2026-10-12, after reorganisation).** The cube site is the main version. It lives in `/home/milkucha/portfolio` on `main`, dev server on port 3001. The worktrees and ports described below (3000, 3003, 3005, 3006, `portfolio-bio`) are gone; the sections that follow are history.
 
-## Versions (one git worktree per branch)
+## Versions (historical: one git worktree per branch)
+
+Branch `proto/cube-bio` was merged into `main` (fast-forward) and deleted locally. The table below is how things were before that.
 
 | Port | Folder | Branch | What it is |
 |---|---|---|---|
-| 3000 | `~/portfolio` | `proto/cube-sections` | Three sections on one page: bio, cube carousel, contact. Base for the others. |
-| 3001 | `~/portfolio-bio` | `proto/cube-bio` | **Current favourite.** Cube page, bio in the right pane, BIO / PROJECTS / CONTACT menu, tumble spin. |
-| 3003 | `~/portfolio-spin-tumble` | `proto/cube-spin-tumble` | Sections page + tumble spin (continuous, drifting diagonal axis). Black right-aligned nav, typed name loop (name <-> milkucha). |
-| 3005 | `~/portfolio-spin-loop` | `proto/cube-spin-loop` | Sections page + smooth closed loop through the six face poses, slows at each face. One fixed focus pose per face. |
-| 3006 | `~/portfolio-spin-flow` | `proto/cube-spin-flow` | Same loop but constant speed, no slow-down (20 deg/s, ~31 s lap). |
-| none | `~/portfolio-spin-cycle`, `~/portfolio-spin-steps` | `proto/cube-spin-cycle`, `proto/cube-spin-steps` | Not used. Servers stopped; branches and folders still exist (delete when decided). |
-
-Spin versions: you liked 3003 (tumble), 3005 (loop rhythm) and then asked for 3006 (loop, but continuous). Not yet decided
-which one wins, or whether 3001 keeps the tumble (it has it now).
+| 3000 | `~/portfolio` | `proto/cube-sections` | Three sections on one page: bio, cube carousel, contact. |
+| 3001 | `~/portfolio-bio` | `proto/cube-bio` | Became `main`. Cube page, bio in the right pane, BIO / PROJECTS / CONTACT menu, tumble spin. |
+| 3003, 3005, 3006 | `~/portfolio-spin-*` | `proto/cube-spin-tumble`, `-loop`, `-flow` | Spin options on the sections page. |
 
 ## Restart the servers
 
@@ -27,7 +22,7 @@ export PATH="$HOME/.nvm/versions/node/v24.21.0/bin:$PATH"
 npm run dev -- -p <port>      # then open http://localhost:<port>/lab/cube
 ```
 
-Servers were left running on 3000, 3001, 3003, 3005, 3006. Stop one by its own PID (`ss -ltnp | grep :<port>`), not a broad pkill.
+Only 3001 runs now. Stop a server by its own PID (`ss -ltnp | grep :<port>`), not a broad pkill.
 
 ## State of 3001 (`proto/cube-bio`)
 
@@ -181,3 +176,13 @@ At <=640px the page is one screen with no page scroll, three zones top to bottom
 - Production build (Next 16.4.0, Turbopack, run in a throwaway copy): success. Routes `/`, `/_not-found`, `/datenschutz`, `/impressum` all static. This version prints no First Load JS column; JS referenced by `/` is about 183 KB gzipped.
 - eslint and tsc clean. Smoke test with `next start`: `/` 200 (contains bio line and Impressum link), `/lab/cube` 308 to `/`, legal pages 200.
 - Privacy scrub: Tailscale and LAN IPs in LOG.md and COPY.md replaced by placeholders.
+
+## 2026-10-12: Reorganisation and cleanup
+
+- `/home/milkucha/portfolio` is the real project folder, on `main`, at the fast-forwarded tip of origin/main. Worktree `portfolio-bio` and the local branch `proto/cube-bio` are removed (merged). The owner's older untracked COPY.md is saved at `/home/milkucha/portfolio-archive/COPY.old.md`; `COPY.md` in the repo is the current copy file.
+- Dev server: `npm run dev -- -p 3001` from this folder. No other worktrees or ports exist.
+- Removed the Obsidian-graph site code: `src/components/{Nav,ProjectGraph,ProjectList,GraphCard}.tsx`, `src/data/projects.ts`, unused types in `src/data/types.ts` (kept `ContactLink`, `SiteInfo`), the `d3-force` and `@types/d3-force` dependencies, `public/{file,globe,next,vercel,window}.svg`, `public/legacy/*.png`, and the graph, category and intro-glow tokens in `src/app/globals.css`. This supersedes the earlier "kept, unused" note.
+- Kept prototypes (local branches, each with an `archive/*` tag): `proto/cube-sections` (three-page version), `proto/cube-spin-loop`, `proto/cube-spin-flow`, `proto/cube-spin-tumble`, `proto/cube-bio-pictures`. Also local: `proto/cube`, `nextjs-rewrite`, `graph/obsidian`. Tags and archive branches are local only (not pushed).
+- Remote branches (unused, not deleted): `graph/obsidian` (the Obsidian-graph version), `nextjs-rewrite`, `proto/cube`, plus `main`.
+- Backup bundle: `/home/milkucha/portfolio-archive/cube-lab-archive.bundle`. Restore recipe in the Archive section above (use `~/portfolio/node_modules` as the hard-link source now that `portfolio-bio` is gone).
+- Cut-over order (domain in Vercel, repoint DNS, disable GitHub Pages) still applies before the site goes live.

@@ -1,22 +1,25 @@
 # portfolio
 
-Personal portfolio site of Camilo Álvarez, deployed on [Vercel](https://vercel.com) at
-[camiloalvarez.dev](https://camiloalvarez.dev).
+Personal portfolio of Camilo Álvarez. One page: a spinning CSS 3D cube of skill areas, with bio, projects and contact beside it. Plus Impressum and Datenschutz pages.
 
 ## Stack
 
-- [Next.js](https://nextjs.org) (App Router) + React
-- TypeScript
-- Tailwind CSS v4
-- ESLint
+TypeScript, React, Next.js 16 (App Router), Tailwind CSS 4. Node version in `.nvmrc`.
 
-## Development
+## Run
 
 ```bash
-npm install
-npm run dev     # local dev server at http://localhost:3000
-npm run build   # production build
-npm run lint    # lint
+npm ci
+npm run dev -- -p 3001   # http://localhost:3001
+npm run build            # production build
+npm run lint
 ```
 
-Screenshots from the previous static site are kept in `public/legacy/`.
+Next.js 16 differs from older versions; see `AGENTS.md` and `node_modules/next/dist/docs/`.
+
+## Where things are
+
+- Copy: `COPY.md` lists every visible text. Edit it, then the text is applied in `src/components/lab/` and `src/data/site.ts`.
+- Cube page: `src/components/lab/`. Legal pages: `src/app/impressum`, `src/app/datenschutz`.
+- `/lab/cube` redirects to `/` (308).
+- History, archive branches and tags, backup bundle, restore recipe and cut-over notes: `LOG.md`.
