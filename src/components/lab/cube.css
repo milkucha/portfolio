@@ -683,7 +683,7 @@
 .lab-cube-layout {
   --link-hover: #b56576;
   --accent: #b56576;
-  --accent-text: #9e4d60; /* bio accents: 4.9:1 on cream #f7ece1 (#b56576 is only 3.55:1) */
+  --accent-text: #7fb2d6; /* bio accents, light blue (septenary) as a visual test: only 1.95:1 on cream #f7ece1, below the 4.5:1 text guideline; darker palette blue #3d6f99 is 4.59:1 */
 }
 .lab-cube-links a:hover,
 .lab-cube-links a:focus-visible {

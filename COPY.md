@@ -14,9 +14,9 @@ Tip: add `DELETE` or `ADD` notes in plain words if you want a line removed or a 
 - line 1: Full-stack developer based in Berlin.
 - line 2: Python, TypeScript, Java, agentic tools.
 - line 3: Open source as milkucha.
-  - the word `milkucha` (in line 3) is set in italic, medium weight (500) and in a darker pink (#9e4d60, 4.9:1 contrast on the cream; the lighter #b56576 is only 3.55:1)
+  - the word `milkucha` (in line 3) is set in italic, medium weight (500) and in the site's light blue (#7fb2d6, a visual test: only 1.95:1 contrast on the cream; the darker palette blue #3d6f99 would be 4.59:1)
 - line 4: Minecraft mod maintainer, 550K+ downloads.
-  - `550K+` is set in the same darker pink (#9e4d60) at medium weight (500), not italic
+  - `550K+` is set in the same light blue (#7fb2d6) at medium weight (500), not italic
 
 ## 2. Menu (under the cube)
 

@@ -118,3 +118,9 @@ Not done / open:
 2026-10-12 later: bio accents: "milkucha" (italic) and "550K+" now in the accent pink #b56576 (--accent in cube.css, INTRO_ACCENTS in introText.ts); legal pages: visible "Draft" notice removed from LegalShell; COPY.md updated and copied to the main worktree
 - TODO: legal pages (impressum, datenschutz) still need review before launch; the page no longer says so
 2026-10-12 later: bio accents darkened for contrast: #9e4d60 (4.9:1, --accent-text in cube.css) and font-weight 500; link hover keeps #b56576; COPY.md updated and copied to the main worktree
+2026-10-12 later: bio accent colour TEST: --accent-text now the light blue #7fb2d6 (1.95:1 on cream, below the 4.5:1 guideline; #3d6f99 would be 4.59:1); weight 500 and italic kept; link hover (#b56576) untouched; COPY.md updated and copied to the main worktree
+2026-10-12 later: next.config.ts allowedDevOrigins ["192.168.*.*"] for phone testing (needs a dev server restart)
+
+## Testing on a phone
+
+Phone on the same Wi-Fi as the PC; open http://<PC LAN IP>:3001/lab/cube (currently 192.168.2.124). WSL runs in mirrored networking mode. If it will not load, allow inbound TCP 3001 in Windows Firewall.
