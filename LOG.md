@@ -106,3 +106,7 @@ Not done / open:
 2026-10-12 later: cube face label larger: name 0.085 -> 0.102 of --size (+20%), hint 0.052 -> 0.068 (+30%); fits at all sizes
 2026-10-12 later: TRMT chips restored (chips are the readable stack while the cube spins); ghost fill 82% -> 92% opaque
 2026-10-12 later: chips sweep: Oceana drops REST APIs; Provenance adds LLM agents; TRMT drops loaders and GitHub Actions (not used by the owner); Git deliberately not a chip
+2026-10-12 later: TRMT highlights set to three lines (550K+ downloads; 86 GitHub stars; multi-version and multi-loader support); COPY.md updated
+2026-10-12 later: card highlights now DM Mono (same stack as introBio), 0.8125rem -> 0.75rem, line-height 1.45 -> 1.5, to keep the longest line balanced in the 26rem panel; one-liner font unchanged
+2026-10-12 later: footer "Impressum · Datenschutz" at the bottom of the lab page (mono 0.6875rem, 60% opacity, centred); draft pages /impressum and /datenschutz (shared shell src/components/legal/LegalShell.tsx, placeholders in brackets, noindex); COPY.md section 8 added, copied to the main worktree
+- TODO: fill placeholders in impressum/datenschutz and review before launch; address privacy options: business address service or coworking

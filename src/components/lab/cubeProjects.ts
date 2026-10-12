@@ -38,8 +38,9 @@ const trmt: PanelEntry = {
   name: "The Roads More Travelled",
   oneLiner: "Dynamic terrain mod for Minecraft that erodes often-travelled routes turning them into realistic, yet vanilla-friendly worn paths.",
   highlights: [
-    "550K+ downloads across Modrinth and CurseForge, 86 GitHub stars",
-    "Maintained across 4 Minecraft versions and 3 mod loaders (Fabric, Forge, NeoForge)",
+    "550K+ downloads",
+    "86 GitHub stars",
+    "Multi-version and multi-loader (Fabric, Forge, NeoForge) support",
   ],
   stack: ["Java", "Gradle", "Minecraft"],
   workflow: ["Claude Code"],
