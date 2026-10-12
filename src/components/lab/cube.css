@@ -434,15 +434,8 @@
   letter-spacing: -0.02em;
   line-height: 0.95;
 }
-/* The bio sits in a thin frame (same ink line as the cube edges); the name stays above it. */
-.lab-cube-introBox {
-  box-sizing: border-box;
-  padding: 0.875rem 1.125rem;
-  border: 1px solid var(--ink);
-}
 .lab-cube-introBio {
   margin: 0;
-  text-wrap: pretty;
   font-family: var(--font-dm-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: 0.875rem;
   line-height: 1.55;

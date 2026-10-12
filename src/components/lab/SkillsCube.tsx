@@ -79,7 +79,6 @@ const styles = {
   panel: "lab-cube-panel",
   intro: "lab-cube-intro",
   introName: "lab-cube-introName",
-  introBox: "lab-cube-introBox",
   introBio: "lab-cube-introBio",
   introHandle: "lab-cube-introHandle",
   panelCard: "lab-cube-panelCard",
@@ -745,22 +744,20 @@ export function SkillsCube() {
         <h1 id="lab-cube-intro-title" className={styles.introName}>
           {site.name}
         </h1>
-        <div className={styles.introBox}>
-          {INTRO_LINES.map((para) => (
-            <p key={para} className={styles.introBio}>
-              {para.split(INTRO_HANDLE).flatMap((part, i) =>
-                i === 0
-                  ? [part]
-                  : [
-                      <span key={i} className={styles.introHandle}>
-                        {INTRO_HANDLE}
-                      </span>,
-                      part,
-                    ],
-              )}
-            </p>
-          ))}
-        </div>
+        {INTRO_LINES.map((para) => (
+          <p key={para} className={styles.introBio}>
+            {para.split(INTRO_HANDLE).flatMap((part, i) =>
+              i === 0
+                ? [part]
+                : [
+                    <span key={i} className={styles.introHandle}>
+                      {INTRO_HANDLE}
+                    </span>,
+                    part,
+                  ],
+            )}
+          </p>
+        ))}
       </section>
 
       {/* Contact card: the third state of the right pane. Always mounted so it can fade out. */}
