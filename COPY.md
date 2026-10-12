@@ -11,11 +11,11 @@ Tip: add `DELETE` or `ADD` notes in plain words if you want a line removed or a 
 *src/components/lab/introText.ts, src/data/site.ts*
 
 - name (big title, wraps to two lines): Camilo Álvarez
-- paragraph 1: Full-stack engineer building in Python, TypeScript and Java. Hybrid workflows with agentic tools.
-- paragraph 2: Based in Berlin. Maintainer of a Minecraft mod with 550K+ downloads.
+- paragraph 1: Building in Python, JS and Java. Hybrid workflows with agentic tools.
+- paragraph 2: Open source as milkucha, maintainer of TRMT (550K+ downloads).
 - paragraph 3: Drawn to complex systems and behaviours.
-- paragraph 4: Shipping open source as milkucha.
-  - the word `milkucha` is set in italic
+- paragraph 4: Based in Berlin.
+  - the word `milkucha` (in paragraph 2) is set in italic
 
 ## 2. Menu (under the cube)
 

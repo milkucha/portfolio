@@ -78,3 +78,4 @@ Not done / open:
 - Card design: Tech and Workflow group titles removed; workflow is now a dimmed mono footnote ("Built with Claude Code and OpenCode"), omitted when empty; highlights render only when present; optional `image` thumbnail support (none set).
 - Contact: added a plain-text "Location: Berlin" row after Email (`ContactLink.href` is now optional; main page handles it). No CV link (nothing to link to yet).
 - `COPY.md` updated to match, with an Open items list. Not viewed in a browser; tsc and eslint clean, /lab/cube returns 200.
+2026-10-12 later: bio rewritten by owner to four lines, no job title line, 'JS' instead of 'TypeScript'
