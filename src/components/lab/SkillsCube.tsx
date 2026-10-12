@@ -46,7 +46,7 @@ const VIEW_ROLL_DEG = -20;
  *                  spline, 1.4 (default) rounds the sharp turns at bottom/top, 0.6 hugs the legs.
  */
 const LOOP_ORDER: readonly FaceSlot[] = ["front", "bottom", "right", "back", "left", "top"];
-const FLOW_DEG_PER_S = 20;
+const FLOW_DEG_PER_S = 8;
 const FLOW_EASE = 0;
 const FLOW_TENSION = 1.4;
 /** Seconds of ease-in for the loop on page load (short, so it is moving straight away). */
