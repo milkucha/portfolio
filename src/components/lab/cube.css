@@ -67,7 +67,7 @@
   background: var(--face-bg);
 }
 .lab-cube-stage[data-fill="ghost"] .lab-cube-fill {
-  background: color-mix(in srgb, color-mix(in srgb, var(--face-bg) 30%, var(--paper)) 82%, transparent);
+  background: color-mix(in srgb, color-mix(in srgb, var(--face-bg) 30%, var(--paper)) 92%, transparent);
 }
 .lab-cube-stage[data-fill="wire"] .lab-cube-fill {
   background: transparent;
