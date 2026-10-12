@@ -148,5 +148,5 @@ only icons, the labels above are their tooltips.
 ## 8. Open items
 
 - CV link missing (no file or URL exists yet; not added to Contact).
-- Thumbnails for The Roads More Travelled and Arranca Cover missing (cards support an optional `image`).
+- The Roads More Travelled now has a decorative backdrop picture (Modrinth gallery image, `backdrop` field) instead of a thumbnail. Arranca Cover thumbnail still missing (cards support an optional `image`).
 - Oceana "Production" wording is the owner's own earlier claim.

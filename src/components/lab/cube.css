@@ -635,6 +635,43 @@
   object-fit: cover;
 }
 
+/* Decorative picture in the upper right of an entry: tilted, edges dissolved into the page, behind the text. */
+.lab-cube-entry:has(.lab-cube-backdrop) {
+  position: relative;
+  isolation: isolate;
+}
+.lab-cube-backdrop {
+  position: absolute;
+  z-index: -1;
+  top: -3.25rem;
+  right: -3.5rem;
+  width: 17rem;
+  height: 11rem;
+  object-fit: cover;
+  opacity: 0.6;
+  filter: saturate(1.2) brightness(1.08);
+  pointer-events: none;
+  transform: perspective(48rem) rotateY(-10deg) rotate(8deg);
+  transform-origin: 100% 0;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 38%, #000 62%, transparent),
+    linear-gradient(to bottom, transparent, #000 38%, #000 62%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 38%, #000 62%, transparent),
+    linear-gradient(to bottom, transparent, #000 38%, #000 62%, transparent);
+  mask-composite: intersect;
+}
+@media (max-width: 640px) {
+  .lab-cube-backdrop {
+    top: -2.5rem;
+    right: -2rem;
+    width: 10rem;
+    height: 7rem;
+    opacity: 0.55;
+  }
+}
+
 .lab-cube-links {
   display: flex;
   flex-wrap: wrap;

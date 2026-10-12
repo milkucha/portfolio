@@ -25,6 +25,8 @@ export interface PanelEntry {
   highlights: readonly string[];
   /** Optional thumbnail shown at the top of the card. */
   image?: { src: string; alt: string };
+  /** Optional decorative picture, tilted and faded into the upper right of the card behind the text. */
+  backdrop?: { src: string };
   /** Chip labels, shown as-is. */
   stack: readonly string[];
   /** AI coding tools used on the project (shown apart from the stack); empty if none. */
@@ -41,6 +43,7 @@ const trmt: PanelEntry = {
     "550K+ downloads across Modrinth and CurseForge; 86 GitHub stars",
     "Maintained across 4 Minecraft versions and 3 mod loaders (Fabric, Forge, NeoForge)",
   ],
+  backdrop: { src: "/lab/trmt.webp" }, // Modrinth gallery, "Grass and Dirt Erosion"
   stack: ["Java", "Gradle", "Minecraft", "Fabric", "Forge", "NeoForge", "GitHub Actions"],
   workflow: ["Claude Code"],
   links: [

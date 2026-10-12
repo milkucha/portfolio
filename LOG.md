@@ -81,3 +81,9 @@ Not done / open:
 2026-10-12 later: bio rewritten by owner to four lines, no job title line, 'JS' instead of 'TypeScript'
 2026-10-12 later: bio set to five short lines (role/location, stack, workflow, handle, mod); body 15px, 13px on phones; mobile menu gap closed
 2026-10-12 later: bio cut to four lines (role/location, stack with agentic tools, handle, mod); 'hybrid workflows' line removed
+
+## 2026-10-12 later: TRMT card backdrop (`proto/cube-bio`)
+
+- The Roads More Travelled card has a tilted, edge-faded picture in its upper right, behind the text (decorative: `alt=""`, `aria-hidden`, no pointer events, no layout effect). Data: optional `PanelEntry.backdrop` in `cubeProjects.ts` (only TRMT sets it); markup in `SkillsCube.tsx`; CSS under `.lab-cube-backdrop` in `cube.css` (rotate 8deg, slight rotateY, soft rectangular mask, opacity 0.6; smaller on phones). It fades in with the card entrance.
+- Image: Modrinth gallery "Grass and Dirt Erosion" (https://cdn.modrinth.com/data/74oZhrEe/images/909db198a9e2bafdfe4bac42354d21e463243ef6.png), resized to 1000px WebP at `public/lab/trmt.webp` (about 45 KB).
+- Viewed in headless Chromium at 1440 and 390 wide.

@@ -91,6 +91,7 @@ const styles = {
   chips: "lab-cube-chips",
   footnote: "lab-cube-footnote",
   thumb: "lab-cube-thumb",
+  backdrop: "lab-cube-backdrop",
   chip: "lab-cube-chip",
   links: "lab-cube-links",
 } as const;
@@ -830,6 +831,10 @@ export function SkillsCube() {
             </h2>
             {faceProjects[panelFace.id].map((p) => (
               <article key={p.name} className={styles.entry}>
+                {p.backdrop ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className={styles.backdrop} src={p.backdrop.src} alt="" aria-hidden="true" />
+                ) : null}
                 {p.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img className={styles.thumb} src={p.image.src} alt={p.image.alt} />
