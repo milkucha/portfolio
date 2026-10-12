@@ -495,13 +495,15 @@
   }
 }
 
-/* Bio accents: the handle (DM Mono's own italic, same size) and "550K+" in the accent pink. */
+/* Bio accents: the handle (DM Mono's own italic, same size) and "550K+" in a darker pink, medium weight. */
 .lab-cube-introHandle {
   font-style: italic;
-  color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 500;
 }
 .lab-cube-introAccent {
-  color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 500;
 }
 
 /* ---------- info panel ---------- */
@@ -681,6 +683,7 @@
 .lab-cube-layout {
   --link-hover: #b56576;
   --accent: #b56576;
+  --accent-text: #9e4d60; /* bio accents: 4.9:1 on cream #f7ece1 (#b56576 is only 3.55:1) */
 }
 .lab-cube-links a:hover,
 .lab-cube-links a:focus-visible {

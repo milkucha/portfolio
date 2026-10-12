@@ -117,3 +117,4 @@ Not done / open:
 2026-10-12 later: faces switcher hidden behind SHOW_FILL_SWITCH = false in SkillsCube.tsx (code kept); default fill now ghost; COPY.md section 7 and 8 updated and copied to the main worktree
 2026-10-12 later: bio accents: "milkucha" (italic) and "550K+" now in the accent pink #b56576 (--accent in cube.css, INTRO_ACCENTS in introText.ts); legal pages: visible "Draft" notice removed from LegalShell; COPY.md updated and copied to the main worktree
 - TODO: legal pages (impressum, datenschutz) still need review before launch; the page no longer says so
+2026-10-12 later: bio accents darkened for contrast: #9e4d60 (4.9:1, --accent-text in cube.css) and font-weight 500; link hover keeps #b56576; COPY.md updated and copied to the main worktree
