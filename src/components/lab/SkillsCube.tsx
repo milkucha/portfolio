@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { CSSProperties, KeyboardEvent, PointerEvent } from "react";
+import type { CSSProperties, KeyboardEvent } from "react";
 import { cubeFaces, type FaceSlot } from "./cubeFaces";
 import { INTRO_LINES } from "./introText";
 import { site } from "@/data/site";
@@ -52,7 +52,6 @@ const ENTRY_RAMP = 0.5;
 const styles = {
   wrap: "lab-cube-wrap",
   stage: "lab-cube-stage",
-  dragging: "lab-cube-dragging",
   cube: "lab-cube-cube",
   face: "lab-cube-face",
   fill: "lab-cube-fill",
@@ -218,19 +217,14 @@ const PICK_HOLD = 10000; // ms the cube stays put after a face is picked (button
 const IDLE_RAMP = 1.4; // s to ease idle speed in/out
 const SPRING_K = 140; // stiffness (natural freq ~11.8 rad/s)
 const SPRING_C = 2 * Math.sqrt(SPRING_K); // critically damped: no overshoot wobble
-const COAST = 0.16; // s of momentum used to pick the landing face after a fling
-const MAX_SPIN = 16; // rad/s cap on fling speed
-const DRAG_RELEASE_STALE = 70; // ms: if the pointer rested this long before release, no fling
 
-type Mode = "free" | "drag" | "spring";
+type Mode = "free" | "spring";
 
 interface Sim {
   q: Quat;
   w: Vec3; // angular velocity (world space), rad/s
   mode: Mode;
   target: Quat;
-  pending: [number, number]; // drag pixels not yet applied
-  lastMove: number;
   lastInteraction: number;
   holdUntil: number; // idle stays off until this time (after an explicit pick)
   idleBlend: number; // 0..1
@@ -256,9 +250,6 @@ interface Sim {
   /** Cube section is in the viewport: idle spin only runs while it is. */
   onscreen: boolean;
   reduced: boolean;
-  pointerId: number | null;
-  lastX: number;
-  lastY: number;
   dirty: boolean;
 }
 
@@ -293,8 +284,6 @@ export function SkillsCube() {
     w: [0, 0, 0],
     mode: "free",
     target: INITIAL_Q,
-    pending: [0, 0],
-    lastMove: 0,
     lastInteraction: -Infinity,
     holdUntil: 0,
     idleBlend: 0,
@@ -312,12 +301,8 @@ export function SkillsCube() {
     panelSeq: 0,
     onscreen: true,
     reduced: false,
-    pointerId: null,
-    lastX: 0,
-    lastY: 0,
     dirty: false,
   });
-  const [dragging, setDragging] = useState(false);
   const [fill, setFill] = useState<"color" | "ghost" | "wire">("color");
   /** Info panel: last face shown (kept while fading out), `seq` re-keys the card to replay its entrance. */
   const [panel, setPanel] = useState<{ slot: FaceSlot; seq: number; open: boolean } | null>(null);
@@ -410,24 +395,7 @@ export function SkillsCube() {
       const dt = Math.min(Math.max((now - last) / 1000, 0), 1 / 30); // clamp: no jumps after tab switches
       last = now;
 
-      if (s.mode === "drag") {
-        const [dx, dy] = s.pending;
-        s.pending = [0, 0];
-        const size = cubeRef.current?.offsetWidth || 200;
-        const len = Math.hypot(dx, dy);
-        // Dragging one face-width turns the cube ~90deg: the surface tracks the finger.
-        const angle = (len / size) * D90;
-        // Screen-space axis, applied in world space (pre-multiplied): no Euler angles, no gimbal lock.
-        const r: Vec3 = len > 0 ? [(-dy / len) * angle, (dx / len) * angle, 0] : [0, 0, 0];
-        if (len > 0) {
-          s.q = normalize(mul(expMap(r), s.q));
-          s.dirty = true;
-        }
-        if (dt > 0) {
-          const a = 1 - Math.exp(-dt / 0.045); // time-based smoothing of the velocity estimate
-          s.w = [s.w[0] + (r[0] / dt - s.w[0]) * a, s.w[1] + (r[1] / dt - s.w[1]) * a, 0];
-        }
-      } else if (s.mode === "spring") {
+      if (s.mode === "spring") {
         // Critically damped spring on the rotation error. Velocity carries over from the fling or
         // idle spin, so there is never a speed discontinuity when a snap starts.
         const e = logMap(mul(s.target, conj(s.q)));
@@ -522,14 +490,26 @@ export function SkillsCube() {
     showPanel(frontSlot(s.q));
   };
 
+  /**
+   * Let the idle spin start again at once: no pick hold, no idle delay. The panel is closed by now, so
+   * a hover/focus flag left over from it (the pointer or focus can vanish with the panel, with no
+   * leave/blur event) must not keep the cube still.
+   */
+  const resumeSpin = () => {
+    const s = sim.current;
+    s.lastInteraction = -Infinity;
+    s.holdUntil = 0;
+    s.panelHover = false;
+    s.panelFocus = false;
+  };
+
   /** BIO: back to the intro. Closes any card and lets the idle spin resume straight away. */
   const showBio = () => {
     const s = sim.current;
     s.follow = false;
     showPanel(null);
     setContactOpen(false);
-    s.lastInteraction = -Infinity;
-    s.holdUntil = 0;
+    resumeSpin();
   };
 
   /** CONTACT: replaces the intro or project card with the contact card; the cube idles on its own. */
@@ -538,8 +518,7 @@ export function SkillsCube() {
     s.follow = false;
     showPanel(null);
     setContactOpen(true);
-    s.lastInteraction = clock();
-    s.holdUntil = 0;
+    resumeSpin();
   };
 
   const snapTo = (target: Quat) => {
@@ -594,52 +573,6 @@ export function SkillsCube() {
 
   /* ---------- input ---------- */
 
-  const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
-    const s = sim.current;
-    if (s.pointerId !== null || (e.pointerType === "mouse" && e.button !== 0)) return;
-    e.currentTarget.setPointerCapture(e.pointerId);
-    s.pointerId = e.pointerId;
-    s.lastX = e.clientX;
-    s.lastY = e.clientY;
-    s.lastMove = clock();
-    s.pending = [0, 0];
-    s.w = [0, 0, 0]; // grabbing stops the cube dead, like catching it
-    s.mode = "drag";
-    s.idleBlend = 0;
-    s.entry = false;
-    if (!s.follow) showPanel(null);
-    s.lastInteraction = clock();
-    s.holdUntil = 0; // a drag is a fresh interaction with the normal idle delay
-    setDragging(true);
-  };
-
-  const onPointerMove = (e: PointerEvent<HTMLDivElement>) => {
-    const s = sim.current;
-    if (e.pointerId !== s.pointerId) return;
-    s.pending = [s.pending[0] + e.clientX - s.lastX, s.pending[1] + e.clientY - s.lastY];
-    s.lastX = e.clientX;
-    s.lastY = e.clientY;
-    s.lastMove = clock();
-    s.lastInteraction = s.lastMove;
-  };
-
-  const endDrag = (e: PointerEvent<HTMLDivElement>) => {
-    const s = sim.current;
-    if (e.pointerId !== s.pointerId) return;
-    s.pointerId = null;
-    setDragging(false);
-    const now = clock();
-    s.lastInteraction = now;
-    let w = s.w;
-    if (now - s.lastMove > DRAG_RELEASE_STALE || s.reduced) w = [0, 0, 0];
-    const speed = Math.hypot(...w);
-    if (speed > MAX_SPIN) w = [(w[0] / speed) * MAX_SPIN, (w[1] / speed) * MAX_SPIN, 0];
-    s.w = w;
-    // Pick the landing face from where the momentum would carry it, then spring there.
-    const projected = mul(expMap([w[0] * COAST, w[1] * COAST, 0]), s.q);
-    snapToNearest(projected);
-  };
-
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     const moves: Record<string, [Vec3, number]> = {
       ArrowLeft: [[0, 1, 0], -D90],
@@ -663,16 +596,12 @@ export function SkillsCube() {
     <div ref={layoutRef} className={styles.layout}>
       <div className={`${styles.wrap} ${styles.cubeCol}`}>
         <div
-          className={`${styles.stage} ${dragging ? styles.dragging : ""}`}
+          className={styles.stage}
           data-fill={fill}
           tabIndex={0}
           role="group"
           aria-roledescription="rotating cube"
-          aria-label="Skills cube. Drag, or use the arrow keys, to rotate."
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
+          aria-label="Skills cube. Use the arrow keys to rotate."
           onPointerEnter={(e) => {
             if (e.pointerType !== "mouse") return;
             sim.current.hovering = true;

@@ -24,9 +24,6 @@
   display: grid;
   place-items: center;
   perspective: calc(var(--size) * 4);
-  /* Only the cube swallows touch gestures; the rest of the page scrolls normally. */
-  touch-action: none;
-  cursor: grab;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -40,9 +37,6 @@
 .lab-cube-stage:focus-visible {
   outline: 1px dashed var(--ink);
   outline-offset: -1px;
-}
-.lab-cube-dragging {
-  cursor: grabbing;
 }
 
 .lab-cube-cube {
