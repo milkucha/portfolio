@@ -575,20 +575,17 @@
   letter-spacing: -0.01em;
   line-height: 1.25;
 }
-/* Title link: reads as the title, thin faint underline at rest, full underline and rose on hover/focus (instant, no motion). */
+/* Title link: reads as the title, no underline; rose on hover/focus is the only cue (instant, no motion). */
 .lab-cube-entryName a {
   color: inherit;
   font: inherit;
   letter-spacing: inherit;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.25em;
-  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  text-decoration: none;
 }
 .lab-cube-entryName a:hover,
 .lab-cube-entryName a:focus-visible {
   color: var(--link-hover);
-  text-decoration-color: currentColor;
+  text-decoration: none;
 }
 .lab-cube-entryName a:focus-visible {
   outline: 1px dashed var(--ink);
