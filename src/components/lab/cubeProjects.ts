@@ -35,14 +35,14 @@ export interface PanelEntry {
 const trmt: PanelEntry = {
   name: "The Roads More Travelled",
   oneLiner:
-    "A dynamic terrain mod for Minecraft: paths you travel often slowly wear into realistic, vanilla-friendly routes.",
+    "Dynamic terrain mod for Minecraft that erodes often-travelled routes turning them into realistic, yet vanilla-friendly worn paths.",
   highlights: [
-    "~552K downloads across Modrinth and CurseForge; 86 GitHub stars",
-    "Maintained across 4 Minecraft versions and Fabric, Forge and NeoForge in parallel branches",
-    "Lightweight by design: a sparse, self-cleaning map tracks footsteps; everything is JSON-configurable",
+    "Erosion data stored using sparse map, most parameters configurable via JSON",
+    "Maintained across 4 Minecraft versions and 3 mod loaders (Fabric, Forge and NeoForge)",
+    "550K+ downloads across Modrinth and CurseForge; 86 GitHub stars",
   ],
   stack: ["Java", "Gradle", "Minecraft", "Fabric", "Forge", "NeoForge", "GitHub Actions"],
-  workflow: ["Claude Code", "OpenCode"],
+  workflow: ["Claude Code"],
   links: [
     { label: "GitHub", href: "https://github.com/milkucha/trmt", icon: "github" },
     { label: "Modrinth", href: "https://modrinth.com/mod/the-roads-more-travelled", icon: "modrinth" },
@@ -57,12 +57,11 @@ const trmt: PanelEntry = {
 
 const oceana: PanelEntry = {
   name: "Oceana Core",
-  oneLiner:
-    "A back-office platform for a multi-region vacation-rental operator: contracts, units, reservations and revenue-share settlements.",
+  oneLiner: "A back-office platform for a multi-region vacation-rental operator.",
   highlights: [
-    "Settlement engine for taxes, fees, commissions and multi-currency revenue-share splits, with derived values kept apart from source data for audit",
+    "Settlement engine for taxes, fees, commissions and multi-currency revenue-share splits",
     "Reservation ingestion from a property-management system's REST API",
-    "Relational data model on PostgreSQL, with JSON/XLSX exports",
+    "Relational data model on PostgreSQL",
   ],
   stack: ["Python", "TypeScript", "Django", "PostgreSQL", "Docker", "REST APIs"],
   workflow: ["Claude Code", "OpenCode"],
@@ -72,11 +71,11 @@ const oceana: PanelEntry = {
 const provenance: PanelEntry = {
   name: "Provenance",
   oneLiner:
-    "A proof of concept for a world-building tool: AI agents play the characters and supply the language, but deterministic code handles everything consequential.",
+    "World-building tool that grows a fictional society from an authored seed that drifts based on typed knowledge.",
   highlights: [
-    "Grows a fictional society from a small authored seed into a drifting record of tales",
-    "Agents only see a bounded, randomly-sampled slice of a typed knowledge base, enforced structurally",
-    "Model-agnostic and token-lean, with part of the orchestration running locally via Ollama",
+    "Deterministic logic handles world state transformations, bounded agents supply language layer.",
+    "Simulated output and testing suite.",
+    "Model-agnostic and token-lean.",
   ],
   stack: ["Python", "Ollama"],
   workflow: ["Claude Code", "OpenCode"],
@@ -84,25 +83,18 @@ const provenance: PanelEntry = {
 };
 
 const site: PanelEntry = {
-  name: "This site",
-  oneLiner: "This portfolio, which doubles as my vehicle for learning React and TypeScript.",
-  highlights: [
-    "The cube is plain CSS 3D, driven by quaternions: drag with inertia, spring-snapping to a face",
-    "Animates transform and opacity only, and respects reduced-motion settings",
-  ],
+  name: "Portfolio",
+  oneLiner: "This site:",
+  highlights: ["CSS 3D driven by quaternions."],
   stack: ["TypeScript", "React", "Next.js", "Tailwind CSS"],
-  workflow: [],
+  workflow: ["Claude Code"],
   links: [{ label: "GitHub", href: "https://github.com/milkucha/portfolio", icon: "github" }],
 };
 
 const icarus: PanelEntry = {
   name: "Icarus",
-  oneLiner:
-    "An arcade game about flying without hubris: flap as far as you can before you fall into the sea.",
-  highlights: [
-    "Two resources drive each run: stamina for flapping, health lost by flying too close to the sun",
-    "Layered parallax sky and a local high-score table",
-  ],
+  oneLiner: "Arcade game about flying without hubris: fly as far as you can before you fall into the sea.",
+  highlights: ["Sidescrolling, parallax and high-score system", "Hand crafted pixel art"],
   stack: ["Godot", "GDScript", "Aseprite"],
   workflow: [],
   links: [{ label: "itch.io", href: "https://milkucha.itch.io/icarus", icon: "itch" }],
@@ -110,24 +102,17 @@ const icarus: PanelEntry = {
 
 const kucha: PanelEntry = {
   name: "Kucha",
-  oneLiner:
-    "A local-multiplayer 2D arena brawler (in progress): two players plus AI bots, four weapons, destructible terrain.",
-  highlights: [
-    "Arena bots on navigation agents, with three difficulty settings",
-    "Gun, lightning, bomb and earthquake weapons, each with its own damage, knockback and cooldown",
-  ],
+  oneLiner: "2D pixel art arena brawler: two players plus AI bots, four weapons, destructible terrain.",
+  highlights: ["Multiple arenas and weapons", "AI bots", "Destructive terrain", "Multiplayer support (in progress)"],
   stack: ["Godot", "GDScript", "Aseprite"],
   workflow: [],
   links: [],
 };
 
 const design: PanelEntry = {
-  name: "Design",
-  oneLiner: "Voxel illustration on the side, after three years of UX and product design.",
-  highlights: [
-    "Voxel city renders: Minecraft builds exported through a Python pipeline into MagicaVoxel",
-    "UX and product design at Elim, 2021-2023",
-  ],
+  name: "Arranca Cover",
+  oneLiner: "Voxel art isometric city",
+  highlights: ["Hand authored model", "Minecraft to Blender pipeline"],
   stack: ["Figma", "Blender", "MagicaVoxel", "Python"],
   workflow: [],
   links: [],

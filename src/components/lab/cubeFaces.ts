@@ -50,6 +50,6 @@ export const cubeFaces: readonly CubeFace[] = [
   { id: "frontend", name: "Frontend", hint: "TypeScript · React · Next.js · Tailwind CSS", slot: "bottom", color: lightBlue, ink: black },
   { id: "ai", name: "Applied AI", hint: "Python · Ollama · LLM agents", slot: "right", color: black, ink: cream },
   { id: "modding", name: "Modding", hint: "Java · Gradle · Minecraft", slot: "back", color: rose, ink: black },
-  { id: "gamedev", name: "Game dev", hint: "Godot · GDScript · Aseprite", slot: "top", color: yellow, ink: black },
+  { id: "gamedev", name: "Game Dev", hint: "Godot · GDScript · Aseprite", slot: "top", color: yellow, ink: black },
   { id: "design", name: "Design", hint: "Figma · Blender · MagicaVoxel", slot: "left", color: cream, ink: black },
 ];

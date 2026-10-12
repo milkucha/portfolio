@@ -26,7 +26,7 @@ Tip: add `DELETE` or `ADD` notes in plain words if you want a line removed or a 
   2. Frontend
   3. Applied AI
   4. Modding
-  5. Game dev
+  5. Game Dev
   6. Design
 - CONTACT
 
@@ -38,7 +38,7 @@ Tip: add `DELETE` or `ADD` notes in plain words if you want a line removed or a 
 - Frontend: TypeScript · React · Next.js · Tailwind CSS
 - Applied AI: Python · Ollama · LLM agents
 - Modding: Java · Gradle · Minecraft
-- Game dev: Godot · GDScript · Aseprite
+- Game Dev: Godot · GDScript · Aseprite
 - Design: Figma · Blender · MagicaVoxel
 
 ## 4. Project cards (right pane, PROJECTS)
@@ -49,35 +49,32 @@ WORKFLOW chips, link icons. Cards are listed per domain.
 ### Backend
 
 #### Oceana Core
-- one-liner: A back-office platform for a multi-region vacation-rental operator: contracts, units, reservations and revenue-share settlements.
+- one-liner: A back-office platform for a multi-region vacation-rental operator.
 - highlights:
-  - Settlement engine for taxes, fees, commissions and multi-currency revenue-share splits, with derived values kept apart from source data for audit
+  - Settlement engine for taxes, fees, commissions and multi-currency revenue-share splits
   - Reservation ingestion from a property-management system's REST API
-  - Relational data model on PostgreSQL, with JSON/XLSX exports
+  - Relational data model on PostgreSQL
 - tech chips: Python, TypeScript, Django, PostgreSQL, Docker, REST APIs
 - workflow chips: Claude Code, OpenCode
 - links: Website (https://www.oceanasuites.com)
 
 ### Frontend
 
-#### This site
-- one-liner: This portfolio, which doubles as my vehicle for learning React and TypeScript.
-- highlights:
-  - The cube is plain CSS 3D, driven by quaternions: drag with inertia, spring-snapping to a face
-    - NOTE: out of date, dragging was removed from the cube
-  - Animates transform and opacity only, and respects reduced-motion settings
+#### Portfolio
+- one-liner: This site:
+  - CSS 3D driven by quaternions.
 - tech chips: TypeScript, React, Next.js, Tailwind CSS
-- workflow chips: (none)
+- workflow chips: Claude Code
 - links: GitHub (https://github.com/milkucha/portfolio)
 
 ### Applied AI
 
 #### Provenance
-- one-liner: A proof of concept for a world-building tool: AI agents play the characters and supply the language, but deterministic code handles everything consequential.
+- one-liner: World-building tool that grows a fictional society from an authored seed that drifts based on typed knowledge.
 - highlights:
-  - Grows a fictional society from a small authored seed into a drifting record of tales
-  - Agents only see a bounded, randomly-sampled slice of a typed knowledge base, enforced structurally
-  - Model-agnostic and token-lean, with part of the orchestration running locally via Ollama
+  - Deterministic logic handles world state transformations, bounded agents supply language layer.
+  - Simulated output and testing suite.
+  - Model-agnostic and token-lean.
 - tech chips: Python, Ollama
 - workflow chips: Claude Code, OpenCode
 - links: GitHub (https://github.com/milkucha/provenance)
@@ -85,42 +82,44 @@ WORKFLOW chips, link icons. Cards are listed per domain.
 ### Modding
 
 #### The Roads More Travelled
-- one-liner: A dynamic terrain mod for Minecraft: paths you travel often slowly wear into realistic, vanilla-friendly routes.
+- one-liner: Dynamic terrain mod for Minecraft that erodes often-travelled routes turning them into realistic, yet vanilla-friendly worn paths.
 - highlights:
-  - ~552K downloads across Modrinth and CurseForge; 86 GitHub stars
-  - Maintained across 4 Minecraft versions and Fabric, Forge and NeoForge in parallel branches
-  - Lightweight by design: a sparse, self-cleaning map tracks footsteps; everything is JSON-configurable
+  - Erosion data stored using sparse map, most parameters configurable via JSON
+  - Maintained across 4 Minecraft versions and 3 mod loaders (Fabric, Forge and NeoForge)
+  - 550K+ downloads across Modrinth and CurseForge; 86 GitHub stars
 - tech chips: Java, Gradle, Minecraft, Fabric, Forge, NeoForge, GitHub Actions
-- workflow chips: Claude Code, OpenCode
+- workflow chips: Claude Code
 - links: GitHub (https://github.com/milkucha/trmt), Modrinth (https://modrinth.com/mod/the-roads-more-travelled), CurseForge (https://www.curseforge.com/minecraft/mc-mods/the-roads-more-travelled), YouTube (https://www.youtube.com/watch?v=OvsNVaFiK1Y)
 
 ### Game dev
 
 #### Icarus
-- one-liner: An arcade game about flying without hubris: flap as far as you can before you fall into the sea.
+- one-liner: Arcade game about flying without hubris: fly as far as you can before you fall into the sea.
 - highlights:
-  - Two resources drive each run: stamina for flapping, health lost by flying too close to the sun
-  - Layered parallax sky and a local high-score table
+  - Sidescrolling, parallax and high-score system
+  - Hand crafted pixel art
 - tech chips: Godot, GDScript, Aseprite
 - workflow chips: (none)
 - links: itch.io (https://milkucha.itch.io/icarus)
 
 #### Kucha
-- one-liner: A local-multiplayer 2D arena brawler (in progress): two players plus AI bots, four weapons, destructible terrain.
+- one-liner: 2D pixel art arena brawler: two players plus AI bots, four weapons, destructible terrain.
 - highlights:
-  - Arena bots on navigation agents, with three difficulty settings
-  - Gun, lightning, bomb and earthquake weapons, each with its own damage, knockback and cooldown
+  - Multiple arenas and weapons
+  - AI bots
+  - Destructive terrain
+  - Multiplayer support (in progress)
 - tech chips: Godot, GDScript, Aseprite
 - workflow chips: (none)
 - links: (none)
 
 ### Design
 
-#### Design
-- one-liner: Voxel illustration on the side, after three years of UX and product design.
+#### Arranca Cover
+- one-liner: Voxel art isometric city
 - highlights:
-  - Voxel city renders: Minecraft builds exported through a Python pipeline into MagicaVoxel
-  - UX and product design at Elim, 2021-2023
+  - Hand authored model
+  - Minecraft to Blender pipeline
 - tech chips: Figma, Blender, MagicaVoxel, Python
 - workflow chips: (none)
 - links: (none)
