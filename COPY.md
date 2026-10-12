@@ -63,7 +63,7 @@ with ", " and " and "); it is omitted when there are none. Cards are listed per 
 ### Frontend
 
 #### Portfolio
-- one-liner: CSS 3D cube driven by quaternions. No 3D library.
+- one-liner: CSS 3D cube driven by quaternions..
 - highlights: (none)
 - tech chips: TypeScript, React, Next.js, Tailwind CSS
 - footnote: Built with Claude Code
@@ -148,5 +148,5 @@ only icons, the labels above are their tooltips.
 ## 8. Open items
 
 - CV link missing (no file or URL exists yet; not added to Contact).
-- The Roads More Travelled now has a decorative backdrop picture (Modrinth gallery image, `backdrop` field) instead of a thumbnail. Arranca Cover thumbnail still missing (cards support an optional `image`).
+- The Roads More Travelled has a decorative backdrop picture (Modrinth gallery image, `backdrop` field) in the page's upper-right corner, shown only with that card, instead of a thumbnail. Arranca Cover thumbnail still missing (cards support an optional `image`).
 - Oceana "Production" wording is the owner's own earlier claim.

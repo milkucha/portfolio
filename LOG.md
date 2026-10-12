@@ -87,3 +87,7 @@ Not done / open:
 - The Roads More Travelled card has a tilted, edge-faded picture in its upper right, behind the text (decorative: `alt=""`, `aria-hidden`, no pointer events, no layout effect). Data: optional `PanelEntry.backdrop` in `cubeProjects.ts` (only TRMT sets it); markup in `SkillsCube.tsx`; CSS under `.lab-cube-backdrop` in `cube.css` (rotate 8deg, slight rotateY, soft rectangular mask, opacity 0.6; smaller on phones). It fades in with the card entrance.
 - Image: Modrinth gallery "Grass and Dirt Erosion" (https://cdn.modrinth.com/data/74oZhrEe/images/909db198a9e2bafdfe4bac42354d21e463243ef6.png), resized to 1000px WebP at `public/lab/trmt.webp` (about 45 KB).
 - Viewed in headless Chromium at 1440 and 390 wide.
+
+2026-10-12 later: TRMT backdrop moved from the card to the page's upper-right corner, larger, shown only with the Modding card
+- Rendered as a decorative `<img alt="" aria-hidden>` at the top of the layout wrapper in `SkillsCube.tsx` (source: the shown card's `PanelEntry.backdrop`); `<main>` is now `relative isolate` so it positions against the page corner. Opacity follows panel state (open), 600ms fade, none under reduced motion. CSS in `cube.css`: width clamp(30rem, 54vw, 58rem), top -2rem, right -3rem, rotateY(-10deg) rotate(8deg), mask softened toward the text, opacity 0.55 (0.5 and 15rem wide on phones). The old card-anchored rule and `:has()` CSS are gone.
+- Portfolio card one-liner shortened to "CSS 3D cube driven by quaternions."

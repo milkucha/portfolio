@@ -597,12 +597,25 @@ export function SkillsCube() {
 
   const panelFace = panel ? cubeFaces.find((f) => f.slot === panel.slot) : undefined;
 
+  // Decorative page-corner picture of the shown card's project (kept mounted while it fades out).
+  const backdrop = panelFace ? faceProjects[panelFace.id].find((p) => p.backdrop)?.backdrop : undefined;
+
   const onPanelLeave = () => {
     sim.current.lastInteraction = clock();
   };
 
   return (
     <div ref={layoutRef} className={styles.layout}>
+      {backdrop ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          className={styles.backdrop}
+          src={backdrop.src}
+          alt=""
+          aria-hidden="true"
+          data-open={panel?.open ? "true" : "false"}
+        />
+      ) : null}
       <div className={`${styles.wrap} ${styles.cubeCol}`}>
         <div
           className={styles.stage}
@@ -831,10 +844,6 @@ export function SkillsCube() {
             </h2>
             {faceProjects[panelFace.id].map((p) => (
               <article key={p.name} className={styles.entry}>
-                {p.backdrop ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img className={styles.backdrop} src={p.backdrop.src} alt="" aria-hidden="true" />
-                ) : null}
                 {p.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img className={styles.thumb} src={p.image.src} alt={p.image.alt} />

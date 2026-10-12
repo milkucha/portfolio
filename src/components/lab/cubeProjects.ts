@@ -81,7 +81,7 @@ const provenance: PanelEntry = {
 
 const site: PanelEntry = {
   name: "Portfolio",
-  oneLiner: "CSS 3D cube driven by quaternions. No 3D library.",
+  oneLiner: "CSS 3D cube driven by quaternions.",
   highlights: [],
   stack: ["TypeScript", "React", "Next.js", "Tailwind CSS"],
   workflow: ["Claude Code"],

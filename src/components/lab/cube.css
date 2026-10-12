@@ -635,40 +635,47 @@
   object-fit: cover;
 }
 
-/* Decorative picture in the upper right of an entry: tilted, edges dissolved into the page, behind the text. */
-.lab-cube-entry:has(.lab-cube-backdrop) {
-  position: relative;
-  isolation: isolate;
-}
+/* Decorative picture in the upper right corner of the page (positioned against <main>), tilted, edges
+   dissolved into the page, behind everything. Shown only with a card whose project has a backdrop. */
 .lab-cube-backdrop {
   position: absolute;
   z-index: -1;
-  top: -3.25rem;
-  right: -3.5rem;
-  width: 17rem;
-  height: 11rem;
+  top: -2rem;
+  right: -3rem;
+  width: clamp(30rem, 54vw, 58rem);
+  aspect-ratio: 8 / 5;
   object-fit: cover;
-  opacity: 0.6;
+  opacity: 0;
   filter: saturate(1.2) brightness(1.08);
   pointer-events: none;
-  transform: perspective(48rem) rotateY(-10deg) rotate(8deg);
+  transform: perspective(60rem) rotateY(-10deg) rotate(8deg);
   transform-origin: 100% 0;
   -webkit-mask-image:
-    linear-gradient(to right, transparent, #000 38%, #000 62%, transparent),
-    linear-gradient(to bottom, transparent, #000 38%, #000 62%, transparent);
+    linear-gradient(to right, transparent, #000 50%, #000 75%, transparent),
+    linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent);
   -webkit-mask-composite: source-in;
   mask-image:
-    linear-gradient(to right, transparent, #000 38%, #000 62%, transparent),
-    linear-gradient(to bottom, transparent, #000 38%, #000 62%, transparent);
+    linear-gradient(to right, transparent, #000 50%, #000 75%, transparent),
+    linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent);
   mask-composite: intersect;
+  transition: opacity 600ms ease-out; /* FADE_MS */
+}
+.lab-cube-backdrop[data-open="true"] {
+  opacity: 0.55;
 }
 @media (max-width: 640px) {
   .lab-cube-backdrop {
-    top: -2.5rem;
-    right: -2rem;
-    width: 10rem;
-    height: 7rem;
-    opacity: 0.55;
+    top: -1.5rem;
+    right: -2.5rem;
+    width: 15rem;
+  }
+  .lab-cube-backdrop[data-open="true"] {
+    opacity: 0.5;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-cube-backdrop {
+    transition: none;
   }
 }
 
