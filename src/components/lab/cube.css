@@ -705,15 +705,23 @@
       --size: round(clamp(96px, min(42vw, 16svh), 280px), 2px);
     }
   }
-  /* Bio state: the cube grows so its box takes about half of the height above the menu bar
-     (100svh minus top padding, footer and menu bar is roughly 100svh - 100px; the box is 1.55 x --size).
-     Projects and contact keep the smaller size above; --size is registered so it can animate. */
+  /* Bio state: the text sits at the bottom of the content area (just above the menu bar) and the
+     cube is centred in the space left above it. Rows are 1fr / auto / auto: the stage is centred in
+     row 1. --bio-h is the (per width) height of the bio block, --rest the fixed chrome (top padding,
+     footer, menu bar, row gaps); the cube box (1.55 x --size) gets ~2rem of air above and below. */
+  .lab-cube-layout[data-mode="bio"] {
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    position: relative; /* abspos cards below resolve against their grid area */
+    --bio-h: 9.5rem;
+    --rest: 6.5rem;
+  }
   .lab-cube-layout[data-mode="bio"] .lab-cube-stage {
-    --size: clamp(96px, min(58vw, calc(32svh - 32px)), 280px);
+    --size: clamp(96px, min(58vw, calc((100svh - var(--rest) - var(--bio-h) - 4rem) / 1.55)), 280px);
+    align-self: center;
   }
   @supports (width: round(1px, 2px)) {
     .lab-cube-layout[data-mode="bio"] .lab-cube-stage {
-      --size: round(clamp(96px, min(58vw, calc(32svh - 32px)), 280px), 2px);
+      --size: round(clamp(96px, min(58vw, calc((100svh - var(--rest) - var(--bio-h) - 4rem) / 1.55)), 280px), 2px);
     }
   }
   .lab-cube-stage {
@@ -733,13 +741,23 @@
     -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.25rem), transparent);
     mask-image: linear-gradient(to bottom, #000 calc(100% - 1.25rem), transparent);
   }
-  /* Bio only: centred vertically in the zone. Safe centring falls back to top-aligned (and the
-     scroller) when the text is taller than the zone. */
+  /* Bio only: bottom-aligned in the zone (see the bio state rules above). */
   .lab-cube-intro {
     display: flex;
     flex-direction: column;
-    justify-content: safe center;
-    padding-top: 1.25rem; /* balances the bottom padding so the text is truly centred */
+    justify-content: safe end;
+  }
+  /* The hidden cards must not size row 2 (the bio block does), so they leave the flow in bio. */
+  .lab-cube-layout[data-mode="bio"] .lab-cube-panel,
+  .lab-cube-layout[data-mode="bio"] .lab-cube-contact {
+    position: absolute;
+    inset: 0 0 auto;
+    max-height: 100%;
+  }
+  .lab-cube-layout[data-mode="bio"] .lab-cube-intro {
+    grid-area: 2 / 1;
+    align-self: end;
+    padding-bottom: 0.75rem; /* air above the menu hairline */
   }
   .lab-cube-intro::-webkit-scrollbar,
   .lab-cube-panel::-webkit-scrollbar,
