@@ -1,9 +1,9 @@
 /** Bio copy for the lab page (the main site keeps site.bio). */
 export const INTRO_LINES = [
-  "Full-stack engineer building in Python, TypeScript and Java. Hybrid workflows with agentic tools.",
-  "Based in Berlin. Maintainer of a Minecraft mod with 550K+ downloads.",
+  "Building in Python, JS and Java. Hybrid workflows with agentic tools.",
+  "Open source as milkucha, maintainer of TRMT (550K+ downloads).",
   "Drawn to complex systems and behaviours.",
-  "Shipping open source as milkucha.",
+  "Based in Berlin.",
 ] as const;
 
 /** The handle, set in a cursive face wherever it appears in a line. */
