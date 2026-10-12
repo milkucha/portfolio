@@ -828,13 +828,24 @@ export function SkillsCube() {
               <span className={styles.swatch} aria-hidden="true" />
               {panelFace.name}
             </h2>
-            {faceProjects[panelFace.id].map((p) => (
+            {faceProjects[panelFace.id].map((p) => {
+              const titleLink =
+                p.links.find((l) => l.label === "GitHub") ?? (p.links.length === 1 ? p.links[0] : undefined);
+              return (
               <article key={p.name} className={styles.entry}>
                 {p.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img className={styles.thumb} src={p.image.src} alt={p.image.alt} />
                 ) : null}
-                <h3 className={styles.entryName}>{p.name}</h3>
+                <h3 className={styles.entryName}>
+                  {titleLink ? (
+                    <a href={titleLink.href} target="_blank" rel="noopener noreferrer">
+                      {p.name}
+                    </a>
+                  ) : (
+                    p.name
+                  )}
+                </h3>
                 <p className={styles.entryLine}>{p.oneLiner}</p>
                 {p.highlights.length > 0 ? (
                   <ul className={styles.highlights}>
@@ -870,7 +881,8 @@ export function SkillsCube() {
                   </p>
                 ) : null}
               </article>
-            ))}
+              );
+            })}
           </div>
         ) : null}
       </section>

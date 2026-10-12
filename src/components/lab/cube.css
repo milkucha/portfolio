@@ -575,6 +575,25 @@
   letter-spacing: -0.01em;
   line-height: 1.25;
 }
+/* Title link: reads as the title, thin faint underline at rest, full underline and rose on hover/focus (instant, no motion). */
+.lab-cube-entryName a {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+.lab-cube-entryName a:hover,
+.lab-cube-entryName a:focus-visible {
+  color: var(--link-hover);
+  text-decoration-color: currentColor;
+}
+.lab-cube-entryName a:focus-visible {
+  outline: 1px dashed var(--ink);
+  outline-offset: 3px;
+}
 
 .lab-cube-entryLine {
   margin: 0.375rem 0 0.75rem;

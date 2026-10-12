@@ -47,6 +47,7 @@ Tip: add `DELETE` or `ADD` notes in plain words if you want a line removed or a 
 *src/components/lab/cubeProjects.ts*. Each card has: name, one-liner, highlights (up to 3 for strong projects; fewer, often none, for weaker ones), tech chips (untitled), a footnote, link icons, and an optional thumbnail (none set yet).
 The footnote reads "Built with Claude Code" or "Built with Claude Code and OpenCode" (workflow tools joined
 with ", " and " and "); it is omitted when there are none. Cards are listed per domain.
+The card title is a link (new tab) to the GitHub link if the card has one, else to its only link if it has exactly one; otherwise it is plain text (Kucha, Arranca Cover).
 
 ### Backend
 

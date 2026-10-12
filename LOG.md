@@ -100,3 +100,4 @@ Not done / open:
 - Owner rule: no semicolons and no em-dashes in visible copy. TRMT one-liner restored to the owner wording and its first highlight uses a comma. The page <title> in layout.tsx is untouched (awaiting an owner decision).
 
 2026-10-12 later: backdrop pictures removed (owner: too busy); preserved on branch proto/cube-bio-pictures (fc70b3b); page title now 'Camilo Álvarez, Full-stack Developer'
+2026-10-12 later: project card titles now link (GitHub link if present, else the sole link, else plain text); icon row unchanged
