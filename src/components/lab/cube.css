@@ -495,9 +495,13 @@
   }
 }
 
-/* The handle in the last bio line: DM Mono's own italic, same size. */
+/* Bio accents: the handle (DM Mono's own italic, same size) and "550K+" in the accent pink. */
 .lab-cube-introHandle {
   font-style: italic;
+  color: var(--accent);
+}
+.lab-cube-introAccent {
+  color: var(--accent);
 }
 
 /* ---------- info panel ---------- */
@@ -676,6 +680,7 @@
 /* Hover/focus: the icon switches colour (instant, like the old inverted state; no frame, no motion). */
 .lab-cube-layout {
   --link-hover: #b56576;
+  --accent: #b56576;
 }
 .lab-cube-links a:hover,
 .lab-cube-links a:focus-visible {

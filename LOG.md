@@ -115,3 +115,5 @@ Not done / open:
 2026-10-12 later: legal pages: address filled (Ueckermünderstrasse 1, 10439 Berlin), phone removed everywhere, Draft notice now "Draft. Have it reviewed before launch."
 2026-10-12 later: Impressum: email is the only contact means; some lawyers expect a second means (phone or contact form): owner decided no phone
 2026-10-12 later: faces switcher hidden behind SHOW_FILL_SWITCH = false in SkillsCube.tsx (code kept); default fill now ghost; COPY.md section 7 and 8 updated and copied to the main worktree
+2026-10-12 later: bio accents: "milkucha" (italic) and "550K+" now in the accent pink #b56576 (--accent in cube.css, INTRO_ACCENTS in introText.ts); legal pages: visible "Draft" notice removed from LegalShell; COPY.md updated and copied to the main worktree
+- TODO: legal pages (impressum, datenschutz) still need review before launch; the page no longer says so

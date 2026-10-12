@@ -14,14 +14,11 @@ export function LegalShell({ title, children }: { title: string; children: React
           Back
         </Link>
         <h1
-          className="mt-8 mb-4 text-[2rem] leading-none font-normal tracking-[-0.02em]"
+          className="mt-8 mb-8 text-[2rem] leading-none font-normal tracking-[-0.02em]"
           style={{ fontFamily: "var(--font-league-spartan), var(--font-sans)" }}
         >
           {title}
         </h1>
-        <p className="mb-8 text-[0.75rem] opacity-70">
-          Draft. Have it reviewed before launch.
-        </p>
         <div className="space-y-6 [&_h2]:mb-1 [&_h2]:text-[0.875rem] [&_h2]:font-medium [&_p]:break-words">
           {children}
         </div>

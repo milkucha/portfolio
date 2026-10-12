@@ -6,5 +6,8 @@ export const INTRO_LINES = [
   "Minecraft mod maintainer, 550K+ downloads.",
 ] as const;
 
-/** The handle, set in a cursive face wherever it appears in a line. */
+/** The handle, set in italic (and the accent colour) wherever it appears in a line. */
 export const INTRO_HANDLE = "milkucha";
+
+/** Tokens set in the accent colour wherever they appear in a line (the handle also gets italic). */
+export const INTRO_ACCENTS = [INTRO_HANDLE, "550K+"] as const;

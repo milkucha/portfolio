@@ -14,8 +14,9 @@ Tip: add `DELETE` or `ADD` notes in plain words if you want a line removed or a 
 - line 1: Full-stack developer based in Berlin.
 - line 2: Python, TypeScript, Java, agentic tools.
 - line 3: Open source as milkucha.
-  - the word `milkucha` (in line 3) is set in italic
+  - the word `milkucha` (in line 3) is set in italic and in the accent pink (#b56576)
 - line 4: Minecraft mod maintainer, 550K+ downloads.
+  - `550K+` is set in the accent pink (not italic)
 
 ## 2. Menu (under the cube)
 
@@ -150,7 +151,7 @@ only icons, the labels above are their tooltips.
 ## 8. Footer and legal pages
 
 - footer labels (bottom of the lab page, mono, small): `Impressum · Datenschutz` (links to /impressum and /datenschutz)
-- drafts live at `src/app/impressum` and `src/app/datenschutz` (shared shell in `src/components/legal/LegalShell.tsx`), English, marked "Draft. Have it reviewed before launch."
+- drafts live at `src/app/impressum` and `src/app/datenschutz` (shared shell in `src/components/legal/LegalShell.tsx`), English, no visible draft note (still need review before launch, see LOG.md TODO)
 - address filled: Ueckermünderstrasse 1, 10439 Berlin. No phone number published; contact is by email only (milkucha@disroot.org).
 - page titles: Impressum, Datenschutz
 

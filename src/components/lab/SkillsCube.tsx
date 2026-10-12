@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent } from "react";
 import { cubeFaces, type FaceSlot } from "./cubeFaces";
-import { INTRO_HANDLE, INTRO_LINES } from "./introText";
+import { INTRO_ACCENTS, INTRO_HANDLE, INTRO_LINES } from "./introText";
 import { site } from "@/data/site";
 import {
   type Quat,
@@ -83,6 +83,7 @@ const styles = {
   introName: "lab-cube-introName",
   introBio: "lab-cube-introBio",
   introHandle: "lab-cube-introHandle",
+  introAccent: "lab-cube-introAccent",
   panelCard: "lab-cube-panelCard",
   panelHead: "lab-cube-panelHead",
   swatch: "lab-cube-swatch",
@@ -264,6 +265,11 @@ interface Sim {
   reduced: boolean;
   dirty: boolean;
 }
+
+/** Splits a bio line around the accent tokens (the capture group keeps them in the result). */
+const INTRO_ACCENT_RE = new RegExp(
+  `(${INTRO_ACCENTS.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`,
+);
 
 /** Event-handler clock (wrapped so the React compiler lint doesn't mistake handlers for render). */
 const clock = () => performance.now();
@@ -747,15 +753,17 @@ export function SkillsCube() {
         </h1>
         {INTRO_LINES.map((para) => (
           <p key={para} className={styles.introBio}>
-            {para.split(INTRO_HANDLE).flatMap((part, i) =>
-              i === 0
-                ? [part]
-                : [
-                    <span key={i} className={styles.introHandle}>
-                      {INTRO_HANDLE}
-                    </span>,
-                    part,
-                  ],
+            {para.split(INTRO_ACCENT_RE).map((part, i) =>
+              (INTRO_ACCENTS as readonly string[]).includes(part) ? (
+                <span
+                  key={i}
+                  className={part === INTRO_HANDLE ? styles.introHandle : styles.introAccent}
+                >
+                  {part}
+                </span>
+              ) : (
+                part
+              ),
             )}
           </p>
         ))}
