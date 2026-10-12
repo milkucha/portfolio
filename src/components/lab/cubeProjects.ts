@@ -21,7 +21,7 @@ export interface PanelEntry {
   /** Project (or card) name. */
   name: string;
   oneLiner: string;
-  /** At most 2 short factual points; weaker projects get none. */
+  /** Up to 3 short factual points for strong projects; fewer (often none) for weaker ones. */
   highlights: readonly string[];
   /** Optional thumbnail shown at the top of the card. */
   image?: { src: string; alt: string };
@@ -73,7 +73,11 @@ const oceana: PanelEntry = {
 const provenance: PanelEntry = {
   name: "Provenance",
   oneLiner: "World-building tool: AI agents write the language, plain code owns the world state.",
-  highlights: ["Simulated output and testing suite", "Model-agnostic and token-lean"],
+  highlights: [
+    "Multiple-pass simulation on 50+ characters, seeded and reproducible",
+    "Measurement scripts for drift, divergence and token usage",
+    "Model-agnostic",
+  ],
   stack: ["Python", "Ollama"],
   workflow: ["Claude Code", "OpenCode"],
   links: [{ label: "GitHub", href: "https://github.com/milkucha/provenance", icon: "github" }],

@@ -91,3 +91,4 @@ Not done / open:
 2026-10-12 later: TRMT backdrop moved from the card to the page's upper-right corner, larger, shown only with the Modding card
 - Rendered as a decorative `<img alt="" aria-hidden>` at the top of the layout wrapper in `SkillsCube.tsx` (source: the shown card's `PanelEntry.backdrop`); `<main>` is now `relative isolate` so it positions against the page corner. Opacity follows panel state (open), 600ms fade, none under reduced motion. CSS in `cube.css`: width clamp(30rem, 54vw, 58rem), top -2rem, right -3rem, rotateY(-10deg) rotate(8deg), mask softened toward the text, opacity 0.55 (0.5 and 15rem wide on phones). The old card-anchored rule and `:has()` CSS are gone.
 - Portfolio card one-liner shortened to "CSS 3D cube driven by quaternions."
+2026-10-12 later: Provenance highlights rewritten (multiple-pass simulation on 50+ characters, measurement scripts, model-agnostic); highlight limit relaxed to 3 for strong projects

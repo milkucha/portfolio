@@ -44,8 +44,7 @@ Tip: add `DELETE` or `ADD` notes in plain words if you want a line removed or a 
 
 ## 4. Project cards (right pane, PROJECTS)
 
-*src/components/lab/cubeProjects.ts*. Each card has: name, one-liner, highlights (at most 2; weaker
-projects get none), tech chips (untitled), a footnote, link icons, and an optional thumbnail (none set yet).
+*src/components/lab/cubeProjects.ts*. Each card has: name, one-liner, highlights (up to 3 for strong projects; fewer, often none, for weaker ones), tech chips (untitled), a footnote, link icons, and an optional thumbnail (none set yet).
 The footnote reads "Built with Claude Code" or "Built with Claude Code and OpenCode" (workflow tools joined
 with ", " and " and "); it is omitted when there are none. Cards are listed per domain.
 
@@ -74,8 +73,9 @@ with ", " and " and "); it is omitted when there are none. Cards are listed per 
 #### Provenance
 - one-liner: World-building tool: AI agents write the language, plain code owns the world state.
 - highlights:
-  - Simulated output and testing suite
-  - Model-agnostic and token-lean
+  - Multiple-pass simulation on 50+ characters, seeded and reproducible
+  - Measurement scripts for drift, divergence and token usage
+  - Model-agnostic
 - tech chips: Python, Ollama
 - footnote: Built with Claude Code and OpenCode
 - links: GitHub (https://github.com/milkucha/provenance)
