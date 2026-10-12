@@ -92,3 +92,9 @@ Not done / open:
 - Rendered as a decorative `<img alt="" aria-hidden>` at the top of the layout wrapper in `SkillsCube.tsx` (source: the shown card's `PanelEntry.backdrop`); `<main>` is now `relative isolate` so it positions against the page corner. Opacity follows panel state (open), 600ms fade, none under reduced motion. CSS in `cube.css`: width clamp(30rem, 54vw, 58rem), top -2rem, right -3rem, rotateY(-10deg) rotate(8deg), mask softened toward the text, opacity 0.55 (0.5 and 15rem wide on phones). The old card-anchored rule and `:has()` CSS are gone.
 - Portfolio card one-liner shortened to "CSS 3D cube driven by quaternions."
 2026-10-12 later: Provenance highlights rewritten (multiple-pass simulation on 50+ characters, measurement scripts, model-agnostic); highlight limit relaxed to 3 for strong projects
+
+2026-10-12 later: Applied AI/Provenance card has a page-corner backdrop (README image); backdrops preloaded and fade with the card
+- Image: the only picture in the remote README (https://i.imgur.com/cASXA69.png, 805x791 logo on dark graph art), edge border cropped, 1000px WebP at `public/lab/provenance.webp` (about 45 KB).
+- All backdrops are now mounted at once (`BACKDROPS` in `SkillsCube.tsx`) and only opacity changes, so each is loaded before use and fades with its card, including Modding to Applied AI. Optional per-picture tuning (`aspect`, `width`, `opacity`) in `PanelEntry.backdrop`, passed as CSS variables.
+- Provenance one-liner restored to the owner's wording.
+- Owner rule: no semicolons and no em-dashes in visible copy. TRMT one-liner restored to the owner wording and its first highlight uses a comma. The page <title> in layout.tsx is untouched (awaiting an owner decision).

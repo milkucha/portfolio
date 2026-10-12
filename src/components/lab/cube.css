@@ -642,8 +642,8 @@
   z-index: -1;
   top: -2rem;
   right: -3rem;
-  width: clamp(30rem, 54vw, 58rem);
-  aspect-ratio: 8 / 5;
+  width: var(--bd-width, clamp(30rem, 54vw, 58rem));
+  aspect-ratio: var(--bd-aspect, 8 / 5);
   object-fit: cover;
   opacity: 0;
   filter: saturate(1.2) brightness(1.08);
@@ -661,7 +661,7 @@
   transition: opacity 600ms ease-out; /* FADE_MS */
 }
 .lab-cube-backdrop[data-open="true"] {
-  opacity: 0.55;
+  opacity: var(--bd-opacity, 0.55);
 }
 @media (max-width: 640px) {
   .lab-cube-backdrop {
@@ -670,7 +670,7 @@
     width: 15rem;
   }
   .lab-cube-backdrop[data-open="true"] {
-    opacity: 0.5;
+    opacity: min(var(--bd-opacity, 0.55), 0.5);
   }
 }
 @media (prefers-reduced-motion: reduce) {

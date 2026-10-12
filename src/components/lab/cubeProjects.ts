@@ -26,7 +26,13 @@ export interface PanelEntry {
   /** Optional thumbnail shown at the top of the card. */
   image?: { src: string; alt: string };
   /** Optional decorative picture, tilted and faded into the upper right of the card behind the text. */
-  backdrop?: { src: string };
+  backdrop?: {
+    src: string;
+    /** Per-picture tuning of the page-corner picture (CSS values); defaults live in cube.css. */
+    aspect?: string;
+    width?: string;
+    opacity?: number;
+  };
   /** Chip labels, shown as-is. */
   stack: readonly string[];
   /** AI coding tools used on the project (shown apart from the stack); empty if none. */
@@ -38,9 +44,9 @@ export interface PanelEntry {
 
 const trmt: PanelEntry = {
   name: "The Roads More Travelled",
-  oneLiner: "Dynamic terrain mod for Minecraft: often-travelled routes erode into worn paths.",
+  oneLiner: "Dynamic terrain mod for Minecraft that erodes often-travelled routes turning them into realistic, yet vanilla-friendly worn paths.",
   highlights: [
-    "550K+ downloads across Modrinth and CurseForge; 86 GitHub stars",
+    "550K+ downloads across Modrinth and CurseForge, 86 GitHub stars",
     "Maintained across 4 Minecraft versions and 3 mod loaders (Fabric, Forge, NeoForge)",
   ],
   backdrop: { src: "/lab/trmt.webp" }, // Modrinth gallery, "Grass and Dirt Erosion"
@@ -72,12 +78,13 @@ const oceana: PanelEntry = {
 
 const provenance: PanelEntry = {
   name: "Provenance",
-  oneLiner: "World-building tool: AI agents write the language, plain code owns the world state.",
+  oneLiner: "World-building tool that grows a fictional society from an authored seed that drifts based on typed knowledge.",
   highlights: [
     "Multiple-pass simulation on 50+ characters, seeded and reproducible",
     "Measurement scripts for drift, divergence and token usage",
     "Model-agnostic",
   ],
+  backdrop: { src: "/lab/provenance.webp", aspect: "1 / 1", width: "clamp(22rem, 40vw, 40rem)", opacity: 0.42 }, // README logo
   stack: ["Python", "Ollama"],
   workflow: ["Claude Code", "OpenCode"],
   links: [{ label: "GitHub", href: "https://github.com/milkucha/provenance", icon: "github" }],

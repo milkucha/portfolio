@@ -224,6 +224,12 @@ const joinList = (xs: readonly string[]) =>
 const externalProps = (href: string) =>
   href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {};
 
+const BACKDROPS = [...new Map(
+  Object.values(faceProjects)
+    .flat()
+    .flatMap((p) => (p.backdrop ? [p.backdrop] : []))
+    .map((b) => [b.src, b]),
+).values()];
 const FADE_MS = 600; // panel crossfade; keep in step with cube.css
 const PICK_HOLD = 10000; // ms the cube stays put after a face is picked (button / arrow key)
 const IDLE_RAMP = 1.4; // s to ease idle speed in/out
@@ -597,8 +603,9 @@ export function SkillsCube() {
 
   const panelFace = panel ? cubeFaces.find((f) => f.slot === panel.slot) : undefined;
 
-  // Decorative page-corner picture of the shown card's project (kept mounted while it fades out).
-  const backdrop = panelFace ? faceProjects[panelFace.id].find((p) => p.backdrop)?.backdrop : undefined;
+  // Decorative page-corner pictures: every distinct one stays mounted (so it is loaded and decoded before it is
+  // needed) and only its opacity changes, in step with the card crossfade.
+  const shownBackdrop = panelFace ? faceProjects[panelFace.id].find((p) => p.backdrop)?.backdrop?.src : undefined;
 
   const onPanelLeave = () => {
     sim.current.lastInteraction = clock();
@@ -606,16 +613,25 @@ export function SkillsCube() {
 
   return (
     <div ref={layoutRef} className={styles.layout}>
-      {backdrop ? (
+      {BACKDROPS.map((b) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          key={b.src}
           className={styles.backdrop}
-          src={backdrop.src}
+          src={b.src}
           alt=""
           aria-hidden="true"
-          data-open={panel?.open ? "true" : "false"}
+          decoding="async"
+          data-open={panel?.open && shownBackdrop === b.src ? "true" : "false"}
+          style={
+            {
+              ...(b.aspect && { "--bd-aspect": b.aspect }),
+              ...(b.width && { "--bd-width": b.width }),
+              ...(b.opacity !== undefined && { "--bd-opacity": b.opacity }),
+            } as CSSProperties
+          }
         />
-      ) : null}
+      ))}
       <div className={`${styles.wrap} ${styles.cubeCol}`}>
         <div
           className={styles.stage}
