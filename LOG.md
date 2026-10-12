@@ -120,7 +120,9 @@ Not done / open:
 2026-10-12 later: bio accents darkened for contrast: #9e4d60 (4.9:1, --accent-text in cube.css) and font-weight 500; link hover keeps #b56576; COPY.md updated and copied to the main worktree
 2026-10-12 later: bio accent colour TEST: --accent-text now the light blue #7fb2d6 (1.95:1 on cream, below the 4.5:1 guideline; #3d6f99 would be 4.59:1); weight 500 and italic kept; link hover (#b56576) untouched; COPY.md updated and copied to the main worktree
 2026-10-12 later: next.config.ts allowedDevOrigins ["192.168.*.*"] for phone testing (needs a dev server restart)
+2026-10-12 later: allowedDevOrigins now ["100.*.*.*", "**.ts.net", "192.168.*.*"] for Tailscale phone testing (`**` because MagicDNS names have several labels; needs a dev server restart)
 
 ## Testing on a phone
 
-Phone on the same Wi-Fi as the PC; open http://<PC LAN IP>:3001/lab/cube (currently 192.168.2.124). WSL runs in mirrored networking mode. If it will not load, allow inbound TCP 3001 in Windows Firewall.
+Setup is Tailscale (phone and dev machine both on the tailnet): open http://100.98.244.7:3001/lab/cube (or the machine's MagicDNS name, e.g. desktop.<tailnet>.ts.net:3001) on the phone. No Windows firewall step is needed because Tailscale runs inside WSL. The 192.168.x LAN route (same Wi-Fi, mirrored networking) is only a fallback.
+2026-10-12 later: bio accent colour now the darker palette blue #3d6f99 (4.59:1 on cream, passes 4.5:1; owner tried pink #9e4d60, then light blue #7fb2d6); --accent-text in cube.css; weight 500 and italic kept; COPY.md updated and copied to the main worktree
