@@ -18,7 +18,7 @@ import {
   toMatrix3d,
 } from "./quat";
 import { faceProjects } from "./cubeProjects";
-import { LinkIcon } from "./linkIcons";
+import { LinkIcon, type LinkIconName } from "./linkIcons";
 import "./cube.css";
 
 /* ---------- view tilt + spin: hand-tweak these ---------- */
@@ -213,6 +213,13 @@ const INITIAL_TRANSFORM = transformFor(INITIAL_Q);
 const IDLE_SPEED = TUMBLE_DEG_PER_S * DEG; // rad/s around the tumble axis
 const PRECESS_SPEED = PRECESS_DEG_PER_S * DEG; // rad/s the tumble axis circles the vertical
 const IDLE_DELAY = 3500; // ms of no interaction before idle resumes
+/** Contact entries shown as icons instead of text. */
+const CONTACT_ICONS: Partial<Record<string, LinkIconName>> = { YouTube: "youtube", LinkedIn: "linkedin" };
+const contactText = site.contact.filter((c) => !CONTACT_ICONS[c.label]);
+const contactIcons = site.contact.filter((c) => CONTACT_ICONS[c.label]);
+const externalProps = (href: string) =>
+  href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {};
+
 const FADE_MS = 600; // panel crossfade; keep in step with cube.css
 const PICK_HOLD = 10000; // ms the cube stays put after a face is picked (button / arrow key)
 const IDLE_RAMP = 1.4; // s to ease idle speed in/out
@@ -229,7 +236,6 @@ interface Sim {
   lastInteraction: number;
   holdUntil: number; // idle stays off until this time (after an explicit pick)
   idleBlend: number; // 0..1
-  hovering: boolean;
   focused: boolean;
   /** Pointer over / keyboard focus inside the info panel: counts as interacting (no idle). */
   panelHover: boolean;
@@ -288,7 +294,6 @@ export function SkillsCube() {
     lastInteraction: -Infinity,
     holdUntil: 0,
     idleBlend: 0,
-    hovering: false,
     focused: false,
     panelHover: false,
     panelFocus: false,
@@ -422,7 +427,6 @@ export function SkillsCube() {
         const allowed =
           !s.reduced &&
           s.onscreen &&
-          !s.hovering &&
           !s.focused &&
           !s.panelHover &&
           !s.panelFocus &&
@@ -603,16 +607,6 @@ export function SkillsCube() {
           role="group"
           aria-roledescription="rotating cube"
           aria-label="Skills cube. Use the arrow keys to rotate."
-          onPointerEnter={(e) => {
-            if (e.pointerType !== "mouse") return;
-            sim.current.hovering = true;
-            settle();
-          }}
-          onPointerLeave={(e) => {
-            if (e.pointerType !== "mouse") return;
-            sim.current.hovering = false;
-            sim.current.lastInteraction = clock();
-          }}
           onFocus={(e) => {
             // Only keyboard focus pauses idle; a mouse/touch drag shouldn't pin it until blur.
             if (!e.currentTarget.matches(":focus-visible")) return;
@@ -769,17 +763,24 @@ export function SkillsCube() {
       >
         <h2 className={styles.panelHead}>Contact</h2>
         <ul className={styles.contactList}>
-          {site.contact.map((c) => (
-            <li key={c.href} className={styles.contactRow}>
+          {contactText.map((c, i) => (
+            <li key={c.href} className={styles.contactRow} style={{ "--i": i } as CSSProperties}>
               <span className={styles.contactLabel}>{c.label}</span>
-              <a
-                href={c.href}
-                {...(c.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              >
+              <a href={c.href} {...externalProps(c.href)}>
                 {c.display}
               </a>
             </li>
           ))}
+          <li className={styles.contactRow} style={{ "--i": contactText.length } as CSSProperties}>
+            <span className={styles.contactLabel}>Elsewhere</span>
+            <span className={styles.links}>
+              {contactIcons.map((c) => (
+                <a key={c.href} href={c.href} aria-label={c.label} title={c.label} {...externalProps(c.href)}>
+                  <LinkIcon name={CONTACT_ICONS[c.label]!} />
+                </a>
+              ))}
+            </span>
+          </li>
         </ul>
       </section>
 
