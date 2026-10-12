@@ -22,4 +22,3 @@ Next.js 16 differs from older versions; see `AGENTS.md` and `node_modules/next/d
 - Copy: `COPY.md` lists every visible text. Edit it, then the text is applied in `src/components/lab/` and `src/data/site.ts`.
 - Cube page: `src/components/lab/`. Legal pages: `src/app/impressum`, `src/app/datenschutz`.
 - `/lab/cube` redirects to `/` (308).
-- History, archive branches and tags, backup bundle, restore recipe and cut-over notes: `LOG.md`.
