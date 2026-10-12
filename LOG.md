@@ -102,3 +102,4 @@ Not done / open:
 2026-10-12 later: backdrop pictures removed (owner: too busy); preserved on branch proto/cube-bio-pictures (fc70b3b); page title now 'Camilo Álvarez, Full-stack Developer'
 2026-10-12 later: project card titles now link (GitHub link if present, else the sole link, else plain text); icon row unchanged
 2026-10-12 later: title links have no underline; rose on hover is the only cue
+2026-10-12 later: TRMT chips removed as a test; old list in a comment in cubeProjects.ts

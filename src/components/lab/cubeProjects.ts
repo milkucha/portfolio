@@ -41,7 +41,7 @@ const trmt: PanelEntry = {
     "550K+ downloads across Modrinth and CurseForge, 86 GitHub stars",
     "Maintained across 4 Minecraft versions and 3 mod loaders (Fabric, Forge, NeoForge)",
   ],
-  stack: ["Java", "Gradle", "Minecraft", "Fabric", "Forge", "NeoForge", "GitHub Actions"],
+  stack: [], // was: Java, Gradle, Minecraft, Fabric, Forge, NeoForge, GitHub Actions
   workflow: ["Claude Code"],
   links: [
     { label: "GitHub", href: "https://github.com/milkucha/trmt", icon: "github" },

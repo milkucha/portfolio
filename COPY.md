@@ -88,7 +88,7 @@ The card title is a link (new tab) to the GitHub link if the card has one, else 
 - highlights:
   - 550K+ downloads across Modrinth and CurseForge, 86 GitHub stars
   - Maintained across 4 Minecraft versions and 3 mod loaders (Fabric, Forge, NeoForge)
-- tech chips: Java, Gradle, Minecraft, Fabric, Forge, NeoForge, GitHub Actions
+- tech chips: (none, test)
 - footnote: Built with Claude Code
 - links: GitHub (https://github.com/milkucha/trmt), Modrinth (https://modrinth.com/mod/the-roads-more-travelled), CurseForge (https://www.curseforge.com/minecraft/mc-mods/the-roads-more-travelled), YouTube (https://www.youtube.com/watch?v=OvsNVaFiK1Y)
 

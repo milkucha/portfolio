@@ -854,13 +854,15 @@ export function SkillsCube() {
                     ))}
                   </ul>
                 ) : null}
-                <ul className={styles.chips} aria-label="Tech">
-                  {p.stack.map((t) => (
-                    <li key={t} className={styles.chip}>
-                      {t}
-                    </li>
-                  ))}
-                </ul>
+                {p.stack.length > 0 ? (
+                  <ul className={styles.chips} aria-label="Tech">
+                    {p.stack.map((t) => (
+                      <li key={t} className={styles.chip}>
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
                 {p.workflow.length > 0 ? (
                   <p className={styles.footnote}>Built with {joinList(p.workflow)}</p>
                 ) : null}
