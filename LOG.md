@@ -105,3 +105,4 @@ Not done / open:
 2026-10-12 later: TRMT chips removed as a test; old list in a comment in cubeProjects.ts
 2026-10-12 later: cube face label larger: name 0.085 -> 0.102 of --size (+20%), hint 0.052 -> 0.068 (+30%); fits at all sizes
 2026-10-12 later: TRMT chips restored (chips are the readable stack while the cube spins); ghost fill 82% -> 92% opaque
+2026-10-12 later: chips sweep: Oceana drops REST APIs; Provenance adds LLM agents; TRMT drops loaders and GitHub Actions (not used by the owner); Git deliberately not a chip

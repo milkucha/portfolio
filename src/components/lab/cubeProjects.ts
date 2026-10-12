@@ -41,7 +41,7 @@ const trmt: PanelEntry = {
     "550K+ downloads across Modrinth and CurseForge, 86 GitHub stars",
     "Maintained across 4 Minecraft versions and 3 mod loaders (Fabric, Forge, NeoForge)",
   ],
-  stack: ["Java", "Gradle", "Minecraft", "Fabric", "Forge", "NeoForge", "GitHub Actions"],
+  stack: ["Java", "Gradle", "Minecraft"],
   workflow: ["Claude Code"],
   links: [
     { label: "GitHub", href: "https://github.com/milkucha/trmt", icon: "github" },
@@ -62,7 +62,7 @@ const oceana: PanelEntry = {
     "Settlement engine for taxes, fees, commissions and multi-currency revenue-share splits",
     "Reservation ingestion from a property-management system's REST API",
   ],
-  stack: ["Python", "TypeScript", "Django", "PostgreSQL", "Docker", "REST APIs"],
+  stack: ["Python", "TypeScript", "Django", "PostgreSQL", "Docker"],
   workflow: ["Claude Code", "OpenCode"],
   links: [{ label: "Website", href: "https://www.oceanasuites.com", icon: "web" }],
 };
@@ -75,7 +75,7 @@ const provenance: PanelEntry = {
     "Measurement scripts for drift, divergence and token usage",
     "Model-agnostic",
   ],
-  stack: ["Python", "Ollama"],
+  stack: ["Python", "Ollama", "LLM agents"],
   workflow: ["Claude Code", "OpenCode"],
   links: [{ label: "GitHub", href: "https://github.com/milkucha/provenance", icon: "github" }],
 };

@@ -56,7 +56,7 @@ The card title is a link (new tab) to the GitHub link if the card has one, else 
 - highlights:
   - Settlement engine for taxes, fees, commissions and multi-currency revenue-share splits
   - Reservation ingestion from a property-management system's REST API
-- tech chips: Python, TypeScript, Django, PostgreSQL, Docker, REST APIs
+- tech chips: Python, TypeScript, Django, PostgreSQL, Docker
 - footnote: Built with Claude Code and OpenCode
 - links: Website (https://www.oceanasuites.com)
 
@@ -77,7 +77,7 @@ The card title is a link (new tab) to the GitHub link if the card has one, else 
   - Multiple-pass simulation on 50+ characters, seeded and reproducible
   - Measurement scripts for drift, divergence and token usage
   - Model-agnostic
-- tech chips: Python, Ollama
+- tech chips: Python, Ollama, LLM agents
 - footnote: Built with Claude Code and OpenCode
 - links: GitHub (https://github.com/milkucha/provenance)
 
@@ -88,7 +88,7 @@ The card title is a link (new tab) to the GitHub link if the card has one, else 
 - highlights:
   - 550K+ downloads across Modrinth and CurseForge, 86 GitHub stars
   - Maintained across 4 Minecraft versions and 3 mod loaders (Fabric, Forge, NeoForge)
-- tech chips: Java, Gradle, Minecraft, Fabric, Forge, NeoForge, GitHub Actions
+- tech chips: Java, Gradle, Minecraft
 - footnote: Built with Claude Code
 - links: GitHub (https://github.com/milkucha/trmt), Modrinth (https://modrinth.com/mod/the-roads-more-travelled), CurseForge (https://www.curseforge.com/minecraft/mc-mods/the-roads-more-travelled), YouTube (https://www.youtube.com/watch?v=OvsNVaFiK1Y)
 
