@@ -434,17 +434,15 @@
   line-height: 0.95;
 }
 .lab-cube-introBio {
-  margin: 0 0 0.75rem;
+  margin: 0;
   font-family: var(--font-dm-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: 0.875rem;
   line-height: 1.55;
 }
 
-/* The handle in the last bio line: cursive, a touch larger to match the mono x-height. */
+/* The handle in the last bio line: DM Mono's own italic, same size. */
 .lab-cube-introHandle {
-  font-family: var(--font-caveat), cursive;
-  font-size: 1.3em;
-  line-height: 1;
+  font-style: italic;
 }
 
 /* ---------- info panel ---------- */
