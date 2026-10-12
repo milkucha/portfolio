@@ -8,6 +8,8 @@ export const palette = {
   tertiary: "#f7ece1", // cream, page background
   quaternary: "#6d597a", // purple
   quinary: "#b56576", // rose
+  senary: "#f4e285", // pastel yellow
+  septenary: "#7fb2d6", // light blue
 } as const;
 
 export type PaletteColor = (typeof palette)[keyof typeof palette];
@@ -30,24 +32,24 @@ export interface CubeFace {
   ink: FaceInk;
 }
 
-const { primary: black, secondary: blue, tertiary: cream, quaternary: purple, quinary: rose } = palette;
+const { primary: black, tertiary: cream, quaternary: purple, quinary: rose, senary: yellow, septenary: lightBlue } = palette;
 
 /**
  * Edit me. Order here = button order. Each slot must be used exactly once.
- * The equator (front/right/back/left) holds the four software domains idle spin cycles through.
  *
- * Colours: cream is used twice, on the opposite top/bottom "lids", so every pair of adjacent faces
- * differs and the idle spin (front/right/back/left) shows the four saturated colours.
- * WCAG contrast of the chosen ink on each fill (the other ink in brackets):
- *   blue   + black 6.04 (cream 2.95)    purple + cream 5.37 (black 3.32)
- *   rose   + black 5.03 (cream 3.55)    black  + cream 17.82
- *   cream  + black 17.82
+ * Slots follow the ring front > bottom > right > back > left > top (each step a quarter turn), so
+ * a sequential spin could walk the list in order. Opposite faces are three steps apart in the list:
+ * Backend/Modding, Frontend/Game dev, Applied AI/Design, so black and cream sit opposite each
+ * other and every pair of adjacent faces differs in colour.
+ * WCAG contrast of the chosen ink on each fill:
+ *   purple + cream 5.37    light blue + black 9.13    rose   + black 5.03
+ *   black  + cream 17.82   yellow     + black 15.87   cream  + black 17.82
  */
 export const cubeFaces: readonly CubeFace[] = [
-  { id: "backend", name: "Backend", hint: "Python · Django · PostgreSQL · Docker", slot: "front", color: blue, ink: black },
-  { id: "frontend", name: "Frontend", hint: "TypeScript · React · Next.js · Tailwind CSS", slot: "right", color: purple, ink: cream },
-  { id: "ai", name: "Applied AI", hint: "Python · Ollama · LLM agents", slot: "back", color: rose, ink: black },
-  { id: "gamedev", name: "Game dev", hint: "Godot · GDScript · Aseprite", slot: "left", color: black, ink: cream },
-  { id: "modding", name: "Modding", hint: "Java · Gradle · Minecraft", slot: "bottom", color: cream, ink: black },
+  { id: "backend", name: "Backend", hint: "Python · Django · PostgreSQL · Docker", slot: "front", color: purple, ink: cream },
+  { id: "frontend", name: "Frontend", hint: "TypeScript · React · Next.js · Tailwind CSS", slot: "bottom", color: lightBlue, ink: black },
+  { id: "ai", name: "Applied AI", hint: "Python · Ollama · LLM agents", slot: "right", color: black, ink: cream },
+  { id: "modding", name: "Modding", hint: "Java · Gradle · Minecraft", slot: "back", color: rose, ink: black },
+  { id: "gamedev", name: "Game dev", hint: "Godot · GDScript · Aseprite", slot: "left", color: yellow, ink: black },
   { id: "design", name: "Design", hint: "Figma · Blender · MagicaVoxel", slot: "top", color: cream, ink: black },
 ];
