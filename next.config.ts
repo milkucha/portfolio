@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   allowedDevOrigins: ["100.*.*.*", "**.ts.net", "192.168.*.*"],
+  async redirects() {
+    return [{ source: "/lab/cube", destination: "/", permanent: true }];
+  },
   turbopack: {
     rules: {
       "*.css": {

@@ -124,7 +124,7 @@ Not done / open:
 
 ## Testing on a phone
 
-Setup is Tailscale (phone and dev machine both on the tailnet): open http://100.98.244.7:3001/lab/cube (or the machine's MagicDNS name, e.g. desktop.<tailnet>.ts.net:3001) on the phone. No Windows firewall step is needed because Tailscale runs inside WSL. The 192.168.x LAN route (same Wi-Fi, mirrored networking) is only a fallback.
+Setup is Tailscale (phone and dev machine both on the tailnet): open http://<tailnet IP>:3001/lab/cube (or the machine's MagicDNS name, e.g. desktop.<tailnet>.ts.net:3001) on the phone. No Windows firewall step is needed because Tailscale runs inside WSL. The 192.168.x LAN route (same Wi-Fi, mirrored networking) is only a fallback.
 2026-10-12 later: bio accent colour now the darker palette blue #3d6f99 (4.59:1 on cream, passes 4.5:1; owner tried pink #9e4d60, then light blue #7fb2d6); --accent-text in cube.css; weight 500 and italic kept; COPY.md updated and copied to the main worktree
 
 ## Archive (2026-10-12)
@@ -166,10 +166,18 @@ At <=640px the page is one screen with no page scroll, three zones top to bottom
 - Content zone (row 2): bio, project card and contact still share one grid cell and crossfade in place. Each is its own scroller (`overflow-y: auto`, bottom mask fade). Only this zone scrolls, and only when a card is taller than the zone (360x740 backend by ~2px, 375x667 Modding and Backend by 36 to 57px).
 - Menu zone (row 3): three equal columns BIO / PROJECTS / CONTACT, 44px tall, a 1px ink hairline above (top border of the three buttons). The six domain buttons unroll upward as a 3x2 grid above the bar (max-height transition, staggered slide-up and fade, 44px cells). The hover lift is disabled on phones.
 - Measured page scroll height equals window height (no page scroll) at 390x844, 360x740, 375x667 and 430x932, in bio, projects and contact states.
-- Test on a phone over Tailscale: http://100.98.244.7:3001/lab/cube
+- Test on a phone over Tailscale: http://<tailnet IP>:3001/lab/cube
 - 2026-10-12 Phone bio: intro block vertically centred in the content zone (flex column, safe center, balanced top padding); projects and contact cards unchanged. Measured gaps above/below equal (205/205 at 390x844, 170/170 at 360x740).
 - 2026-10-12 Phone bio: cube grows in the BIO state (--size clamp(96px, min(58vw, 32svh - 32px), 280px), stage box about 46-48% of the height above the menu) and contracts to the projects/contact size with a 450ms --size transition (@property --size registered inside the phone block; layout wrapper exposes data-mode="bio|projects|contact"). Desktop untouched.
 - 2026-10-12 Phone bio: text now bottom-aligned just above the menu bar (20px gap to the hairline); cube centred in the space above it (BIO grid rows 1fr/auto/auto, hidden panel/contact cards go absolute in bio so they do not size row 2; --size derived from 100svh minus --rest/--bio-h, capped at 58vw/280px). Removed the balancing padding-top. Projects/contact unchanged. Cube 226/208/218/250px at 390x844/360x740/375x667/430x932; no page scroll.
 - 2026-10-12 Desktop menu text larger: BIO/PROJECTS/CONTACT 13px -> 14px, domain buttons 11px -> 12px. Single-row (nowrap) faces now starts at 1120px (was 961px) because the six names need about 413px and the cube column is narrower below that; 641-1119px wraps. Phone block pins its menu font-size at 0.8125rem so phones are unchanged.
 - 2026-10-12 Owner preferred the smaller menu text; a8ad97f reverted.
 - 2026-10-12 Phone mode switch: replaced the animated --size (and @property --size) with FLIP on the stage (instant layout, 450ms WAAPI translate+scale on the stage, will-change only while running, phones only, skipped for reduced motion and first render). Measured at 390x844 over ~700ms after tapping PROJECTS: LayoutDuration 38ms -> 11ms, RecalcStyleDuration 22ms -> 9ms; LayoutCount 31 -> 25 (remaining layouts come from the menu max-height unroll, not the stage). Desktop untouched.
+
+## 2026-10-12: Launch prep
+
+- The cube page is now the site root: `src/app/page.tsx` is the former `src/app/lab/cube/page.tsx` (moved, component renamed `Home`, lab-only title and noindex metadata removed so the layout title and description apply). `/lab/cube` is a permanent redirect (308) to `/` via `redirects()` in next.config.ts. Legal pages' Back link now points to `/`.
+- Old one-page components and data (Nav, ProjectGraph, ProjectList, src/data/*) are kept, unused.
+- Production build (Next 16.4.0, Turbopack, run in a throwaway copy): success. Routes `/`, `/_not-found`, `/datenschutz`, `/impressum` all static. This version prints no First Load JS column; JS referenced by `/` is about 183 KB gzipped.
+- eslint and tsc clean. Smoke test with `next start`: `/` 200 (contains bio line and Impressum link), `/lab/cube` 308 to `/`, legal pages 200.
+- Privacy scrub: Tailscale and LAN IPs in LOG.md and COPY.md replaced by placeholders.

@@ -10,7 +10,7 @@ export function LegalShell({ title, children }: { title: string; children: React
       style={{ fontFamily: MONO }}
     >
       <div className="mx-auto max-w-[38rem] text-[0.875rem] leading-[1.65]">
-        <Link href="/lab/cube" className="text-[0.75rem] underline underline-offset-2 hover:opacity-70">
+        <Link href="/" className="text-[0.75rem] underline underline-offset-2 hover:opacity-70">
           Back
         </Link>
         <h1
