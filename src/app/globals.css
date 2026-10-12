@@ -7,6 +7,7 @@
   --color-tertiary: #f7ece1;   /* cream: main text, borders */
   --color-quaternary: #6d597a; /* muted purple */
   --color-quinary: #b56576;    /* dusty rose: project nodes */
+  --color-senary: #f4e285;     /* pastel yellow: Design face */
 
   /* Tech-node categories: shades of the secondary blue, blending toward the purple. */
   --color-cat-language: #4c91bf;
