@@ -156,3 +156,14 @@ export PATH="$HOME/.nvm/versions/node/v24.21.0/bin:$PATH"
 npm run dev -- -p <port>
 ```
 From the bundle only (if the repo is lost): `git clone /home/milkucha/portfolio-archive/cube-lab-archive.bundle restored`.
+
+## Phone layout: one locked screen (2026-10-12)
+
+At <=640px the page is one screen with no page scroll, three zones top to bottom. Desktop (>=641px) is untouched: every change is inside `@media (max-width: 640px)` in src/components/lab/cube.css, plus two hook classes (`lab-cube-page`, `lab-cube-footer`) and `viewportFit: "cover"` in src/app/lab/cube/page.tsx.
+
+- Page: `main` is a flex column, `height: 100svh` then `100dvh`; the layout grid has rows `auto minmax(0, 1fr) auto`; the footer sits under the bar with `env(safe-area-inset-bottom)` padding.
+- Cube zone: the cube column is `display: contents`, so stage, content cell and menu are children of the one grid. Cube size is `clamp(96px, min(42vw, 16svh), 280px)`, so a short phone shrinks the cube first.
+- Content zone (row 2): bio, project card and contact still share one grid cell and crossfade in place. Each is its own scroller (`overflow-y: auto`, bottom mask fade). Only this zone scrolls, and only when a card is taller than the zone (360x740 backend by ~2px, 375x667 Modding and Backend by 36 to 57px).
+- Menu zone (row 3): three equal columns BIO / PROJECTS / CONTACT, 44px tall, a 1px ink hairline above (top border of the three buttons). The six domain buttons unroll upward as a 3x2 grid above the bar (max-height transition, staggered slide-up and fade, 44px cells). The hover lift is disabled on phones.
+- Measured page scroll height equals window height (no page scroll) at 390x844, 360x740, 375x667 and 430x932, in bio, projects and contact states.
+- Test on a phone over Tailscale: http://100.98.244.7:3001/lab/cube

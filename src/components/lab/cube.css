@@ -222,43 +222,6 @@
   grid-column: 1;
   grid-row: 3;
 }
-@media (max-width: 640px) {
-  .lab-cube-menu {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .lab-cube-menuBio,
-  .lab-cube-menuProjects,
-  .lab-cube-menuFaces,
-  .lab-cube-menuContact {
-    grid-column: 1;
-    grid-row: auto;
-  }
-  /* Phones: the closed faces row takes no space and opens with a height transition; the buttons
-     keep their staggered slide-in. The menu's row gap moves into the row's own padding so the
-     collapsed row leaves no gap behind (grid tracks can't go negative). */
-  .lab-cube-menu {
-    row-gap: 0;
-  }
-  .lab-cube-menuFaces {
-    max-height: 0;
-    padding-block: 0;
-    overflow: hidden;
-    transition:
-      max-height 300ms cubic-bezier(0.23, 1, 0.32, 1),
-      padding-block 300ms cubic-bezier(0.23, 1, 0.32, 1);
-  }
-  .lab-cube-menuFaces[data-open="true"] {
-    max-height: 7rem;
-    padding-block: 0.25rem;
-    overflow: visible;
-  }
-}
-@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
-  .lab-cube-menuFaces {
-    transition: none;
-  }
-}
-
 .lab-cube-buttons,
 .lab-cube-lab {
   display: flex;
@@ -693,4 +656,139 @@
 .lab-cube-links a:focus-visible {
   outline: 1px dashed var(--ink);
   outline-offset: 3px;
+}
+
+/* ---------- phones (<= 640px): one locked screen ----------
+   Three zones top to bottom: cube / content (bio, project card or contact, crossfading in place) /
+   menu bar pinned at the bottom. The DOM order is unchanged; the cube column becomes display: contents
+   so the stage, the content cell and the menu are children of the one layout grid. The PROJECTS
+   options unroll upward as a 3x2 grid above the bar. Only the content zone ever scrolls. */
+@media (max-width: 640px) {
+  .lab-cube-page {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    height: 100svh;
+    height: 100dvh;
+    min-height: 0;
+    padding: max(0.75rem, env(safe-area-inset-top)) 0 0;
+  }
+  .lab-cube-footer {
+    flex: none;
+    margin: 0;
+    padding: 0.5rem 1.5rem calc(0.5rem + env(safe-area-inset-bottom));
+    line-height: 1.5;
+  }
+  .lab-cube-layout {
+    flex: 1 1 auto;
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    row-gap: 0.5rem;
+  }
+  .lab-cube-cubeCol {
+    display: contents;
+  }
+
+  /* Cube zone: the size follows the available height, so a short phone shrinks the cube first. */
+  .lab-cube-stage {
+    --size: clamp(96px, min(42vw, 16svh), 280px);
+    grid-area: 1 / 1;
+    height: calc(var(--size) * 1.55);
+  }
+  @supports (width: round(1px, 2px)) {
+    .lab-cube-stage {
+      --size: round(clamp(96px, min(42vw, 16svh), 280px), 2px);
+    }
+  }
+
+  /* Content zone: the three cards keep sharing grid cell 2 / 1. If one is taller than the zone it
+     scrolls on its own, with a soft fade at the bottom edge. */
+  .lab-cube-intro,
+  .lab-cube-panel,
+  .lab-cube-contact {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: 1.25rem;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.25rem), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 1.25rem), transparent);
+  }
+  .lab-cube-intro::-webkit-scrollbar,
+  .lab-cube-panel::-webkit-scrollbar,
+  .lab-cube-contact::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Menu zone: faces grid (row 1, unrolls upward), then one bar row of three equal columns. */
+  .lab-cube-menu {
+    grid-area: 3 / 1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    align-self: end;
+    gap: 0;
+    width: 100%;
+    padding: 0;
+    text-align: center;
+  }
+  .lab-cube-menuBio,
+  .lab-cube-menuProjects,
+  .lab-cube-menuContact {
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0;
+    border-top: 1px solid var(--ink);
+    justify-self: stretch;
+    text-align: center;
+  }
+  .lab-cube-menuBio {
+    grid-column: 1;
+  }
+  .lab-cube-menuProjects {
+    grid-column: 2;
+  }
+  .lab-cube-menuContact {
+    grid-column: 3;
+  }
+  /* The closed row takes no space; it opens with a height transition and the buttons slide up. */
+  .lab-cube-menuFaces {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    font-size: 0.75rem;
+    gap: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .lab-cube-menuFaces[data-open="true"] {
+    max-height: 6rem;
+  }
+  .lab-cube-menuFaces > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0;
+    transform: translateY(0.75rem);
+  }
+  .lab-cube-menuFaces[data-open="true"] > button {
+    transform: none;
+  }
+  /* No hover lift on phones: taps leave :hover behind and the row clips overflow. */
+  .lab-cube-menuFaces > button:hover .lab-cube-faceName,
+  .lab-cube-menuFaces > button:focus-visible .lab-cube-faceName {
+    transform: none;
+  }
+}
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .lab-cube-menuFaces,
+  .lab-cube-menuFaces > button,
+  .lab-cube-menuFaces[data-open="true"] > button {
+    transition: none;
+  }
 }
