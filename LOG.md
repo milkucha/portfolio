@@ -126,3 +126,33 @@ Not done / open:
 
 Setup is Tailscale (phone and dev machine both on the tailnet): open http://100.98.244.7:3001/lab/cube (or the machine's MagicDNS name, e.g. desktop.<tailnet>.ts.net:3001) on the phone. No Windows firewall step is needed because Tailscale runs inside WSL. The 192.168.x LAN route (same Wi-Fi, mirrored networking) is only a fallback.
 2026-10-12 later: bio accent colour now the darker palette blue #3d6f99 (4.59:1 on cream, passes 4.5:1; owner tried pink #9e4d60, then light blue #7fb2d6); --accent-text in cube.css; weight 500 and italic kept; COPY.md updated and copied to the main worktree
+
+## Archive (2026-10-12)
+
+proto/cube-bio is the version that goes to Vercel later. The other prototypes are saved as local tags (and kept as branches where noted). Nothing was merged to main and nothing was pushed; the cut-over order from earlier in this log still applies.
+
+Tags (all local, `git tag -l 'archive/*'`):
+- archive/cube-sections: proto/cube-sections, the three-section page (bio, cube carousel, contact); branch kept
+- archive/cube-spin-loop: proto/cube-spin-loop, spin version (was port 3005); branch kept
+- archive/cube-spin-flow: proto/cube-spin-flow, spin version with yellow Design face (was port 3006); branch kept
+- archive/cube-spin-tumble: proto/cube-spin-tumble, tumble with black nav and typed-name loop (was port 3003); branch kept
+- archive/cube-spin-cycle: spin cycle variant, unused; branch deleted
+- archive/cube-spin-steps: spin steps variant, unused; branch deleted
+- archive/cube-bio-pictures: proto/cube-bio-pictures, the version with backdrop pictures; branch kept
+
+Other branches untouched: proto/cube-bio, proto/cube, main, nextjs-rewrite, graph/obsidian.
+
+Backup bundle (all refs): /home/milkucha/portfolio-archive/cube-lab-archive.bundle (verified with `git bundle verify`).
+
+Removed: the worktrees portfolio-spin-tumble, -loop, -flow, -cycle, -steps and the dev servers on ports 3000, 3003, 3005, 3006. The port map in the older parts of this log is historical; only 3001 (portfolio-bio) stays.
+
+Restore recipe:
+```
+git worktree add ../portfolio-spin-loop proto/cube-spin-loop
+# for a deleted branch: git worktree add -b proto/cube-spin-cycle ../portfolio-spin-cycle archive/cube-spin-cycle
+cp -al ~/portfolio-bio/node_modules ../portfolio-spin-loop/node_modules   # Turbopack rejects symlinks
+cd ../portfolio-spin-loop
+export PATH="$HOME/.nvm/versions/node/v24.21.0/bin:$PATH"
+npm run dev -- -p <port>
+```
+From the bundle only (if the repo is lost): `git clone /home/milkucha/portfolio-archive/cube-lab-archive.bundle restored`.
