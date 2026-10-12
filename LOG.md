@@ -98,3 +98,5 @@ Not done / open:
 - All backdrops are now mounted at once (`BACKDROPS` in `SkillsCube.tsx`) and only opacity changes, so each is loaded before use and fades with its card, including Modding to Applied AI. Optional per-picture tuning (`aspect`, `width`, `opacity`) in `PanelEntry.backdrop`, passed as CSS variables.
 - Provenance one-liner restored to the owner's wording.
 - Owner rule: no semicolons and no em-dashes in visible copy. TRMT one-liner restored to the owner wording and its first highlight uses a comma. The page <title> in layout.tsx is untouched (awaiting an owner decision).
+
+2026-10-12 later: backdrop pictures removed (owner: too busy); preserved on branch proto/cube-bio-pictures (fc70b3b); page title now 'Camilo Álvarez, Full-stack Developer'

@@ -20,7 +20,7 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Camilo Álvarez — Portfolio",
+  title: "Camilo Álvarez, Full-stack Developer",
   description: "Portfolio of Camilo Álvarez, software developer: projects, skills and contact.",
 };
 

@@ -14,7 +14,7 @@ export const viewport: Viewport = {
 
 export default function CubeLabPage() {
   return (
-    <main className="relative isolate min-h-svh overflow-x-clip bg-[#f7ece1] pt-6 pb-16 text-[#020202]">
+    <main className="min-h-svh overflow-x-clip bg-[#f7ece1] pt-6 pb-16 text-[#020202]">
       <SkillsCube />
     </main>
   );
