@@ -37,10 +37,10 @@ const { primary: black, tertiary: cream, quaternary: purple, quinary: rose, sena
 /**
  * Edit me. Order here = button order. Each slot must be used exactly once.
  *
- * Slots follow the ring front > bottom > right > back > left > top (each step a quarter turn), so
- * a sequential spin could walk the list in order. Opposite faces are three steps apart in the list:
- * Backend/Modding, Frontend/Game dev, Applied AI/Design, so black and cream sit opposite each
- * other and every pair of adjacent faces differs in colour.
+ * Opposite faces are front/back, right/left and top/bottom, so: Backend/Modding (purple/rose),
+ * Applied AI/Design (black/cream) and Frontend/Game dev (light blue/yellow). Black and cream sit
+ * opposite each other, and every pair of adjacent faces differs in colour. (Spin order is a tumble,
+ * so slots do not follow the list order.)
  * WCAG contrast of the chosen ink on each fill:
  *   purple + cream 5.37    light blue + black 9.13    rose   + black 5.03
  *   black  + cream 17.82   yellow     + black 15.87   cream  + black 17.82
@@ -50,6 +50,6 @@ export const cubeFaces: readonly CubeFace[] = [
   { id: "frontend", name: "Frontend", hint: "TypeScript · React · Next.js · Tailwind CSS", slot: "bottom", color: lightBlue, ink: black },
   { id: "ai", name: "Applied AI", hint: "Python · Ollama · LLM agents", slot: "right", color: black, ink: cream },
   { id: "modding", name: "Modding", hint: "Java · Gradle · Minecraft", slot: "back", color: rose, ink: black },
-  { id: "gamedev", name: "Game dev", hint: "Godot · GDScript · Aseprite", slot: "left", color: yellow, ink: black },
-  { id: "design", name: "Design", hint: "Figma · Blender · MagicaVoxel", slot: "top", color: cream, ink: black },
+  { id: "gamedev", name: "Game dev", hint: "Godot · GDScript · Aseprite", slot: "top", color: yellow, ink: black },
+  { id: "design", name: "Design", hint: "Figma · Blender · MagicaVoxel", slot: "left", color: cream, ink: black },
 ];

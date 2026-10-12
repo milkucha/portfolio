@@ -213,6 +213,7 @@ const INITIAL_TRANSFORM = transformFor(INITIAL_Q);
 const IDLE_SPEED = TUMBLE_DEG_PER_S * DEG; // rad/s around the tumble axis
 const PRECESS_SPEED = PRECESS_DEG_PER_S * DEG; // rad/s the tumble axis circles the vertical
 const IDLE_DELAY = 3500; // ms of no interaction before idle resumes
+const FADE_MS = 600; // panel crossfade; keep in step with cube.css
 const PICK_HOLD = 10000; // ms the cube stays put after a face is picked (button / arrow key)
 const IDLE_RAMP = 1.4; // s to ease idle speed in/out
 const SPRING_K = 140; // stiffness (natural freq ~11.8 rad/s)
@@ -244,6 +245,11 @@ interface Sim {
   entry: boolean;
   /** Face the panel currently shows, null when hidden. Mirrors React state for the rAF loop. */
   panelSlot: FaceSlot | null;
+  /** Projects mode (PROJECTS open): the panel follows whichever face is in front, spinning or not. */
+  follow: boolean;
+  /** Face the panel is heading for (differs from panelSlot during a crossfade). */
+  wantSlot: FaceSlot | null;
+  fadeTimer: ReturnType<typeof setTimeout> | null;
   /** Faces currently pointing toward the viewer (to spot the moment one comes into view). */
   vis: Record<FaceSlot, boolean>;
   panelSeq: number;
@@ -297,6 +303,9 @@ export function SkillsCube() {
     panelHover: false,
     panelFocus: false,
     phase: 0,
+    follow: false,
+    wantSlot: null,
+    fadeTimer: null,
     entry: true,
     panelSlot: null,
     vis: Object.fromEntries(SLOT_NAMES.map((n) => [n, faceZ(INITIAL_Q, n) > 0])) as Record<FaceSlot, boolean>,
@@ -339,8 +348,57 @@ export function SkillsCube() {
       });
       io.observe(el);
     }
-    return () => io?.disconnect();
+    return () => {
+      io?.disconnect();
+      if (s.fadeTimer) clearTimeout(s.fadeTimer);
+    };
   }, []);
+
+  /* ---------- info panel ---------- */
+
+  /** Show the panel for `slot` (null hides it, keeping the last content to fade out). Cancels any crossfade in flight. */
+  const showPanel = (slot: FaceSlot | null) => {
+    const s = sim.current;
+    const pending = s.fadeTimer !== null;
+    if (s.fadeTimer) {
+      clearTimeout(s.fadeTimer);
+      s.fadeTimer = null;
+    }
+    s.wantSlot = slot;
+    if (s.panelSlot === slot) {
+      if (pending && slot !== null) setPanel((p) => p && { ...p, open: true }); // fade-out interrupted
+      return;
+    }
+    s.panelSlot = slot;
+    if (slot === null) {
+      setPanel((p) => p && { ...p, open: false });
+      return;
+    }
+    setContactOpen(false); // choosing a face, any way, replaces the contact card
+    s.panelSeq += 1;
+    setPanel({ slot, seq: s.panelSeq, open: true });
+  };
+
+  /** Projects mode: fade the current card out, then swap in `slot`'s. Only acts when the face changes. */
+  const crossfadeTo = (slot: FaceSlot) => {
+    const s = sim.current;
+    if (s.wantSlot === slot) return;
+    s.wantSlot = slot;
+    if (s.fadeTimer) clearTimeout(s.fadeTimer);
+    const swap = () => {
+      s.fadeTimer = null;
+      s.panelSlot = slot;
+      s.panelSeq += 1;
+      setContactOpen(false);
+      setPanel({ slot, seq: s.panelSeq, open: true });
+    };
+    if (s.panelSlot === null) {
+      swap(); // nothing showing yet: no fade-out to wait for
+      return;
+    }
+    setPanel((p) => p && { ...p, open: false });
+    s.fadeTimer = setTimeout(swap, s.reduced ? 0 : FADE_MS);
+  };
 
   // The one animation loop: the only writer of the cube's transform.
   useEffect(() => {
@@ -404,7 +462,7 @@ export function SkillsCube() {
         const ramp = s.entry ? ENTRY_RAMP : IDLE_RAMP;
         s.idleBlend = Math.min(1, Math.max(0, s.idleBlend + (allowed ? dt : -dt) / ramp));
         if (s.idleBlend >= 1) s.entry = false;
-        if (s.idleBlend > 0 && s.panelSlot !== null) {
+        if (s.idleBlend > 0 && s.panelSlot !== null && !s.follow) {
           // Spinning again: the panel no longer describes the front face.
           s.panelSlot = null;
           setPanel((p) => p && { ...p, open: false });
@@ -444,6 +502,9 @@ export function SkillsCube() {
           }
           s.vis[slotName] = visible;
         }
+        // Projects mode: the card follows the front face while it spins or is dragged. A snap already
+        // named its target, so the faces passed on the way there don't flicker the card.
+        if (s.follow && s.mode !== "spring") crossfadeTo(frontSlot(s.q));
       }
       raf = requestAnimationFrame(tick);
     };
@@ -453,23 +514,18 @@ export function SkillsCube() {
 
   /* ---------- commands ---------- */
 
-  /** Show the panel for `slot` (null hides it, keeping the last content to fade out). */
-  const showPanel = (slot: FaceSlot | null) => {
+  /** PROJECTS: open the menu and show the card of the face in front right away; it then follows the spin. */
+  const openProjects = () => {
     const s = sim.current;
-    if (s.panelSlot === slot) return;
-    s.panelSlot = slot;
-    if (slot === null) {
-      setPanel((p) => p && { ...p, open: false });
-      return;
-    }
-    setContactOpen(false); // choosing a face, any way, replaces the contact card
-    s.panelSeq += 1;
-    setPanel({ slot, seq: s.panelSeq, open: true });
+    s.follow = true;
+    setProjectsOpen(true);
+    showPanel(frontSlot(s.q));
   };
 
   /** BIO: back to the intro. Closes any card and lets the idle spin resume straight away. */
   const showBio = () => {
     const s = sim.current;
+    s.follow = false;
     showPanel(null);
     setContactOpen(false);
     s.lastInteraction = -Infinity;
@@ -479,6 +535,7 @@ export function SkillsCube() {
   /** CONTACT: replaces the intro or project card with the contact card; the cube idles on its own. */
   const showContact = () => {
     const s = sim.current;
+    s.follow = false;
     showPanel(null);
     setContactOpen(true);
     s.lastInteraction = clock();
@@ -550,7 +607,7 @@ export function SkillsCube() {
     s.mode = "drag";
     s.idleBlend = 0;
     s.entry = false;
-    showPanel(null);
+    if (!s.follow) showPanel(null);
     s.lastInteraction = clock();
     s.holdUntil = 0; // a drag is a fresh interaction with the normal idle delay
     setDragging(true);
@@ -673,7 +730,7 @@ export function SkillsCube() {
           <button
             type="button"
             className={`${styles.button} ${styles.menuLabel} ${styles.menuBio}`}
-            aria-pressed={!contactOpen && !panel?.open}
+            aria-pressed={!contactOpen && !projectsOpen && !panel?.open}
             onClick={() => {
               setProjectsOpen(false);
               showBio();
@@ -687,7 +744,14 @@ export function SkillsCube() {
             className={`${styles.button} ${styles.menuLabel} ${styles.menuProjects}`}
             aria-expanded={projectsOpen}
             aria-controls="lab-cube-faces"
-            onClick={() => setProjectsOpen((o) => !o)}
+            onClick={() => {
+              if (projectsOpen) {
+                setProjectsOpen(false);
+                showBio();
+              } else {
+                openProjects();
+              }
+            }}
           >
             Projects
           </button>
@@ -744,8 +808,8 @@ export function SkillsCube() {
       <section
         className={styles.intro}
         aria-labelledby="lab-cube-intro-title"
-        data-open={panel?.open || contactOpen ? "false" : "true"}
-        inert={!!panel?.open || contactOpen}
+        data-open={panel?.open || contactOpen || projectsOpen ? "false" : "true"}
+        inert={!!panel?.open || contactOpen || projectsOpen}
       >
         <h1 id="lab-cube-intro-title" className={styles.introName}>
           {site.name}
