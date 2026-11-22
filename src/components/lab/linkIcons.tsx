@@ -21,6 +21,16 @@ const BRAND_PATHS: Record<Exclude<LinkIconName, "web">, string> = {
     "M18.326 9.2145S23.2261 8.4418 24 6.1882h-7.5066V4.4H0l2.0318 2.3576V9.173s5.1267-.2665 7.1098 1.2372c2.7146 2.516-3.053 5.917-3.053 5.917L5.0995 19.6c1.5465-1.4726 4.494-3.3775 9.8983-3.2857-2.0565.65-4.1245 1.6651-5.7344 3.2857h10.9248l-1.0288-3.2726s-7.918-4.6688-.8336-7.1127z",
 };
 
+/** Eye outline for the "view full image" button; same 24x24 box and stroke style as the globe. */
+export function EyeIcon(): ReactElement {
+  return (
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+      <path d="M1.75 12S5.75 5.25 12 5.25 22.25 12 22.25 12 18.25 18.75 12 18.75 1.75 12 1.75 12Z" />
+      <circle cx="12" cy="12" r="3.25" />
+    </svg>
+  );
+}
+
 export function LinkIcon({ name }: { name: LinkIconName }): ReactElement {
   if (name === "web") {
     return (

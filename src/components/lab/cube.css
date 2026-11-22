@@ -832,3 +832,145 @@
     transition: none;
   }
 }
+
+/* ---------- eye button + full-size image viewer ---------- */
+/* The eye button sits in the links row and looks like the bare link icons. */
+.lab-cube-links button {
+  display: inline-grid;
+  place-items: center;
+  margin: 0;
+  padding: 0.125rem;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.375rem;
+  line-height: 1;
+  opacity: 0.85;
+  cursor: pointer;
+}
+.lab-cube-links button:hover,
+.lab-cube-links button:focus-visible {
+  opacity: 1;
+  color: var(--link-hover);
+}
+.lab-cube-links button:focus-visible {
+  outline: 1px dashed var(--ink);
+  outline-offset: 3px;
+}
+
+/* Modal <dialog>: lives in the browser's top layer, so it sits above the whole page. The dialog itself is
+   just an invisible full-screen catcher (click outside the picture to close); the page behind stays
+   visible, dimmed and blurred. The picture gets a white frame. */
+.lab-cube-viewer {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+}
+.lab-cube-viewer[open] {
+  display: grid;
+  place-items: center;
+}
+.lab-cube-viewer::backdrop {
+  background: rgba(2, 2, 2, 0.32);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.lab-cube-viewerImg {
+  display: block;
+  box-sizing: border-box;
+  width: auto;
+  height: auto;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  border: 0.75rem solid #fff;
+  background: #fff;
+  object-fit: contain;
+  box-shadow: 0 1.25rem 3.5rem rgba(2, 2, 2, 0.45);
+}
+@media (min-width: 641px) {
+  .lab-cube-viewerImg {
+    max-width: calc(100vw - 6rem);
+    max-height: calc(100vh - 5rem);
+    max-height: calc(100dvh - 5rem);
+    border-width: 1rem;
+  }
+}
+.lab-cube-viewerClose {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top, 0px));
+  right: max(0.75rem, env(safe-area-inset-right, 0px));
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid #020202;
+  border-radius: 50%;
+  background: #fff;
+  color: #020202;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.lab-cube-viewerClose:hover,
+.lab-cube-viewerClose:focus-visible {
+  background: #020202;
+  color: #fff;
+}
+.lab-cube-viewerClose:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+/* Viewer motion: fade the backdrop and pop the framed picture in; fade out again on close.
+   Keep the closing duration (180ms) in step with CLOSE_MS in SkillsCube.tsx. */
+@keyframes lab-cube-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes lab-cube-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes lab-cube-pop-in {
+  from { opacity: 0; transform: translateY(0.75rem) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes lab-cube-pop-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(0.5rem) scale(0.98); }
+}
+.lab-cube-viewer[open]::backdrop {
+  animation: lab-cube-fade-in 240ms ease-out both;
+}
+.lab-cube-viewer[open] .lab-cube-viewerImg {
+  animation: lab-cube-pop-in 300ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+.lab-cube-viewer[open] .lab-cube-viewerClose {
+  animation: lab-cube-fade-in 300ms ease-out both;
+}
+.lab-cube-viewer[data-closing="true"]::backdrop {
+  animation: lab-cube-fade-out 180ms ease-in both;
+}
+.lab-cube-viewer[data-closing="true"] .lab-cube-viewerImg {
+  animation: lab-cube-pop-out 180ms ease-in both;
+}
+.lab-cube-viewer[data-closing="true"] .lab-cube-viewerClose {
+  animation: lab-cube-fade-out 180ms ease-in both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-cube-viewer[open]::backdrop,
+  .lab-cube-viewer[open] .lab-cube-viewerImg,
+  .lab-cube-viewer[open] .lab-cube-viewerClose,
+  .lab-cube-viewer[data-closing="true"]::backdrop,
+  .lab-cube-viewer[data-closing="true"] .lab-cube-viewerImg,
+  .lab-cube-viewer[data-closing="true"] .lab-cube-viewerClose {
+    animation: none;
+  }
+}

@@ -18,7 +18,7 @@ import {
   toMatrix3d,
 } from "./quat";
 import { faceProjects } from "./cubeProjects";
-import { LinkIcon, type LinkIconName } from "./linkIcons";
+import { EyeIcon, LinkIcon, type LinkIconName } from "./linkIcons";
 import "./cube.css";
 
 /* ---------- view tilt + spin: hand-tweak these ---------- */
@@ -96,7 +96,13 @@ const styles = {
   thumb: "lab-cube-thumb",
   chip: "lab-cube-chip",
   links: "lab-cube-links",
+  viewer: "lab-cube-viewer",
+  viewerImg: "lab-cube-viewerImg",
+  viewerClose: "lab-cube-viewerClose",
 } as const;
+
+/** Fade-out length of the image viewer (ms); keep equal to the 180ms closing animations in cube.css. */
+const VIEWER_CLOSE_MS = 180;
 
 /* ---------- geometry ---------- */
 
@@ -246,6 +252,8 @@ interface Sim {
   /** Pointer over / keyboard focus inside the info panel: counts as interacting (no idle). */
   panelHover: boolean;
   panelFocus: boolean;
+  /** The full-image viewer is open: the cube stays still behind it. */
+  lightbox: boolean;
   /** Precession phase (rad) of the tumble axis. */
   phase: number;
   /** Still in the first, on-load spin-up (uses the short ENTRY_RAMP). */
@@ -310,6 +318,7 @@ export function SkillsCube() {
     focused: false,
     panelHover: false,
     panelFocus: false,
+    lightbox: false,
     phase: 0,
     follow: false,
     wantSlot: null,
@@ -329,6 +338,9 @@ export function SkillsCube() {
   const [contactOpen, setContactOpen] = useState(false);
   /** PROJECTS menu unrolled: the face buttons are hidden until it is opened. */
   const [projectsOpen, setProjectsOpen] = useState(false);
+  /** Full-size image viewer (a modal <dialog> outside the panel, so it survives the panel fading out). */
+  const [viewer, setViewer] = useState<{ src: string; alt: string } | null>(null);
+  const viewerRef = useRef<HTMLDialogElement>(null);
 
   const mode = contactOpen ? "contact" : projectsOpen || panel?.open ? "projects" : "bio";
 
@@ -491,6 +503,7 @@ export function SkillsCube() {
           !s.focused &&
           !s.panelHover &&
           !s.panelFocus &&
+          !s.lightbox &&
           now - s.lastInteraction > IDLE_DELAY &&
           now > s.holdUntil;
         const ramp = s.entry ? ENTRY_RAMP : IDLE_RAMP;
@@ -657,6 +670,32 @@ export function SkillsCube() {
   const onPanelLeave = () => {
     sim.current.lastInteraction = clock();
   };
+
+  // Close with a fade: flag the dialog (CSS plays the fade-out), then really close it. Reduced motion closes at once.
+  const closeViewer = () => {
+    const d = viewerRef.current;
+    if (!d || !d.open || d.dataset.closing) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      d.close();
+      return;
+    }
+    d.dataset.closing = "true";
+    window.setTimeout(() => {
+      delete d.dataset.closing;
+      if (d.open) d.close();
+    }, VIEWER_CLOSE_MS);
+  };
+
+  // Open the viewer as a modal (top layer, Esc to close, focus returns to the eye button).
+  useEffect(() => {
+    const d = viewerRef.current;
+    sim.current.lightbox = viewer !== null;
+    if (!viewer) {
+      sim.current.lastInteraction = clock();
+      return;
+    }
+    if (d && !d.open) d.showModal();
+  }, [viewer]);
 
   return (
     <div
@@ -933,8 +972,18 @@ export function SkillsCube() {
                 {p.workflow.length > 0 ? (
                   <p className={styles.footnote}>Built with {joinList(p.workflow)}</p>
                 ) : null}
-                {p.links.length > 0 ? (
+                {p.links.length > 0 || p.showcase ? (
                   <p className={styles.links}>
+                    {p.showcase ? (
+                      <button
+                        type="button"
+                        aria-label={`View full image of ${p.name}`}
+                        title="View full image"
+                        onClick={() => setViewer(p.showcase ?? null)}
+                      >
+                        <EyeIcon />
+                      </button>
+                    ) : null}
                     {p.links.map((l) => (
                       <a
                         key={l.href}
@@ -955,6 +1004,36 @@ export function SkillsCube() {
           </div>
         ) : null}
       </section>
+
+      {/* Full-size image viewer: modal <dialog> (top layer). Backdrop click or Esc closes it. */}
+      <dialog
+        ref={viewerRef}
+        className={styles.viewer}
+        aria-label={viewer ? viewer.alt : "Full-size image"}
+        onClose={() => setViewer(null)}
+        onCancel={(e) => {
+          e.preventDefault(); // Esc: fade out instead of vanishing
+          closeViewer();
+        }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) closeViewer();
+        }}
+      >
+        {viewer ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className={styles.viewerImg} src={viewer.src} alt={viewer.alt} />
+            <button
+              type="button"
+              className={styles.viewerClose}
+              aria-label="Close image"
+              onClick={closeViewer}
+            >
+              ×
+            </button>
+          </>
+        ) : null}
+      </dialog>
     </div>
   );
 }

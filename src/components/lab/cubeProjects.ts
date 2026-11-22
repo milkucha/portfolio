@@ -25,6 +25,8 @@ export interface PanelEntry {
   highlights: readonly string[];
   /** Optional thumbnail shown at the top of the card. */
   image?: { src: string; alt: string };
+  /** Optional full-size picture: an eye button on the card opens it over the whole page. */
+  showcase?: { src: string; alt: string };
   /** Chip labels, shown as-is. */
   stack: readonly string[];
   /** AI coding tools used on the project (shown apart from the stack); empty if none. */
@@ -113,16 +115,36 @@ const design: PanelEntry = {
   name: "Arranca Cover",
   oneLiner: "Voxel art isometric city. Hand authored model, Minecraft to Blender pipeline.",
   highlights: [],
+  showcase: {
+    src: "/arranca-cover-full.webp",
+    alt: "Isometric voxel-art render of a city district with a railway station, apartment blocks and a tower",
+  },
   stack: ["Blender", "MagicaVoxel", "Python"],
   workflow: [],
   links: [],
+};
+
+const cartography: PanelEntry = {
+  name: "Cartography",
+  oneLiner: "Terrain map and long-range routing for LLM-driven Minecraft bots.",
+  highlights: [
+    "Tested head to head: 60 long trips, same LLM, fixed seed, 95% confidence intervals",
+    "Arrives 2.9x as often as vanilla Mindcraft (100% vs 35%)",
+    "6.6x less token consumption per run",
+  ],
+  stack: ["Python", "Java", "Node.js", "LLM agents"],
+  workflow: ["Claude Code"],
+  links: [
+    { label: "GitHub (service)", href: "https://github.com/milkucha/cartography-service", icon: "github" },
+    { label: "GitHub (Mindcraft fork)", href: "https://github.com/milkucha/mindcraft-ce-cartography", icon: "github" },
+  ],
 };
 
 /** Edit me: which project(s) each face's panel lists, in order. */
 export const faceProjects: Record<FaceId, readonly PanelEntry[]> = {
   backend: [oceana],
   frontend: [site],
-  ai: [provenance],
+  ai: [provenance, cartography],
   modding: [trmt],
   gamedev: [icarus, kucha],
   design: [design],
